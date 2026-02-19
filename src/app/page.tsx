@@ -78,7 +78,7 @@ export default function Home() {
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* Hero Section */}
         <section className="mb-16 text-center">
-          <Badge variant="info" className="mb-4">
+          <Badge variant="verified" className="mb-4">
             <Rocket className="mr-1 h-3 w-3" />
             v0.1.0
           </Badge>
@@ -246,21 +246,20 @@ export default function Home() {
                 <CardTitle>Badges</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Default</Badge>
-                  <Badge variant="success">
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Success
-                  </Badge>
-                  <Badge variant="warning">
-                    <AlertTriangle className="mr-1 h-3 w-3" />
-                    Warning
-                  </Badge>
-                  <Badge variant="danger">Danger</Badge>
-                  <Badge variant="info">
-                    <Info className="mr-1 h-3 w-3" />
-                    Info
-                  </Badge>
+                <div className="flex flex-wrap gap-2 mb-0.5">
+                  <Badge variant="pending">Registered</Badge>
+                  <Badge variant="verified">Verified</Badge>
+                  <Badge variant="complete">Paid</Badge>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-0.5">
+                  <Badge variant="pending">Registered</Badge>
+                  <Badge variant="verified">Verified</Badge>
+                  <Badge variant="complete">Paid</Badge>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-0.5">
+                  <Badge variant="end">EVENT ENDED</Badge>
+                  <Badge variant="pending">NOT YET STARTED</Badge>
+                  <Badge variant="complete">AVAILABLE</Badge>
                 </div>
               </CardContent>
             </Card>
@@ -441,7 +440,7 @@ export default function Home() {
             Wildcat Frontend &mdash; Built with Next.js, Tailwind CSS & Lucide Icons
           </p>
           <div className="flex items-center gap-2">
-            <Badge variant="success">
+            <Badge variant="complete">
               <CheckCircle className="mr-1 h-3 w-3" />
               Ready
             </Badge>
