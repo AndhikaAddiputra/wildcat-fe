@@ -4,6 +4,9 @@ import { useState } from "react";
 import {
   Button,
   Card,
+  CardSmall,    
+  CardMedium,   
+  CardLarge,
   CardHeader,
   CardTitle,
   CardDescription,
@@ -36,6 +39,7 @@ import {
   Shield,
   Globe,
   Rocket,
+  Copy,
 } from "lucide-react";
 
 export default function Home() {
@@ -43,6 +47,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
       {/* Header */}
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -169,66 +175,88 @@ export default function Home() {
         {/* Cards Section */}
         <section className="mb-16">
           <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Cards
+            Competition Cards
           </h2>
           <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-            Flexible card components for displaying content.
+            Custom card designs based on Figma layout.
           </p>
 
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            <Card>
-              <CardHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-900/30">
-                  <Shield className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+          <div className="flex flex-col gap-10">
+            {/* Card Small */}
+            <CardSmall>
+              <CardHeader className="p-10">
+                <div className="flex justify-between items-start mb-6">
+                  <CardTitle className="text-[36px] font-semibold text-[#F1E1B4] leading-[54px]">
+                    [Competition_Full Name]
+                  </CardTitle>
+                  
+                  <div
+                    className="w-[80px] h-[80px] border-[7px] shrink-0"
+                    style={{
+                      borderColor: '#F6911E',
+                      backgroundImage: `linear-gradient(to bottom right, transparent calc(50% - 3px), #F6911E calc(50% - 3px), #F6911E calc(50% + 3px), transparent calc(50% + 3px))`
+                    }}
+                  >
+                  </div>
                 </div>
-                <CardTitle>Secure by Default</CardTitle>
-                <CardDescription>
-                  Built with security best practices and type safety in mind.
+                
+                <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] opacity-100 text-[20px]">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
                 </CardDescription>
               </CardHeader>
-            </Card>
+              
+              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+                <button className="bg-[#F6911E] text-[#0A2D6E] px-8 py-3 rounded-[20px] flex items-center gap-3 hover:opacity-90 transition-opacity font-['Manrope'] font-bold text-[20px]">
+                  Learn More
+                  <Copy className="w-[23px] h-[23px] stroke-[2px]" />
+                </button>
+              </CardFooter>
+            </CardSmall>
 
-            <Card>
-              <CardHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-900/30">
-                  <Zap className="h-5 w-5 text-green-600 dark:text-green-400" />
+            {/* Card Medium */}
+            <CardMedium>
+              <CardHeader className="p-10 pb-6">
+                <div 
+                  className="border-2 rounded-[20px] mb-6 flex items-center justify-center gap-[10px]"
+                  style={{ 
+                    width: '200px', 
+                    height: '40px', 
+                    borderColor: '#34C759', 
+                    color: '#34C759' 
+                  }}
+                >
+                  <div className="w-[10px] h-[10px] rounded-full bg-[#34C759]"></div>
+                    <span className="font-['Manrope'] font-bold text-[16px] tracking-wide">
+                      AVAILABLE
+                    </span>
                 </div>
-                <CardTitle>Lightning Fast</CardTitle>
-                <CardDescription>
-                  Optimized for performance with server-side rendering.
+                
+                <CardTitle className="mb-4 text-[36px] font-semibold text-[#F1E1B4] leading-tight">
+                  [Event_FullName]
+                </CardTitle>
+                
+                <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] opacity-100 text-[20px]">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
                 </CardDescription>
               </CardHeader>
-            </Card>
+              
+              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+                <button className="bg-[#F6911E] text-[#0A2D6E] px-8 py-3 rounded-[20px] flex items-center gap-3 hover:opacity-90 transition-opacity font-['Manrope'] font-bold text-[20px]">
+                  Learn More
+                  <Copy className="w-[23px] h-[23px] stroke-[2px]" />
+                </button>
+              </CardFooter>
+            </CardMedium>
 
-            <Card>
-              <CardHeader>
-                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-900/30">
-                  <Globe className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                </div>
-                <CardTitle>Fully Responsive</CardTitle>
-                <CardDescription>
-                  Components that look great on any screen size.
-                </CardDescription>
+            {/* Card Large */}
+            <CardLarge>
+              <CardHeader className="p-10">
+                <CardTitle className="text-[36px] font-semibold text-[#F1E1B4] leading-tight">
+                  [FullPage_Card]
+                </CardTitle>
               </CardHeader>
-            </Card>
+            </CardLarge>
           </div>
-
-          <Card className="mt-6">
-            <CardHeader>
-              <CardTitle>Project Details</CardTitle>
-              <CardDescription>A card with header, content, and footer.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">
-                This is an example of a full card component with all sections. You can compose
-                cards using CardHeader, CardContent, and CardFooter sub-components.
-              </p>
-            </CardContent>
-            <CardFooter className="gap-3">
-              <Button size="sm">Save Changes</Button>
-              <Button variant="outline" size="sm">Cancel</Button>
-            </CardFooter>
-          </Card>
         </section>
 
         {/* Badges & Avatars */}
