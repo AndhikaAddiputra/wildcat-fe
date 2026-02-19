@@ -21,7 +21,7 @@ const CompetitionCardBase = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEle
       ref={ref}
       className={cn(
         "rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] font-['Poppins']",
-        "shadow-[0_0_20px_rgba(246,145,60,100)]",
+        "shadow-[0_0_10px_4px_rgba(246,145,60,1)]",
         className
       )}
       {...props}
