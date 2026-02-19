@@ -78,7 +78,7 @@ export default function Home() {
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* Hero Section */}
         <section className="mb-16 text-center">
-          <Badge variant="verified" className="mb-4">
+          <Badge variant="default" className="mb-4">
             <Rocket className="mr-1 h-3 w-3" />
             v0.1.0
           </Badge>
@@ -241,15 +241,15 @@ export default function Home() {
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <Card>
+            <Card className="overflow-auto">
               <CardHeader>
                 <CardTitle>Badges</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex flex-row gap-2">
                 <div className="flex flex-wrap gap-2 mb-0.5">
-                  <Badge variant="pending">Registered</Badge>
-                  <Badge variant="verified">Verified</Badge>
-                  <Badge variant="complete">Paid</Badge>
+                  <Badge variant="pending-s">Registered</Badge>
+                  <Badge variant="verified-s">Verified</Badge>
+                  <Badge variant="complete-s">Paid</Badge>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-0.5">
                   <Badge variant="pending">Registered</Badge>
