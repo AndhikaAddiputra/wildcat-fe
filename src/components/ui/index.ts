@@ -20,3 +20,5 @@ export type { ModalProps } from "./modal";
 
 export { Separator } from "./separator";
 export type { SeparatorProps } from "./separator";
+
+export { Navbar } from "./navbar"

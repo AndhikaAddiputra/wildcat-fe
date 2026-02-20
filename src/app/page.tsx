@@ -15,6 +15,7 @@ import {
   Avatar,
   Modal,
   Separator,
+  Navbar,
 } from "@/components/ui";
 import {
   Heart,
@@ -44,36 +45,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       {/* Header */}
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-2">
-            <Zap className="h-6 w-6 text-zinc-900 dark:text-zinc-50" />
-            <span className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-              Wildcat
-            </span>
-          </div>
-          <nav className="hidden items-center gap-6 md:flex">
-            <a href="#components" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
-              Components
-            </a>
-            <a href="#icons" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
-              Icons
-            </a>
-            <a href="#forms" className="text-sm text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
-              Forms
-            </a>
-          </nav>
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-4 w-4" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-4 w-4" />
-            </Button>
-            <Avatar fallback="WC" size="sm" />
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* Hero Section */}
