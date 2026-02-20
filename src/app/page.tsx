@@ -73,6 +73,10 @@ export default function Home() {
         className="relative flex min-h-[70vh] items-center justify-center bg-gradient-to-b from-[#0A2D6E]/60 to-zinc-900 pt-20"
       >
         <div className="text-center">
+          <Badge variant="verified" className="mb-4">
+            <Rocket className="mr-1 h-3 w-3" />
+            v0.1.0
+          </Badge>
           <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-6xl">
             Wildcat Component Library
           </h1>
@@ -193,20 +197,20 @@ export default function Home() {
               Height seragam = 40px, style semua seragam.
             </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Badge variant="default">Registered</Badge>
-              <Badge variant="success">Registered</Badge>
-              <Badge variant="warning">Verified</Badge>
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="pending">Registered</Badge>
+              <Badge variant="verified">Verified</Badge>
+              <Badge variant="complete">Paid</Badge>
             </div>
-            <div className="mt-3 flex flex-wrap gap-3">
-              <Badge variant="danger">Paid</Badge>
-              <Badge variant="default">AVAILABLE</Badge>
-              <Badge variant="info">EVENT ENDED</Badge>
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="pending">Registered</Badge>
+              <Badge variant="verified">Verified</Badge>
+              <Badge variant="complete">Paid</Badge>
             </div>
-            <div className="mt-3 flex flex-wrap gap-3">
-              <Badge variant="default">Pending</Badge>
-              <Badge variant="success">NOT STARTED</Badge>
-              <Badge variant="warning">Active</Badge>
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="end">EVENT ENDED</Badge>
+              <Badge variant="pending">NOT YET STARTED</Badge>
+              <Badge variant="complete">AVAILABLE</Badge>
             </div>
           </section>
         </section>

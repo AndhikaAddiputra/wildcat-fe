@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import {
   Button,
   Navbar,
@@ -20,11 +21,34 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+const SECTION_IDS = ["#about", "#competitions", "#events", "#timeline"] as const;
+
 export default function LandingPage() {
+  const [activeSection, setActiveSection] = useState("#about");
+
+  useEffect(() => {
+    const observers: IntersectionObserver[] = [];
+    SECTION_IDS.forEach((id) => {
+      const el = document.querySelector(id);
+      if (!el) return;
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) setActiveSection(id);
+          });
+        },
+        { rootMargin: "-30% 0px -50% 0px", threshold: 0 }
+      );
+      observer.observe(el);
+      observers.push(observer);
+    });
+    return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
   const navLinks = [
     { label: "About", href: "#about" },
-    { label: "Events", href: "#events" },
     { label: "Competitions", href: "#competitions" },
+    { label: "Events", href: "#events" },
     { label: "Timeline", href: "#timeline" },
   ];
 
@@ -36,7 +60,7 @@ export default function LandingPage() {
           <img src="/wildcat-logo.svg" alt="Wildcat" className="h-14 w-auto" />
         }
         links={navLinks}
-        activeLink="#about"
+        activeLink={activeSection}
         action={
           <button className="cursor-pointer rounded-xl border-2 border-cream/60 px-6 py-2 text-sm font-medium text-cream transition-colors hover:border-cream hover:bg-cream/10">
             Login
@@ -75,7 +99,7 @@ export default function LandingPage() {
           </p>
           <Button
             size="lg"
-            rightIcon={<ArrowRight className="h-4 w-4" />}
+            variant="primary"
           >
             Register Now
           </Button>

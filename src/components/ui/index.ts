@@ -24,8 +24,7 @@ export type { SeparatorProps } from "./separator";
 export { Navbar } from "./navbar";
 export type { NavbarProps, NavLink } from "./navbar";
 
-export { Footer } from "./footer";
-export type { FooterProps } from "./footer";
+export { Footer, type FooterProps } from "./footer";
 
 export { CompetitionCard } from "./competition-card";
 export type { CompetitionCardProps } from "./competition-card";
