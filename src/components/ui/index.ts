@@ -20,3 +20,14 @@ export type { ModalProps } from "./modal";
 
 export { Separator } from "./separator";
 export type { SeparatorProps } from "./separator";
+
+export { Navbar } from "./navbar";
+export type { NavbarProps, NavLink } from "./navbar";
+
+export { Footer, type FooterProps } from "./footer";
+
+export { CompetitionCard } from "./competition-card";
+export type { CompetitionCardProps } from "./competition-card";
+
+export { TimelineItem } from "./timeline-item";
+export type { TimelineItemProps } from "./timeline-item";

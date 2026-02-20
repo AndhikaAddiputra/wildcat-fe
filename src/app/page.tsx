@@ -18,6 +18,8 @@ import {
   Avatar,
   Modal,
   Separator,
+  Navbar,
+  Footer,
 } from "@/components/ui";
 import {
   Heart,
@@ -31,6 +33,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Info,
+  LogIn,
   Trash2,
   Plus,
   Download,
@@ -39,11 +42,18 @@ import {
   Shield,
   Globe,
   Rocket,
-  Copy,
+  Circle,
 } from "lucide-react";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
+
+  const navLinks = [
+    { label: "About", href: "#about" },
+    { label: "Competitions", href: "#components" },
+    { label: "Events", href: "#buttons" },
+    { label: "Timeline", href: "#badges" },
+  ];
 
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
@@ -80,124 +90,181 @@ export default function Home() {
           </div>
         </div>
       </header>
+    <div className="min-h-screen bg-zinc-900 text-white">
+      {/* Navbar - transparent to solid */}
+      <Navbar
+        logo={
+          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
+        }
+        links={navLinks}
+        activeLink="#about"
+        action={
+          <Button variant="outline" size="lg">
+            <LogIn className="h-4 w-4" />
+            Login
+          </Button>
+        }
+      />
 
-      <main className="mx-auto max-w-6xl px-6 py-12">
-        {/* Hero Section */}
-        <section className="mb-16 text-center">
-          <Badge variant="info" className="mb-4">
+      {/* Hero Section */}
+      <section
+        id="about"
+        className="relative flex min-h-[70vh] items-center justify-center bg-gradient-to-b from-[#0A2D6E]/60 to-zinc-900 pt-20"
+      >
+        <div className="text-center">
+          <Badge variant="verified" className="mb-4">
             <Rocket className="mr-1 h-3 w-3" />
             v0.1.0
           </Badge>
-          <h1 className="mb-4 text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-5xl">
+          <h1 className="mb-4 text-5xl font-bold tracking-tight sm:text-6xl">
             Wildcat Component Library
           </h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg text-zinc-600 dark:text-zinc-400">
+          <p className="mx-auto mb-8 max-w-2xl text-lg text-zinc-400">
             Reusable React components built with Next.js, Tailwind CSS, and Lucide icons.
-            Beautiful, accessible, and ready to use.
           </p>
-          <div className="flex items-center justify-center gap-3">
-            <Button size="lg">
-              Get Started
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="lg">
-              <Globe className="h-4 w-4" />
+          <div className="flex items-center justify-center gap-4">
+            <Button size="sm">Get Started</Button>
+            <Button variant="outline" size="sm">
               Documentation
             </Button>
           </div>
+        </div>
+      </section>
+
+      <main className="mx-auto max-w-6xl px-6 py-12">
+        {/* ── Primary Button ── */}
+        <section id="buttons" className="mb-16">
+          <h2 className="mb-1 text-3xl font-bold">Buttons & Label</h2>
+          <p className="mb-8 text-sm text-zinc-400">Rounding = 20</p>
+
+          <h3 className="mb-1 text-xl font-bold">Primary Button</h3>
+          <p className="mb-6 text-sm text-zinc-400">
+            Perhatikan Height dari button-nya karena seragam yaitu 70px. Untuk warna dapat berubah-ubah sesuai primary color
+          </p>
+
+          {/* Primary Filled - Large */}
+          <div className="mb-3">
+            <p className="mb-2 text-xs text-zinc-500">Primary Button (Filled)</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button>Button</Button>
+              <Button variant="primary" size="lg">Button</Button>
+              <Button
+                variant="primary"
+                size="lg"
+              >
+                Button
+              </Button>
+              <Button
+                variant="primary"
+                size="lg"
+                className="min-w-[300px]"
+              >
+                Button
+              </Button>
+            </div>
+          </div>
+
+          {/* Primary Outline - Large */}
+          <div className="mb-3">
+            <p className="mb-2 text-xs text-zinc-500">Primary Button (Outline)</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button variant="outline">Button</Button>
+              <Button variant="outline" size="lg">Button</Button>
+              <Button
+                variant="outline"
+                size="lg"
+              >
+                Button
+              </Button>
+              <Button
+                variant="outline"
+                size="lg"
+                className="min-w-[300px]"
+              >
+                Button
+              </Button>
+            </div>
+          </div>
+
+          {/* Primary Filled - Small */}
+          <div className="mb-8">
+            <p className="mb-2 text-xs text-zinc-500">Primary Button (Small)</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <Button size="sm">Button</Button>
+              <Button size="sm" variant="primary">Button</Button>
+              <Button
+                size="sm"
+                variant="primary"
+              >
+                Button
+              </Button>
+              <Button
+                size="sm"
+                variant="primary"
+                className="min-w-[300px]"
+              >
+                Download Guidebook
+              </Button>
+            </div>
+          </div>
+
+          <Separator className="my-8 bg-zinc-800" />
+
+          {/* ── Secondary Button ── */}
+          <h3 className="mb-1 text-xl font-bold">Secondary Button</h3>
+          <p className="mb-6 text-sm text-zinc-400">
+            Height seragam = 50px, style semua seragam.
+          </p>
+
+          <div className="mb-8 flex flex-wrap items-center gap-3">
+            <Button variant="secondary" size="sm">
+              Button
+              <Circle className="h-3 w-3 fill-current" />
+            </Button>
+            <Button variant="secondary" size="sm">
+              Button
+              <Circle className="h-3 w-3 fill-current" />
+            </Button>
+          </div>
+
+          <Separator className="my-8 bg-zinc-800" />
+
+          {/* ── Status Label / Badges ── */}
+          <section id="badges">
+            <h3 className="mb-1 text-xl font-bold">Status Label / Badges</h3>
+            <p className="mb-6 text-sm text-zinc-400">
+              Height seragam = 40px, style semua seragam.
+            </p>
+
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="pending">Registered</Badge>
+              <Badge variant="verified">Verified</Badge>
+              <Badge variant="complete">Paid</Badge>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="pending">Registered</Badge>
+              <Badge variant="verified">Verified</Badge>
+              <Badge variant="complete">Paid</Badge>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-0.5">
+              <Badge variant="end">EVENT ENDED</Badge>
+              <Badge variant="pending">NOT YET STARTED</Badge>
+              <Badge variant="complete">AVAILABLE</Badge>
+            </div>
+          </section>
         </section>
 
-        <Separator className="mb-12" />
+        <Separator className="my-8 bg-zinc-800" />
 
-        {/* Buttons Section */}
+        {/* ── Other Components ── */}
         <section id="components" className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Buttons
-          </h2>
-          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-            Button variants and sizes for every use case.
-          </p>
+          <h2 className="mb-6 text-3xl font-bold">Other Components</h2>
 
-          <Card>
-            <CardContent className="pt-6">
-              <div className="mb-6">
-                <p className="mb-3 text-sm font-medium text-zinc-500">Variants</p>
-                <div className="flex flex-wrap gap-3">
-                  <Button variant="primary">Primary</Button>
-                  <Button variant="secondary">Secondary</Button>
-                  <Button variant="outline">Outline</Button>
-                  <Button variant="ghost">Ghost</Button>
-                  <Button variant="danger">Danger</Button>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="mb-6">
-                <p className="mb-3 text-sm font-medium text-zinc-500">Sizes</p>
-                <div className="flex flex-wrap items-center gap-3">
-                  <Button size="sm">Small</Button>
-                  <Button size="md">Medium</Button>
-                  <Button size="lg">Large</Button>
-                  <Button size="icon">
-                    <Heart className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div>
-                <p className="mb-3 text-sm font-medium text-zinc-500">With Icons</p>
-                <div className="flex flex-wrap gap-3">
-                  <Button>
-                    <Download className="h-4 w-4" />
-                    Download
-                  </Button>
-                  <Button variant="secondary">
-                    <Share2 className="h-4 w-4" />
-                    Share
-                  </Button>
-                  <Button variant="outline">
-                    <Plus className="h-4 w-4" />
-                    Create New
-                  </Button>
-                  <Button variant="danger">
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
-
-        {/* Cards Section */}
-        <section className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Competition Cards
-          </h2>
-          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-            Custom card designs based on Figma layout.
-          </p>
-
-          <div className="flex flex-col gap-10">
-            {/* Card Small */}
-            <CardSmall>
-              <CardHeader className="p-10">
-                <div className="flex justify-between items-start mb-6">
-                  <CardTitle className="text-[36px] font-semibold text-[#F1E1B4] leading-[54px]">
-                    [Competition_Full Name]
-                  </CardTitle>
-                  
-                  <div
-                    className="w-[80px] h-[80px] border-[7px] shrink-0"
-                    style={{
-                      borderColor: '#F6911E',
-                      backgroundImage: `linear-gradient(to bottom right, transparent calc(50% - 3px), #F6911E calc(50% - 3px), #F6911E calc(50% + 3px), transparent calc(50% + 3px))`
-                    }}
-                  >
-                  </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            <Card>
+              <CardHeader>
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/20">
+                  <Shield className="h-5 w-5 text-primary" />
                 </div>
                 
                 <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] opacity-100 text-[20px]">
@@ -213,22 +280,10 @@ export default function Home() {
               </CardFooter>
             </CardSmall>
 
-            {/* Card Medium */}
-            <CardMedium>
-              <CardHeader className="p-10 pb-6">
-                <div 
-                  className="border-2 rounded-[20px] mb-6 flex items-center justify-center gap-[10px]"
-                  style={{ 
-                    width: '200px', 
-                    height: '40px', 
-                    borderColor: '#34C759', 
-                    color: '#34C759' 
-                  }}
-                >
-                  <div className="w-[10px] h-[10px] rounded-full bg-[#34C759]"></div>
-                    <span className="font-['Manrope'] font-bold text-[16px] tracking-wide">
-                      AVAILABLE
-                    </span>
+            <Card>
+              <CardHeader>
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-green-500/20">
+                  <Zap className="h-5 w-5 text-green-400" />
                 </div>
                 
                 <CardTitle className="mb-4 text-[36px] font-semibold text-[#F1E1B4] leading-tight">
@@ -248,12 +303,15 @@ export default function Home() {
               </CardFooter>
             </CardMedium>
 
-            {/* Card Large */}
-            <CardLarge>
-              <CardHeader className="p-10">
-                <CardTitle className="text-[36px] font-semibold text-[#F1E1B4] leading-tight">
-                  [FullPage_Card]
-                </CardTitle>
+            <Card>
+              <CardHeader>
+                <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-lg bg-blue-500/20">
+                  <Globe className="h-5 w-5 text-blue-400" />
+                </div>
+                <CardTitle>Fully Responsive</CardTitle>
+                <CardDescription>
+                  Components that look great on any screen size.
+                </CardDescription>
               </CardHeader>
             </CardLarge>
           </div>
@@ -269,50 +327,51 @@ export default function Home() {
           </p>
 
           <div className="grid gap-6 sm:grid-cols-2">
+
+          {/* Forms */}
+          <div className="mt-8 grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>Badges</CardTitle>
+                <CardTitle>Contact Form</CardTitle>
+                <CardDescription>An example form with inputs and textarea.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  <Badge>Default</Badge>
-                  <Badge variant="success">
-                    <CheckCircle className="mr-1 h-3 w-3" />
-                    Success
-                  </Badge>
-                  <Badge variant="warning">
-                    <AlertTriangle className="mr-1 h-3 w-3" />
-                    Warning
-                  </Badge>
-                  <Badge variant="danger">Danger</Badge>
-                  <Badge variant="info">
-                    <Info className="mr-1 h-3 w-3" />
-                    Info
-                  </Badge>
+                <div className="flex flex-col gap-4">
+                  <Input id="name" label="Full Name" placeholder="Enter your name" />
+                  <Input id="email" label="Email" type="email" placeholder="you@example.com" />
+                  <Textarea id="message" label="Message" placeholder="Write your message here..." rows={3} />
+                  <Button size="sm" variant="primary">
+                    Send Message
+                  </Button>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Avatars</CardTitle>
+                <CardTitle>Modal Dialog</CardTitle>
+                <CardDescription>Open a modal overlay with any content.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center gap-3">
-                  <Avatar fallback="WC" size="sm" />
-                  <Avatar fallback="JD" size="md" />
-                  <Avatar fallback="AB" size="lg" />
-                  <Avatar
-                    src="https://api.dicebear.com/9.x/initials/svg?seed=WC"
-                    alt="User avatar"
-                    size="md"
-                  />
-                  <Avatar
-                    src="https://api.dicebear.com/9.x/initials/svg?seed=JD"
-                    alt="User avatar"
-                    size="lg"
-                  />
-                </div>
+                <Button size="sm" onClick={() => setModalOpen(true)}>
+                  Open Modal
+                </Button>
+
+                <Modal
+                  isOpen={modalOpen}
+                  onClose={() => setModalOpen(false)}
+                  title="Confirm Action"
+                  description="Are you sure you want to proceed? This action cannot be undone."
+                >
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button variant="outline" size="sm" onClick={() => setModalOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={() => setModalOpen(false)}>
+                      Confirm
+                    </Button>
+                  </div>
+                </Modal>
               </CardContent>
             </Card>
           </div>
@@ -320,16 +379,14 @@ export default function Home() {
 
         {/* Icons Showcase */}
         <section className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Lucide Icons
-          </h2>
-          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
+          <h2 className="mb-6 text-3xl font-bold">Lucide Icons</h2>
+          <p className="mb-6 text-sm text-zinc-400">
             1000+ free, open-source icons from Lucide. Easily customizable with size and color.
           </p>
 
           <Card>
             <CardContent className="pt-6">
-              <div className="grid grid-cols-4 gap-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10">
+              <div className="grid grid-cols-5 gap-4 sm:grid-cols-7 md:grid-cols-10">
                 {[
                   { Icon: Heart, name: "Heart" },
                   { Icon: Star, name: "Star" },
@@ -350,11 +407,11 @@ export default function Home() {
                   { Icon: Shield, name: "Shield" },
                   { Icon: Globe, name: "Globe" },
                   { Icon: Rocket, name: "Rocket" },
-                  { Icon: Settings, name: "Gear" },
+                  { Icon: Circle, name: "Circle" },
                 ].map(({ Icon, name }, i) => (
                   <div
                     key={i}
-                    className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                    className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-zinc-400 transition-colors hover:bg-zinc-800 hover:text-white"
                   >
                     <Icon className="h-5 w-5" />
                     <span className="text-[10px]">{name}</span>
@@ -364,118 +421,9 @@ export default function Home() {
             </CardContent>
           </Card>
         </section>
-
-        {/* Forms Section */}
-        <section id="forms" className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Form Elements
-          </h2>
-          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-            Input components with labels, validation, and accessibility.
-          </p>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Contact Form</CardTitle>
-                <CardDescription>An example form with inputs and textarea.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-col gap-4">
-                  <Input
-                    id="name"
-                    label="Full Name"
-                    placeholder="Enter your name"
-                  />
-                  <Input
-                    id="email"
-                    label="Email"
-                    type="email"
-                    placeholder="you@example.com"
-                  />
-                  <Input
-                    id="error-demo"
-                    label="Password"
-                    type="password"
-                    placeholder="Enter password"
-                    error="Password must be at least 8 characters"
-                  />
-                  <Textarea
-                    id="message"
-                    label="Message"
-                    placeholder="Write your message here..."
-                    rows={4}
-                  />
-                  <Button className="w-full sm:w-auto">
-                    <Mail className="h-4 w-4" />
-                    Send Message
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Modal Dialog</CardTitle>
-                <CardDescription>Open a modal overlay with any content.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button onClick={() => setModalOpen(true)}>
-                  Open Modal
-                </Button>
-
-                <Modal
-                  isOpen={modalOpen}
-                  onClose={() => setModalOpen(false)}
-                  title="Confirm Action"
-                  description="Are you sure you want to proceed? This action cannot be undone."
-                >
-                  <div className="flex justify-end gap-3 pt-4">
-                    <Button variant="outline" onClick={() => setModalOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button onClick={() => setModalOpen(false)}>
-                      Confirm
-                    </Button>
-                  </div>
-                </Modal>
-              </CardContent>
-            </Card>
-          </div>
-        </section>
-
-        {/* Separator Demo */}
-        <section className="mb-16">
-          <h2 className="mb-2 text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Separator
-          </h2>
-          <p className="mb-6 text-zinc-600 dark:text-zinc-400">
-            Visual dividers between sections.
-          </p>
-          <Card>
-            <CardContent className="pt-6">
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Content above the separator</p>
-              <Separator className="my-4" />
-              <p className="text-sm text-zinc-600 dark:text-zinc-400">Content below the separator</p>
-            </CardContent>
-          </Card>
-        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Wildcat Frontend &mdash; Built with Next.js, Tailwind CSS & Lucide Icons
-          </p>
-          <div className="flex items-center gap-2">
-            <Badge variant="success">
-              <CheckCircle className="mr-1 h-3 w-3" />
-              Ready
-            </Badge>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
