@@ -25,12 +25,8 @@ body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
-* {
-  border-color: theme("colors.zinc.200");
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   * {
-    border-color: theme("colors.zinc.800");
+    @apply border-zinc-200 dark:border-zinc-800;
   }
 }
