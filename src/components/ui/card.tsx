@@ -15,35 +15,56 @@ const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
 );
 Card.displayName = "Card";
 
-const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+const CompetitionCardBase = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
     <div
       ref={ref}
-      className={cn("flex flex-col gap-1.5 p-6", className)}
+      className={cn(
+        "rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] font-['Poppins']",
+        "shadow-[0_0_10px_4px_rgba(246,145,60,1)]",
+        className
+      )}
       {...props}
     />
+  )
+);
+CompetitionCardBase.displayName = "CompetitionCardBase";
+
+const CardSmall = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <CompetitionCardBase ref={ref} className={cn("w-full", className)} style={{ maxWidth: '577px' }} {...props} />  )
+);
+CardSmall.displayName = "CardSmall";
+
+const CardMedium = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <CompetitionCardBase ref={ref} className={cn("w-full", className)} style={{ maxWidth: '912px' }} {...props} />  )
+);
+CardMedium.displayName = "CardMedium";
+
+const CardLarge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <CompetitionCardBase ref={ref} className={cn("w-full", className)} style={{ maxWidth: '1308px', minHeight: '245px' }} {...props} />  )
+);
+CardLarge.displayName = "CardLarge";
+
+const CardHeader = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn("flex flex-col gap-1.5 p-6", className)} {...props} />
   )
 );
 CardHeader.displayName = "CardHeader";
 
 const CardTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
   ({ className, ...props }, ref) => (
-    <h3
-      ref={ref}
-      className={cn("text-lg font-semibold leading-none tracking-tight text-zinc-900 dark:text-zinc-50", className)}
-      {...props}
-    />
+    <h3 ref={ref} className={cn("text-lg font-semibold leading-none tracking-tight text-zinc-900 dark:text-zinc-50", className)} {...props} />
   )
 );
 CardTitle.displayName = "CardTitle";
 
 const CardDescription = forwardRef<HTMLParagraphElement, HTMLAttributes<HTMLParagraphElement>>(
   ({ className, ...props }, ref) => (
-    <p
-      ref={ref}
-      className={cn("text-sm text-zinc-500 dark:text-zinc-400", className)}
-      {...props}
-    />
+    <p ref={ref} className={cn("text-sm text-zinc-500 dark:text-zinc-400", className)} {...props} />
   )
 );
 CardDescription.displayName = "CardDescription";
@@ -57,13 +78,19 @@ CardContent.displayName = "CardContent";
 
 const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <div
-      ref={ref}
-      className={cn("flex items-center p-6 pt-0", className)}
-      {...props}
-    />
+    <div ref={ref} className={cn("flex items-center p-6 pt-0", className)} {...props} />
   )
 );
 CardFooter.displayName = "CardFooter";
 
-export { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter };
+export { 
+  Card, 
+  CardSmall, 
+  CardMedium, 
+  CardLarge, 
+  CardHeader, 
+  CardTitle, 
+  CardDescription, 
+  CardContent, 
+  CardFooter 
+};
