@@ -14,6 +14,7 @@ import {
   FlaskConical,
   GraduationCap,
   Heart,
+  LogIn,
   Mic,
   CalendarDays,
   Trophy,
@@ -62,9 +63,9 @@ export default function LandingPage() {
         links={navLinks}
         activeLink={activeSection}
         action={
-          <button className="cursor-pointer rounded-xl border-2 border-cream/60 px-6 py-2 text-sm font-medium text-cream transition-colors hover:border-cream hover:bg-cream/10">
+          <Button variant="outline" size="lg">
             Login
-          </button>
+          </Button>
         }
       />
 

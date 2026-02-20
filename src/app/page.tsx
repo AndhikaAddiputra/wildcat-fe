@@ -30,6 +30,7 @@ import {
   CheckCircle,
   AlertTriangle,
   Info,
+  LogIn,
   Trash2,
   Plus,
   Download,
@@ -61,9 +62,10 @@ export default function Home() {
         links={navLinks}
         activeLink="#about"
         action={
-          <button className="cursor-pointer rounded-xl border-2 border-zinc-400 px-6 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-white hover:text-white">
+          <Button variant="outline" size="lg">
+            <LogIn className="h-4 w-4" />
             Login
-          </button>
+          </Button>
         }
       />
 
