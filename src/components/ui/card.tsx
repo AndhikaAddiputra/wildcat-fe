@@ -44,7 +44,8 @@ CardMedium.displayName = "CardMedium";
 
 const CardLarge = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => (
-    <CompetitionCardBase ref={ref} className={cn("w-full", className)} style={{ maxWidth: '1308px', minHeight: '245px' }} {...props} />  )
+    <CompetitionCardBase ref={ref} className={cn("w-full max-w-[1308px] min-h-[245px]", className)} {...props} />
+  )
 );
 CardLarge.displayName = "CardLarge";
 
