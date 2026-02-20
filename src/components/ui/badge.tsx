@@ -2,30 +2,32 @@ import { type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: "kuning" | "orange" | "hijau";
+  variant?: "pending" | "verified" | "complete" | "end";
 }
 
-function Badge({ className, variant = "orange", children, ...props }: BadgeProps) {
+const variantDotClass = {
+  pending: "bg-yellow-400",
+  verified: "bg-orange-400",
+  complete: "bg-green-400",
+  end: "bg-red-400",
+} as const;
+
+function Badge({ className, variant = "pending", children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex h-10 items-center gap-2 rounded-full px-5 text-sm font-semibold",
+        "inline-flex h-[40px] w-[160px] items-center justify-center gap-2 rounded-[20px] border-2 px-2.5 py-0.5 text-xs font-medium transition-colors bg-navy",
         {
-          "bg-[#FFCC00]/20 text-[#FFCC00]": variant === "kuning",
-          "bg-[#FF8D28]/20 text-[#FF8D28]": variant === "orange",
-          "bg-[#34C759]/20 text-[#34C759]": variant === "hijau",
+          "border-yellow-400 text-yellow-400": variant === "pending",
+          "border-orange-400 text-orange-400": variant === "verified",
+          "border-green-400 text-green-400": variant === "complete",
+          "border-red-400 text-red-400": variant === "end",
         },
         className
       )}
       {...props}
     >
-      <span
-        className={cn("h-2.5 w-2.5 shrink-0 rounded-full", {
-          "bg-[#FFCC00]": variant === "kuning",
-          "bg-[#FF8D28]": variant === "orange",
-          "bg-[#34C759]": variant === "hijau",
-        })}
-      />
+      <span className={cn("h-2 w-2 shrink-0 rounded-full", variantDotClass[variant])} />
       {children}
     </span>
   );
