@@ -2,30 +2,34 @@ import { type HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
 
 export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: "default" | "success" | "warning" | "danger" | "info";
+  variant?: "pending" | "verified" | "complete" | "end";
 }
 
-function Badge({ className, variant = "default", ...props }: BadgeProps) {
+const variantDotClass = {
+  pending: "bg-yellow-400",
+  verified: "bg-orange-400",
+  complete: "bg-green-400",
+  end: "bg-red-400",
+} as const;
+
+function Badge({ className, variant = "pending", children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium transition-colors",
+        "inline-flex h-[40px] w-[160px] items-center justify-center gap-2 rounded-[20px] border-2 px-2.5 py-0.5 text-xs font-medium transition-colors bg-navy",
         {
-          "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300":
-            variant === "default",
-          "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400":
-            variant === "success",
-          "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400":
-            variant === "warning",
-          "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400":
-            variant === "danger",
-          "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400":
-            variant === "info",
+          "border-yellow-400 text-yellow-400": variant === "pending",
+          "border-orange-400 text-orange-400": variant === "verified",
+          "border-green-400 text-green-400": variant === "complete",
+          "border-red-400 text-red-400": variant === "end",
         },
         className
       )}
       {...props}
-    />
+    >
+      <span className={cn("h-2 w-2 shrink-0 rounded-full", variantDotClass[variant])} />
+      {children}
+    </span>
   );
 }
 
