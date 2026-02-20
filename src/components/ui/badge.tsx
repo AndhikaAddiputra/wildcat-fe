@@ -5,7 +5,7 @@ export interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
   variant?: "default" | "pending-s" | "verified-s" | "complete-s" | "pending" | "verified" | "complete" | "end";
 }
 
-function Badge({ className, variant = "default", ...props }: BadgeProps) {
+function Badge({ className, variant = "orange", children, ...props }: BadgeProps) {
   return (
     <span
       className={cn(
@@ -31,7 +31,16 @@ function Badge({ className, variant = "default", ...props }: BadgeProps) {
         className
       )}
       {...props}
-    />
+    >
+      <span
+        className={cn("h-2.5 w-2.5 shrink-0 rounded-full", {
+          "bg-[#FFCC00]": variant === "kuning",
+          "bg-[#FF8D28]": variant === "orange",
+          "bg-[#34C759]": variant === "hijau",
+        })}
+      />
+      {children}
+    </span>
   );
 }
 
