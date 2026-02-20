@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 const poppins = Poppins({
   subsets: ["latin"],
-  weight: ["400", "600"]
+  weight: ["400", "600"],
 });
 
 export const metadata: Metadata = {
