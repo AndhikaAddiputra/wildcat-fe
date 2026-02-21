@@ -351,14 +351,14 @@ export default function Home() {
                 <CardTitle>Event & Competition Popups</CardTitle>
                 <CardDescription>Pilih tombol di bawah untuk melihat varian popup.</CardDescription>
               </CardHeader>
-              <CardContent className="flex gap-4">
+              <CardContent className="flex flex-wrap gap-4">
                 {/* Tombol pemicu Modal Event */}
                 <Button onClick={() => setModalOpen(true)}>
                   Open Event Modal
                 </Button>
                 <Button onClick={() => setCompetitionModalOpen(true)}>
                   Open Competition Modal
-              <CardContent>
+                </Button>
                 <Button size="sm" onClick={() => setModalOpen(true)}>
                   Open Modal
                 </Button>
@@ -375,8 +375,7 @@ export default function Home() {
                   eventSpeaker="Soon to be announce"
                   description={
                     <>
-                      <Badge className="mb-6 bg-[#1A3A73] text-[#4ADE80] border-none px-4 py-1 flex w-fit items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-[#4ADE80]" />
+                      <Badge className="mb-6" variant="complete">
                         AVAILABLE
                       </Badge>
                     </>
@@ -389,6 +388,7 @@ export default function Home() {
                   variant="competition"
                   eventName="[Competition_FullName]"
                   eventDescription="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium..."
+                  competitionImageUrl="https://picsum.photos/seed/competition/160"
                   timeline={[
                     { label: "Early Registration", date: "13 - 22 March 2026", isActive: true },
                     { label: "Normal Registration", date: "23 - 31 March 2026", isActive: true },
@@ -396,22 +396,7 @@ export default function Home() {
                     { label: "Finalist Announcement", date: "25 April 2026" },
                     { label: "Final Pitching Day", date: "20 - 21 June 2026" },
                   ]}
-                  description={
-                    <Badge className="mb-6 bg-[#1A3A73] text-[#4ADE80] border-none px-4 py-1 flex w-fit items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-[#4ADE80]" />
-                      COMPETITION
-                    </Badge>
-                  }
                 >
-                  
-                  <div className="flex justify-end gap-3 pt-4">
-                    <Button variant="outline" size="sm" onClick={() => setModalOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button size="sm" onClick={() => setModalOpen(false)}>
-                      Confirm
-                    </Button>
-                  </div>
                 </Modal>
               </CardContent>
             </Card>
