@@ -16,7 +16,7 @@ export { Avatar } from "./avatar";
 export type { AvatarProps } from "./avatar";
 
 export { Modal } from "./modal";
-export type { ModalProps } from "./modal";
+export type { ModalProps, ModalTimelineItem } from "./modal";
 
 export { Separator } from "./separator";
 export type { SeparatorProps } from "./separator";

@@ -1,9 +1,15 @@
 "use client";
 
 import { useEffect, useCallback, type ReactNode } from "react";
-import { X, Calendar, MapPin, User, Clock} from "lucide-react"; // Import ikon di sini
+import { X, Calendar, MapPin, User, Clock, ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button, Badge } from "@/components/ui";
+
+export interface ModalTimelineItem {
+  label: string;
+  date: string;
+  isActive?: boolean;
+}
 
 export interface ModalProps {
   isOpen: boolean;
@@ -12,9 +18,14 @@ export interface ModalProps {
   className?: string;
   variant?: "event" | "competition";
   description?: ReactNode;
+  eventName?: string;
+  eventDescription?: string;
   eventDate?: string;
   eventPlace?: string;
   eventSpeaker?: string;
+  timeline?: ModalTimelineItem[];
+  /** URL gambar yang ditampilkan di atas judul (hanya untuk variant="competition") */
+  competitionImageUrl?: string;
 }
 
 function Modal({ 
@@ -29,7 +40,8 @@ function Modal({
   eventDate,
   eventPlace,
   eventSpeaker = "Soon to be announced",
-  timeline = []
+  timeline = [],
+  competitionImageUrl,
 }: ModalProps) {
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
@@ -65,6 +77,21 @@ function Modal({
 
         <div className="p-8">
           {description}
+          {variant === "competition" && (
+            <div className="mb-4 flex justify-start">
+              {competitionImageUrl ? (
+                <img
+                  src={competitionImageUrl}
+                  alt=""
+                  className="h-20 w-20 shrink-0 rounded-lg object-cover border border-[#F6911E]"
+                />
+              ) : (
+                <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border-2 border-[#F6911E] bg-[#0A2d6e] text-[#F6911E]">
+                  <ImageOff className="h-10 w-10" />
+                </div>
+              )}
+            </div>
+          )}
           <div className="mb-4">
               <h2 className="text-2xl font-bold mb-4 text-[#f1e1b4]">{eventName}</h2>
               <p className=" flex text-sm text-[#f1e1b4] ">{eventDescription}</p>
@@ -118,10 +145,12 @@ function Modal({
                     <p className="text-xs text-[#f1e1b4] ">Key Speaker</p>
                     <p className="text-sm text-[#f1e1b4]">{eventSpeaker}</p>
                   </div>
-                </div>
-                <Button className="mt-4 w-full bg-[#E67E22] hover:bg-[#D35400] text-white h-12 text-lg font-bold border-none transition-colors">
+                </div >
+                <div className="flex flex-col gap-3 mt-8">
+                <Button variant="primary">
                     Register Now 
                   </Button>
+                  </div>
               </div>
             </>
           )}
@@ -144,7 +173,7 @@ function Modal({
                       border-[#0A2d6e] disesuaikan agar menyatu dengan background modal.
                     */}
                     <div className={cn(
-                      "absolute left-0 top-0.5 h-6 w-6 rounded-full border-2[#0A2d6e] shadow-sm",
+                      "absolute left-0 top-0.5 h-6 w-6 rounded-full border-2 border-[#0A2d6e] shadow-sm",
                       item.isActive ? "bg-[#f6911e]" : "bg-zinc-600"
                     )} />
                     
@@ -165,7 +194,7 @@ function Modal({
                     <Button variant="outline" className="w-full border-[#f6911e] text-[#f6911e] hover:bg-[#f6911e] hover:text-white">
                       Download Guidebook
                     </Button>
-                    <Button className="w-full bg-[#E67E22] hover:bg-[#D35400] text-white h-12 text-lg font-bold border-none transition-colors">
+                    <Button variant="primary">
                       Register Now
                     </Button>
                   </div>
