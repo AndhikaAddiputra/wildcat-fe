@@ -51,9 +51,9 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const navLinks = [
-    { label: "About", href: "#about" },
+    { label: "About", href: "/" },
     { label: "Competitions", href: "#components" },
-    { label: "Events", href: "#buttons" },
+    { label: "Events", href: "/events" },
     { label: "Timeline", href: "#badges" },
   ];
 
@@ -67,7 +67,7 @@ export default function Home() {
           <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
         }
         links={navLinks}
-        activeLink="#about"
+        activeLink="/"
         action={
           <Button variant="outline" size="lg">
             <LogIn className="h-4 w-4" />
