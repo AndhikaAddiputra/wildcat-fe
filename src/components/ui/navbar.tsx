@@ -54,7 +54,7 @@ function Navbar({
           className
         )}
       >
-        <div className="mx-auto flex h-20 max-w-6xl items-center justify-between px-6 md:px-12">
+        <div className="mx-auto flex h-20 max-w-[1440px] items-center justify-between px-6 md:px-12">
           {/* Logo */}
           <div className="flex shrink-0 items-center">{logo}</div>
 
