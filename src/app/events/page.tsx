@@ -3,48 +3,18 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
-  CardSmall,    
-  CardMedium,   
   CardLarge,
   CardHeader,
   CardTitle,
   CardDescription,
-  CardContent,
   CardFooter,
-  Input,
-  Textarea,
   Badge,
-  Avatar,
-  Modal,
-  Separator,
   Navbar,
   Footer,
 } from "@/components/ui";
 import {
-  Heart,
-  Star,
-  Search,
-  Bell,
-  Settings,
-  User,
-  Mail,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-  Info,
   LogIn,
   ExternalLink,
-  Trash2,
-  Plus,
-  Download,
-  Share2,
-  Zap,
-  Shield,
-  Globe,
-  Rocket,
-  Circle,
-  ImageOff,
 } from "lucide-react";
 
 export default function Event() {
@@ -91,8 +61,8 @@ export default function Event() {
       </section>
 
       <main className=" flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
-        <section className="w-[80vw]">
-            <CardMedium>
+        <section className="w-[80vw] flex flex-col gap-10">
+            <CardLarge className="w-full max-w-full">
               <CardHeader>
                 <Badge variant="complete" className="mb-4">
                   AVAILABLE
@@ -110,7 +80,27 @@ export default function Event() {
                   <ExternalLink className="h-5 w-5" />
                 </Button>
               </CardFooter>
-            </CardMedium>
+            </CardLarge>
+
+            <CardLarge className="w-full max-w-full">
+              <CardHeader>
+                <Badge variant="complete" className="mb-4">
+                  AVAILABLE
+                </Badge>
+                <CardTitle className="mb-4 text-[36px] font-semibold leading-tight text-white">
+                  [Event_FullName]
+                </CardTitle>
+                <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] text-[20px] opacity-100">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+                <Button variant="primary" size="lg">
+                  Learn More
+                  <ExternalLink className="h-5 w-5" />
+                </Button>
+              </CardFooter>
+            </CardLarge>
         </section>
       </main>
 
