@@ -29,7 +29,7 @@ export default function Event() {
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
       {/* Navbar - transparent to solid */}
@@ -49,7 +49,7 @@ export default function Event() {
 
       {/* Hero Section */}
       <section
-        className="relative flex pt-36 pb-8 justify-center bg-gradient-to-b from-[#0A2D6E]/60 to-zinc-900 pt-20"
+        className="relative flex pt-36 pb-8 justify-center pt-20"
       >
         <div className="text-left mx-auto w-[80vw]">
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
