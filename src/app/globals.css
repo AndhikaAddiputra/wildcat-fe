@@ -14,7 +14,8 @@
   --color-orange: #ff8d28;
   --color-red: #ff383c;
   --color-yellow: #ffcc00;
-  --color-darkblue: #0b2e6f
+  --color-navy: #0b2e6f;
+  --color-cream: #fffdd0;
 }
 
 @media (prefers-color-scheme: dark) {
