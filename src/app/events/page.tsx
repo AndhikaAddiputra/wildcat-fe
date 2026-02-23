@@ -21,10 +21,11 @@ export default function Event() {
   const [modalOpen, setModalOpen] = useState(false);
 
   const navLinks = [
-    { label: "About", href: "/" },
-    { label: "Competitions", href: "#components" },
+    { label: "Home", href: "/" },
+    { label: "Team", href: "" },
+    { label: "Administration", href: "" },
     { label: "Events", href: "/events" },
-    { label: "Timeline", href: "#badges" },
+    { label: "Submission", href: "" },
   ];
 
   return (
