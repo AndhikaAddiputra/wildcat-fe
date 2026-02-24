@@ -23,7 +23,7 @@ export default function Event() {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Team", href: "" },
-    { label: "Administration", href: "" },
+    { label: "Administration", href: "/administration" },
     { label: "Events", href: "/events" },
     { label: "Submission", href: "/submission" },
   ];

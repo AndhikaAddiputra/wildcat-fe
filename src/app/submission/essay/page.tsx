@@ -53,7 +53,7 @@ export default function Home() {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Team", href: "" },
-    { label: "Administration", href: "" },
+    { label: "Administration", href: "/administration" },
     { label: "Events", href: "/events" },
     { label: "Submission", href: "/submission" },
   ];
@@ -96,8 +96,8 @@ export default function Home() {
                 <CardTitle className="w-19/20 mx-auto mb-4 text-[36px] font-semibold text-white">
                   Final Stage
                 </CardTitle>
-                <div className="flex gap-4">
-                  <div className="w-6/13 h-[425px] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy">
+                <div className="flex justify-between w-19/20 mx-auto">
+                  <div className="w-6/13 h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy">
                     <span className="ml-8 my-auto text-navy text-[24px] font-semibold">Abstract*</span>
                     <div className="w-19/20 h-[300px] border-4 border-dashed border-navy rounded-[20px] mx-auto my-auto flex flex-col gap-3 justify-center items-center">
                       <Plus />
@@ -106,7 +106,7 @@ export default function Home() {
                       <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
                     </div>
                   </div>
-                  <div className="w-6/13 h-[425px] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy">
+                  <div className="w-6/13 h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy">
                     <span className="ml-8 my-auto text-navy text-[24px] font-semibold">Full Essay*</span>
                     <div className="w-19/20 h-[300px] border-4 border-dashed border-navy rounded-[20px] mx-auto my-auto flex flex-col gap-3 justify-center items-center">
                       <Plus />
@@ -117,7 +117,7 @@ export default function Home() {
                   </div>
                 </div>
               </CardHeader>
-              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+              <CardFooter className="flex justify-end mx-auto">
                 <Button variant="primary" size="lg" className="w-19/20 mx-auto">
                   Submit
                 </Button>

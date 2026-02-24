@@ -53,7 +53,7 @@ export default function Home() {
   const navLinks = [
     { label: "Home", href: "/" },
     { label: "Team", href: "" },
-    { label: "Administration", href: "" },
+    { label: "Administration", href: "/administration" },
     { label: "Events", href: "/events" },
     { label: "Submission", href: "/submission" },
   ];
@@ -106,7 +106,7 @@ export default function Home() {
                   </div>
                 </div>
               </CardHeader>
-              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+              <CardFooter className="flex justify-end mx-auto">
                 <Button variant="primary" size="lg" className="w-19/20 mx-auto">
                   Submit
                 </Button>
@@ -128,7 +128,7 @@ export default function Home() {
                   </div>
                 </div>
               </CardHeader>
-              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+              <CardFooter className="flex justify-end mx-auto">
                 <Button variant="primary" size="lg" className="w-19/20 mx-auto">
                   Submit
                 </Button>
