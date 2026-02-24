@@ -118,7 +118,7 @@ export default function ParticipantHomePage() {
               <div className="relative min-w-[800px] px-10 py-15"> 
                 
                 {/* Garis Horizontal Putih */}
-                <div className="absolute left-0 right-0 top-1/2 h-[3px] w-full -translate-y-1/2 bg-white" />
+                <div className="absolute left-10 right-0 top-1/2 h-[3px] w-full -translate-y-1/2 bg-white" />
 
                 <div className="relative flex justify-between">
                   {timelineData.map((item, idx) => {
