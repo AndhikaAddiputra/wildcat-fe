@@ -115,10 +115,10 @@ export default function ParticipantHomePage() {
             {/* Wrapper untuk Scroll Horizontal */}
             <div className="w-full overflow-x-auto pb-10 no-scrollbar"> 
               {/* Kontainer dengan lebar minimum agar bisa di-scroll jika layar sempit */}
-              <div className="relative min-w-[800px] px-10 py-15"> 
+              <div className="relative min-w-[800px] px-15 py-15"> 
                 
                 {/* Garis Horizontal Putih */}
-                <div className="absolute left-10 right-0 top-1/2 h-[3px] w-full -translate-y-1/2 bg-white" />
+                <div className="absolute left-15 right-0 top-1/2 h-[3px] w-full -translate-y-1/2 bg-white" />
 
                 <div className="relative flex justify-between">
                   {timelineData.map((item, idx) => {
