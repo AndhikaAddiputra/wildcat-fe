@@ -55,7 +55,7 @@ export default function Home() {
     { label: "Team", href: "" },
     { label: "Administration", href: "" },
     { label: "Events", href: "/events" },
-    { label: "Submission", href: "" },
+    { label: "Submission", href: "/submission" },
   ];
 
   return (

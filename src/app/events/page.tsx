@@ -25,7 +25,7 @@ export default function Event() {
     { label: "Team", href: "" },
     { label: "Administration", href: "" },
     { label: "Events", href: "/events" },
-    { label: "Submission", href: "" },
+    { label: "Submission", href: "/submission" },
   ];
 
   return (
@@ -48,9 +48,7 @@ export default function Event() {
       />
 
       {/* Hero Section */}
-      <section
-        className="relative flex pt-36 pb-8 justify-center pt-20"
-      >
+      <section className="relative flex pt-36 pb-8 justify-center pt-20">
         <div className="text-left mx-auto w-[80vw]">
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
             Events
