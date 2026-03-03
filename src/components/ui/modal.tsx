@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useCallback, type ReactNode } from "react";
-import { X, Calendar, MapPin, User, Clock, ImageOff } from "lucide-react";
+import { useEffect, useCallback, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { X, Calendar, MapPin, User, ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Button, Badge } from "@/components/ui";
+import { Button } from "@/components/ui";
+import { Download } from "lucide-react";
 
 export interface ModalTimelineItem {
   label: string;
@@ -43,6 +45,8 @@ function Modal({
   timeline = [],
   competitionImageUrl,
 }: ModalProps) {
+  const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
+
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -61,18 +65,52 @@ function Modal({
     };
   }, [isOpen, handleEscape]);
 
+  useEffect(() => {
+    if (variant !== "event" || !eventDate || !isOpen) {
+      setCountdown(null);
+      return;
+    }
+    const parseEventEndDate = (dateStr: string): Date | null => {
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return null;
+      d.setHours(23, 59, 59, 999);
+      return d;
+    };
+    const endDate = parseEventEndDate(eventDate);
+    if (!endDate) {
+      setCountdown(null);
+      return;
+    }
+    const tick = () => {
+      const now = new Date();
+      const diff = endDate.getTime() - now.getTime();
+      if (diff <= 0) {
+        setCountdown({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+      setCountdown({ days, hours, minutes, seconds });
+    };
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [variant, eventDate, isOpen]);
+
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+  const modalContent = (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" aria-modal="true" role="dialog">
+      <div className="fixed inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} aria-hidden />
       
       <div className={cn(
-        "relative z-50 w-full max-w-lg overflow-hidden rounded-2xl border border-zinc-800 bg-[#0A2d6e] text-white shadow-2xl",
+        "relative z-[100] w-full max-w-lg max-h-[90vh] overflow-y-auto overflow-x-hidden rounded-2xl border border-zinc-800 bg-[#0A2d6e] text-white shadow-2xl",
         className
       )}>
-        <button onClick={onClose} className="absolute right-4 top-4 z-10 p-1.5 text-[#f6911e] hover:text-white transition-colors">
-          <X className="h-10 w-8" />
+        <button onClick={onClose} className="absolute right-4 top-4 z-10 p-1.5 text-[#f6911e] hover:text-white transition-colors" aria-label="Tutup">
+          <X className="h-8 w-8" />
         </button>
 
         <div className="p-8">
@@ -83,7 +121,7 @@ function Modal({
                 <img
                   src={competitionImageUrl}
                   alt=""
-                  className="h-20 w-20 shrink-0 rounded-lg object-cover border border-[#F6911E]"
+                  className="h-18 w-18 shrink-0 rounded-lg object-cover"
                 />
               ) : (
                 <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border-2 border-[#F6911E] bg-[#0A2d6e] text-[#F6911E]">
@@ -94,25 +132,36 @@ function Modal({
           )}
           <div className="mb-4">
               <h2 className="text-2xl font-bold mb-4 text-[#f1e1b4]">{eventName}</h2>
-              <p className=" flex text-sm text-[#f1e1b4] ">{eventDescription}</p>
+              <p className="flex text-sm text-[#f1e1b4] text-justify">{eventDescription}</p>
             </div>
 
           {variant === "event" && (
             <>
-              {/* --- Countdown Section --- */}
+              {/* --- Countdown Section (aktif, target = eventDate end of day) --- */}
               <div className="mt-6 mb-6">
                 <p className="text-md font-semibold mb-3 text-[#f1e1b4]">Countdown to Event</p>
-                <div className="flex items-center justify-center gap-4">
-                  {["Days", "Hours", "Minutes", "Second"].map((label, idx) => (
-                    <div key={label} className="flex items-center gap-4">
-                      <div className="text-center">
-                        <p className="text-2xl font-bold tracking-widest text-[#f1e1b4]">00</p>
-                        <p className="text-[10px] text-[#f6911e] uppercase">{label}</p>
+                {countdown !== null ? (
+                  <div className="flex items-center justify-center gap-4">
+                    {[
+                      { value: countdown.days, label: "Days" },
+                      { value: countdown.hours, label: "Hours" },
+                      { value: countdown.minutes, label: "Minutes" },
+                      { value: countdown.seconds, label: "Seconds" },
+                    ].map((item, idx) => (
+                      <div key={item.label} className="flex items-center gap-4">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold tracking-widest text-[#f1e1b4] tabular-nums">
+                            {String(item.value).padStart(2, "0")}
+                          </p>
+                          <p className="text-[10px] text-[#f6911e] uppercase">{item.label}</p>
+                        </div>
+                        {idx < 3 && <p className="text-2xl font-bold pb-4 text-[#f1e1b4]">:</p>}
                       </div>
-                      {idx < 3 && <p className="text-2xl font-bold pb-4">:</p>}
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-[#f1e1b4]/80">Date TBA</p>
+                )}
               </div>
 
             
@@ -191,7 +240,8 @@ function Modal({
                 
               </div>
               <div className="flex flex-col gap-3 mt-8">
-                    <Button variant="outline" className="w-full border-[#f6911e] text-[#f6911e] hover:bg-[#f6911e] hover:text-white">
+                    <Button variant="outline" className="w-full border-[#f6911e] text-[#f6911e] hover:bg-[#f6911e] hover:text-white" onClick={() => window.open("/guidebook.pdf", "_blank")}>
+                    <Download className="h-4 w-4" />
                       Download Guidebook
                     </Button>
                     <Button variant="primary">
@@ -206,6 +256,10 @@ function Modal({
       </div>
     </div>
   );
+
+  return typeof document !== "undefined"
+    ? createPortal(modalContent, document.body)
+    : null;
 }
 
 export { Modal };
