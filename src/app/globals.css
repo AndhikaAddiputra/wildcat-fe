@@ -64,7 +64,7 @@ td Button {
   }
 
   .app-table td {
-    @apply text-left px-[3%] py-6;
+    @apply text-left text-navy px-[3%] py-6;
   }
 
   .app-table td.action {
