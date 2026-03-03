@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   Button,
   Card,
@@ -265,9 +266,11 @@ export default function LandingPage() {
         links={navLinks}
         activeLink={activeSection}
         action={
-          <Button variant="outline" size="lg">
-            Login
-          </Button>
+          <Link href="/login">
+            <Button variant="outline" size="lg">
+              Login
+            </Button>
+          </Link>
         }
       />
 
@@ -300,10 +303,12 @@ export default function LandingPage() {
           <p className="mx-auto mb-10 max-w-xl text-base font-semibold leading-relaxed text-[#f1e1b4] sm:text-2xl">
             Leading Petroleum Geoscience to Fuel the Future of Oil and Gas
           </p>
-          <Button size="lg" variant="primary">
-            Register Now
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <Link href="/register">
+            <Button size="lg" variant="primary">
+              Register Now
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
@@ -329,17 +334,19 @@ export default function LandingPage() {
               : "translate-y-16 opacity-0"
           }`}
         >
-          {/* Transition graphic: hilang di layar sempit (< md); kontainer tinggi tetap agar konten tidak naik */}
+          {/* Transition graphic: hilang di layar sempit (< md); tampil penuh tanpa terpotong bawah */}
           <div className="w-full overflow-hidden leading-[0]">
-            <div className="h-[145px] w-full sm:h-[165px] md:h-[185px]">
+            <div className="hidden w-full md:block" style={{ aspectRatio: "1601/275" }}>
               <img
                 src="/Transition.svg"
                 alt=""
-                className="hidden h-full w-full object-cover object-top md:block"
+                className="block h-full w-full object-cover object-top"
                 width={1610}
                 height={273}
               />
             </div>
+            {/* Placeholder tinggi saat gambar disembunyikan (md ke bawah) agar konten tidak naik */}
+            <div className="w-full md:hidden" style={{ height: "145px" }} aria-hidden />
           </div>
 
       {/* ─── About ─── */}

@@ -6,7 +6,7 @@ import Image from "next/image";
 
 const LoginPage = () => {
   const handleBack = () => {
-    window.location.href = "/"; 
+    window.location.href = "/landing";
   };
 
   return (
