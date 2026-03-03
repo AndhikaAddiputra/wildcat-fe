@@ -13,7 +13,7 @@ const RegisterPage = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
-      window.location.href = "/"; 
+      window.location.href = "/landing";
     }
   };
 
@@ -124,30 +124,35 @@ const RegisterPage = () => {
             </div>
           )}
           
-          {/* Step 3: Choose the Competition */}
+          {/* Step 3: Choose the Competition — asset per lomba */}
           {step === 3 && (
             <div className="w-full max-w-[484px] flex-1 flex flex-col pt-[15px] pb-0 items-center">
               <div className="grid grid-cols-2 gap-x-[25px] gap-y-[16px] mb-4 mx-auto w-fit">
-                {["Paper & Poster", "Business Case", "GnG Case Study", "Essay"].map((comp, idx) => (
+                {[
+                  { name: "Paper & Poster", imageUrl: "/PaPos.png" },
+                  { name: "Business Case", imageUrl: "/BCC.png" },
+                  { name: "GnG Case Study", imageUrl: "/GnG%20Case%20Study.png" },
+                  { name: "Essay", imageUrl: "/Essay.png" },
+                ].map(({ name, imageUrl }) => (
                   <div 
-                    key={idx} 
-                    onClick={() => setSelectedComp(comp)}
-                    className={`w-[179px] h-[179px] bg-white/10 backdrop-blur-md border-[3px] border-[#F6911E] rounded-[20px] flex flex-col items-center justify-center gap-4 cursor-pointer transition-all
-                      ${selectedComp === comp ? 'bg-[#F6911E]/30 scale-[1.02] shadow-[0_0_15px_rgba(246,145,30,0.3)]' : 'hover:bg-white/20'}`}
+                    key={name} 
+                    onClick={() => setSelectedComp(name)}
+                    className={`w-[179px] h-[179px] bg-white/10 backdrop-blur-md border-[3px] border-[#F6911E] rounded-[20px] flex flex-col items-center justify-center gap-3 cursor-pointer transition-all overflow-hidden
+                      ${selectedComp === name ? 'bg-[#F6911E]/30 scale-[1.02] shadow-[0_0_15px_rgba(246,145,30,0.3)]' : 'hover:bg-white/20'}`}
                   >
-                    
-                    <div className="w-[60px] h-[60px] relative shrink-0">
-                      <svg width="100%" height="100%" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="1.5" y="1.5" width="57" height="57" stroke="#F6911E" strokeWidth="3" rx="4"/>
-                        <line x1="2.5" y1="2.5" x2="57.5" y2="57.5" stroke="#F6911E" strokeWidth="3"/>
-                      </svg>
+                    <div className="relative w-[80px] h-[80px] shrink-0">
+                      <Image
+                        src={imageUrl}
+                        alt={name}
+                        fill
+                        className="object-contain"
+                      />
                     </div>
-
                     <span 
                       className="text-[#F1E1B4] text-[16px] font-medium text-center px-2 leading-tight"
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
-                      {comp}
+                      {name}
                     </span>
                   </div>
                 ))}
