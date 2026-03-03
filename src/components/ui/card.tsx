@@ -20,7 +20,7 @@ const CompetitionCardBase = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivEle
     <div
       ref={ref}
       className={cn(
-        "rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] font-['Poppins']",
+        "rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] font-sans",
         "shadow-[0_0_10px_4px_rgba(246,145,60,1)]",
         className
       )}
@@ -84,14 +84,15 @@ const CardFooter = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
 );
 CardFooter.displayName = "CardFooter";
 
-export { 
-  Card, 
-  CardSmall, 
-  CardMedium, 
-  CardLarge, 
-  CardHeader, 
-  CardTitle, 
-  CardDescription, 
-  CardContent, 
-  CardFooter 
+export {
+  Card,
+  CompetitionCardBase,
+  CardSmall,
+  CardMedium,
+  CardLarge,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
 };
