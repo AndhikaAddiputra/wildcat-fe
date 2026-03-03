@@ -32,8 +32,42 @@ body {
   font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
 }
 
+td Button {
+  min-width: 125px;
+}
+
 @layer base {
   * {
     @apply border-zinc-200 dark:border-zinc-800;
+  }
+}
+
+@layer components {
+  .app-table-wrapper {
+    @apply rounded-xl overflow-hidden;
+  }
+
+  .app-table {
+    @apply w-full border-separate border-spacing-0;
+  }
+
+  .app-table tr {
+    @apply bg-[#9aa0d6];
+  }
+
+  .app-table tr:nth-child(even) {
+    @apply bg-[#8076d0];
+  }
+
+  .app-table th {
+    @apply text-center px-[3%] py-6;
+  }
+
+  .app-table td {
+    @apply text-left px-[3%] py-6;
+  }
+
+  .app-table td.action {
+    @apply text-center justify-center px-0;
   }
 }

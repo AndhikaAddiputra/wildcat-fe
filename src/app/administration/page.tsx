@@ -46,7 +46,7 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section className="relative flex pt-36 pb-8 justify-center pt-20">
+      <section className="relative flex pt-32 pb-8 justify-center">
         <div className="text-left mx-auto w-[80vw]">
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
             Administration
@@ -57,7 +57,7 @@ export default function Home() {
         </div>
       </section>
 
-      <main className=" flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
+      <main className="flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
         <section className="w-[80vw] flex flex-col gap-10">
             <CardLarge className="w-full max-w-full h-[1139px]">
               <CardHeader>
