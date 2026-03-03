@@ -45,6 +45,10 @@ import {
   Rocket,
   Circle,
   ImageOff,
+  ChevronLeft,
+  ChevronRight,
+  Funnel,
+  RotateCw,
 } from "lucide-react";
 
 export default function Home() {
@@ -52,8 +56,8 @@ export default function Home() {
 
   const navLinks = [
     { label: "Home", href: "/" },
-    { label: "Verification", href: "/committee/verification" },
-    { label: "Submission", href: "/committee/submission" },
+    { label: "Verification", href: "/commitee/verification" },
+    { label: "Submission", href: "/commitee/submission" },
   ];
 
   return (
@@ -66,7 +70,7 @@ export default function Home() {
           <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
         }
         links={navLinks}
-        activeLink="/committee/verification"
+        activeLink="/commitee/verification"
         action={
           <Button variant="outline" size="lg">
             <LogIn className="h-4 w-4" />
@@ -98,9 +102,11 @@ export default function Home() {
               </div>
               <div className="flex justify-between w-[400px]">
                 <Button variant="primary" size="lg" className="min-w-[180px]">
+                  <RotateCw size={16} />
                   Refresh
                 </Button>
                 <Button variant="primary" size="lg" className="min-w-[180px]">
+                  <Funnel fill="#0b2e6f" size={16} />
                   Filter
                 </Button>
               </div>
@@ -128,13 +134,21 @@ export default function Home() {
                       <td>{row.comp}</td>
                       <td>{row.team}</td>
                       <td className="action">
-                        <Button variant="secondary">Check</Button>
+                        <Button variant="secondary">
+                          Choose
+                        </Button>
                       </td>
                       <td className="action">
-                        <Button variant="secondary">Check</Button>
+                        <Button variant="secondary">
+                          Check
+                          <ExternalLink size={16} />
+                        </Button>
                       </td>
                       <td className="action">
-                        <Button variant="secondary">Check</Button>
+                        <Button variant="secondary">
+                          Check
+                          <ExternalLink size={16} />
+                        </Button>
                       </td>
                       <td className="action">
                         <Button variant="secondary">Admit</Button>
@@ -148,8 +162,14 @@ export default function Home() {
                   <span className="text-cream font-semibold">Show data per page: </span>
                 </div>
                 <div className="w-[400px] min-w-fit flex justify-between">
-                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">Previous</Button>
-                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">Next</Button>
+                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    <ChevronLeft />
+                    Previous
+                  </Button>
+                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    Next
+                    <ChevronRight />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -164,9 +184,11 @@ export default function Home() {
               </div>
               <div className="flex justify-between w-[400px]">
                 <Button variant="primary" size="lg" className="min-w-[180px]">
+                  <RotateCw size={16} />
                   Refresh
                 </Button>
                 <Button variant="primary" size="lg" className="min-w-[180px]">
+                  <Funnel fill="#0b2e6f" size={16} />
                   Filter
                 </Button>
               </div>
@@ -192,7 +214,10 @@ export default function Home() {
                       <td>{row.comp}</td>
                       <td>{row.team}</td>
                       <td className="action">
-                        <Button variant="secondary">Check</Button>
+                        <Button variant="secondary">
+                          Check
+                          <ExternalLink size={16} />
+                        </Button>
                       </td>
                       <td className="action">
                         <Button variant="secondary">Admit</Button>
@@ -206,8 +231,14 @@ export default function Home() {
                   <span className="text-cream font-semibold">Show data per page: </span>
                 </div>
                 <div className="w-[400px] min-w-fit flex justify-between">
-                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">Previous</Button>
-                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">Next</Button>
+                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    <ChevronLeft />
+                    Previous
+                  </Button>
+                  <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    Next
+                    <ChevronRight />
+                  </Button>
                 </div>
               </div>
             </div>
