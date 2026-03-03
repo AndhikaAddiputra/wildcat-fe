@@ -14,7 +14,8 @@
   --color-orange: #ff8d28;
   --color-red: #ff383c;
   --color-yellow: #ffcc00;
-  --color-darkblue: #0b2e6f
+  --color-navy: #0b2e6f;
+  --color-cream: #fffdd0;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,6 +27,7 @@
 
 body {
   background: var(--background);
+  background-image: url(/background-hero-still.svg);
   color: var(--foreground);
   font-family: var(--font-poppins), var(--font-sans), system-ui, -apple-system, sans-serif;
 }

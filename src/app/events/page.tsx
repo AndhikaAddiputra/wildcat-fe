@@ -1,0 +1,109 @@
+"use client";
+
+import { useState } from "react";
+import {
+  Button,
+  CardLarge,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardFooter,
+  Badge,
+  Navbar,
+  Footer,
+} from "@/components/ui";
+import {
+  LogIn,
+  ExternalLink,
+} from "lucide-react";
+
+export default function Event() {
+  const [modalOpen, setModalOpen] = useState(false);
+
+  const navLinks = [
+    { label: "Home", href: "/" },
+    { label: "Team", href: "" },
+    { label: "Administration", href: "/administration" },
+    { label: "Events", href: "/events" },
+    { label: "Submission", href: "/submission" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
+      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
+      {/* Navbar - transparent to solid */}
+      <Navbar
+        logo={
+          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
+        }
+        links={navLinks}
+        activeLink="/events"
+        action={
+          <Button variant="outline" size="lg">
+            <LogIn className="h-4 w-4" />
+            Login
+          </Button>
+        }
+      />
+
+      {/* Hero Section */}
+      <section className="relative flex pt-36 pb-8 justify-center pt-20">
+        <div className="text-left mx-auto w-[80vw]">
+          <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
+            Events
+          </h3>
+          <p className="">
+            Explore our exciting events!
+          </p>
+        </div>
+      </section>
+
+      <main className=" flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
+        <section className="w-[80vw] flex flex-col gap-10">
+            <CardLarge className="w-full max-w-full">
+              <CardHeader>
+                <Badge variant="complete" className="mb-4">
+                  AVAILABLE
+                </Badge>
+                <CardTitle className="mb-4 text-[36px] font-semibold leading-tight text-white">
+                  [Event_FullName]
+                </CardTitle>
+                <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] text-[20px] opacity-100">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+                <Button variant="primary" size="lg">
+                  Learn More
+                  <ExternalLink className="h-5 w-5" />
+                </Button>
+              </CardFooter>
+            </CardLarge>
+
+            <CardLarge className="w-full max-w-full">
+              <CardHeader>
+                <Badge variant="complete" className="mb-4">
+                  AVAILABLE
+                </Badge>
+                <CardTitle className="mb-4 text-[36px] font-semibold leading-tight text-white">
+                  [Event_FullName]
+                </CardTitle>
+                <CardDescription className="text-justify leading-relaxed text-[#F1E1B4] text-[20px] opacity-100">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate
+                </CardDescription>
+              </CardHeader>
+              <CardFooter className="flex justify-end px-10 pb-10 pt-0">
+                <Button variant="primary" size="lg">
+                  Learn More
+                  <ExternalLink className="h-5 w-5" />
+                </Button>
+              </CardFooter>
+            </CardLarge>
+        </section>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}
