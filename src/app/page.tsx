@@ -54,14 +54,15 @@ export default function Home() {
   const [competitionModalOpen, setCompetitionModalOpen] = useState(false);
 
   const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Competitions", href: "#components" },
-    { label: "Events", href: "#buttons" },
-    { label: "Timeline", href: "#badges" },
+    { label: "Home", href: "/" },
+    { label: "Team", href: "" },
+    { label: "Administration", href: "/administration" },
+    { label: "Events", href: "/events" },
+    { label: "Submission", href: "/submission" },
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-900 text-white">
+    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
       <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
       {/* Navbar - transparent to solid */}
@@ -70,7 +71,7 @@ export default function Home() {
           <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
         }
         links={navLinks}
-        activeLink="#about"
+        activeLink="/"
         action={
           <Button variant="outline" size="lg">
             <LogIn className="h-4 w-4" />
@@ -80,10 +81,7 @@ export default function Home() {
       />
 
       {/* Hero Section */}
-      <section
-        id="about"
-        className="relative flex min-h-[70vh] items-center justify-center bg-gradient-to-b from-[#0A2D6E]/60 to-zinc-900 pt-20"
-      >
+      <section className="relative flex min-h-[70vh] items-center justify-center pt-20">
         <div className="text-center">
           <Badge variant="verified" className="mb-4">
             <Rocket className="mr-1 h-3 w-3" />
@@ -106,7 +104,7 @@ export default function Home() {
 
       <main className="mx-auto max-w-6xl px-6 py-12">
         {/* ── Primary Button ── */}
-        <section id="buttons" className="mb-16">
+        <section className="mb-16">
           <h2 className="mb-1 text-3xl font-bold">Buttons & Label</h2>
           <p className="mb-8 text-sm text-zinc-400">Rounding = 20</p>
 
@@ -203,7 +201,7 @@ export default function Home() {
           <Separator className="my-8 bg-zinc-800" />
 
           {/* ── Status Label / Badges ── */}
-          <section id="badges">
+          <section>
             <h3 className="mb-1 text-xl font-bold">Status Label / Badges</h3>
             <p className="mb-6 text-sm text-zinc-400">
               Height seragam = 40px, style semua seragam.
@@ -230,7 +228,7 @@ export default function Home() {
         <Separator className="my-8 bg-zinc-800" />
 
         {/* ── Other Components ── */}
-        <section id="components" className="mb-16">
+        <section className="mb-16">
           <h2 className="mb-6 text-3xl font-bold">Cards</h2>
 
           <div className="flex flex-col gap-6 items-start">
@@ -290,7 +288,7 @@ export default function Home() {
         </section>
 
         {/* Badges & Avatars */}
-        <section id="icons" className="mb-16">
+        <section className="mb-16">
           <h2 className="mb-2 text-2xl font-semibold text-zinc-50">
             Badges & Avatars
           </h2>
@@ -326,7 +324,7 @@ export default function Home() {
         </section>
 
         {/* Forms */}
-        <section id="forms" className="mb-16">
+        <section className="mb-16">
           <h2 className="mb-6 text-3xl font-bold">Form Elements</h2>
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
