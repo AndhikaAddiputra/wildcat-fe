@@ -4,8 +4,8 @@ import { useState } from "react";
 import {
   Button,
   Card,
-  CardSmall,    
-  CardMedium,   
+  CardSmall,
+  CardMedium,
   CardLarge,
   CardHeader,
   CardTitle,
@@ -21,6 +21,7 @@ import {
   Navbar,
   Footer,
 } from "@/components/ui";
+import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import {
   Heart,
   Star,
@@ -52,30 +53,14 @@ import {
 export default function Teams() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Team", href: "/teams" },
-    { label: "Administration", href: "" },
-    { label: "Events", href: "/events" },
-    { label: "Submission", href: "" },
-  ];
-
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
       <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
+        logo={LOGO}
+        links={PARTICIPANT_NAV_LINKS}
         activeLink="/teams"
-        action={
-          <Button variant="outline" size="lg">
-            Logout
-          </Button>
-        }
+        action={PARTICIPANT_NAV_ACTION}
+        mobileAction={PARTICIPANT_NAV_ACTION}
       />
 
       {/* Hero Section */}
@@ -86,7 +71,7 @@ export default function Teams() {
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
             Team&apos;s Profile
           </h3>
-          <p className="">
+          <p className="text-2xl font-semibold text-[#F1E1B4]">
             Manage Your Team&apos;s Data & Information
           </p>
         </div>
@@ -96,7 +81,7 @@ export default function Teams() {
         <section className="w-[80vw]">
           <CardLarge className="w-full max-w-full">
             <CardHeader>
-              <CardTitle className="text-[28px] font-bold leading-tight text-white mb-6">
+              <CardTitle className="text-[28px] font-bold leading-tight !text-[#F1E1B4] mb-6">
                 Team Information
               </CardTitle>
               
@@ -135,7 +120,7 @@ export default function Teams() {
                 </div>
               </div>
 
-              <CardTitle className="text-[28px] font-bold leading-tight text-white mb-6 mt-8">
+              <CardTitle className="text-[28px] font-bold leading-tight !text-[#F1E1B4] mb-6 mt-8">
                 Members
               </CardTitle>
 
@@ -185,7 +170,7 @@ export default function Teams() {
               </div>
             </CardHeader>
             <CardFooter className="flex justify-center px-10 pb-10 pt-4">
-              <Button variant="primary" size="lg" className="w-[90%]">
+              <Button variant="primary" size="lg" className="w-[100%]">
                 Save Changes
               </Button>
             </CardFooter>

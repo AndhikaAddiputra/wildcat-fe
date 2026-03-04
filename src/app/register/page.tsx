@@ -28,7 +28,7 @@ const RegisterPage = () => {
       </button>
 
       <div className="max-w-[1250px] w-full flex flex-col md:flex-row items-center justify-center gap-10 md:gap-[80px]">
-        <div className="relative shrink-0 w-full max-w-[516px] h-[382px]">
+        <div className="relative shrink-0 w-full max-w-[387px] h-[286px]">
           <Image 
             src="/Banner.svg" 
             alt="Wildcat Banner"
@@ -138,7 +138,7 @@ const RegisterPage = () => {
                     key={name} 
                     onClick={() => setSelectedComp(name)}
                     className={`w-[179px] h-[179px] bg-white/10 backdrop-blur-md border-[3px] border-[#F6911E] rounded-[20px] flex flex-col items-center justify-center gap-3 cursor-pointer transition-all overflow-hidden
-                      ${selectedComp === name ? 'bg-[#F6911E]/30 scale-[1.02] shadow-[0_0_15px_rgba(246,145,30,0.3)]' : 'hover:bg-white/20'}`}
+                      ${selectedComp === name ? '!bg-orange scale-[1.02] shadow-[0_0_15px_rgba(246,145,30,0.3)]' : 'hover:bg-white/20'}`}
                   >
                     <div className="relative w-[80px] h-[80px] shrink-0">
                       <Image

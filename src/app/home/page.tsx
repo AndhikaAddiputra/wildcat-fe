@@ -9,7 +9,8 @@ import {
   CardLarge,
   Badge,
 } from "@/components/ui";
-import { LogOut, Download } from "lucide-react";
+import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
+import { Download } from "lucide-react";
 
 // Tipe untuk status pendaftaran
 type RegistrationStatus = "Registered" | "Document Verified" | "Paid";
@@ -17,14 +18,6 @@ type RegistrationStatus = "Registered" | "Document Verified" | "Paid";
 export default function ParticipantHomePage() {
   // Mode simulasi status: Ganti nilai awal ini untuk testing mode berbeda
   const [regStatus, setRegStatus] = useState<RegistrationStatus>("Document Verified");
-
-  const navLinks = [
-    { label: "Home", href: "/home" },
-    { label: "Team", href: "/team" },
-    { label: "Administration", href: "/administration" },
-    { label: "Events", href: "/events" },
-    { label: "Submission", href: "/submission" },
-  ];
 
   const timelineData = [
     { label: "Early Registration", date: "13 - 22 March 2026", active: true },
@@ -43,8 +36,8 @@ export default function ParticipantHomePage() {
       badge: "pending" as const,
     },
     "Document Verified": {
-      width: "50%",
-      dotClass: "left-[50%]",
+      width: "52%",
+      dotClass: "left-[52%]",
       message: "Pay competition fee for complete your registration process.",
       badge: "verified" as const,
     },
@@ -59,27 +52,23 @@ export default function ParticipantHomePage() {
   const currentReg = regConfig[regStatus];
 
   return (
-    <div className="relative min-h-screen w-full overflow-x-hidden bg-[#0A2D6E]">
-      {/* Background Image */}
-      <div 
-        className="absolute inset-0 z-0 opacity-40"
-        style={{
-          backgroundImage: "url('/background-home.svg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-
-      <Navbar
-        logo={<img src="/wildcat-logo.svg" alt="Wildcat" className="h-16 w-auto" />}
-        links={navLinks}
+    <div className="min-h-screen w-full overflow-x-hidden">
+      {/* Area biru + background hanya sampai sebelum footer */}
+      <div className="relative min-h-screen bg-[#0A2D6E]">
+        <div
+          className="absolute inset-0 z-0 opacity-40"
+          style={{
+            backgroundImage: "url('/background-home.svg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <Navbar
+        logo={LOGO}
+        links={PARTICIPANT_NAV_LINKS}
         activeLink="/home"
-        action={
-          <Button variant="outline" size="md" className="border-white text-white">
-            <LogOut className="h-4 w-4" />
-            Logout
-          </Button>
-        }
+        action={PARTICIPANT_NAV_ACTION}
+        mobileAction={PARTICIPANT_NAV_ACTION}
       />
 
       <main className="relative z-10 mx-auto max-w-6xl px-6 pt-32 pb-20 font-['Poppins']">
@@ -88,7 +77,7 @@ export default function ParticipantHomePage() {
           <h1 className="text-4xl font-bold text-[#F6911E] sm:text-5xl">
             Hello, [Leader's Name]!
           </h1>
-          <p className="mt-2 text-xl text-[#F1E1B4]">
+          <p className="text-2xl font-semibold text-[#F1E1B4]">
             Welcome to your personal dashboard
           </p>
         </section>
@@ -100,7 +89,7 @@ export default function ParticipantHomePage() {
                <div className="h-12 w-12 border-2 border-[#F6911E] flex items-center justify-center rounded">
                   <div className="h-6 w-6 border-2 border-[#F6911E] rotate-45" />
                </div>
-               <h2 className="text-2xl font-bold text-[#f1e1b4] tracking-wide">[Competition_Name] Competition</h2>
+               <h2 className="text-l font-bold text-[#f1e1b4] tracking-wide">[Competition_Name] Competition</h2>
             </div>
             <Button variant="primary" size="lg" className="flex gap-2">
               <Download className="h-5 w-5" />
@@ -158,7 +147,7 @@ export default function ParticipantHomePage() {
           {/* Team Status Card */}
           <CardLarge className="p-10 bg-[#0A2D6E]/95 border-none shadow-[0_0_15px_rgba(246,145,30,0.3)]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-3xl font-bold text-[#f1e1b4] tracking-wider">[Team_Name]</h2>
+              <h2 className="text-xl font-bold text-[#f1e1b4] tracking-wider">[Team_Name]</h2>
               <Badge variant={currentReg.badge}>
                 {regStatus === "Document Verified" ? "Verified" :regStatus}
               </Badge>
@@ -215,6 +204,7 @@ export default function ParticipantHomePage() {
           </CardLarge>
         </div>
       </main>
+      </div>
 
       <Footer />
     </div>

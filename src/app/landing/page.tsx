@@ -15,6 +15,11 @@ import {
   Footer,
   Modal,
 } from "@/components/ui";
+import {
+  LOGO,
+  LANDING_NAV_LINKS,
+  LANDING_NAV_ACTION,
+} from "@/config/navbar-config";
 import type { ModalTimelineItem } from "@/components/ui";
 import {
   Heart,
@@ -161,7 +166,7 @@ const EVENTS = [
     description:
       "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.",
     status: "not_started" as EventStatus,
-    eventDate: "21 June 2026",
+    eventDate: "11 April 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
   },
@@ -181,7 +186,7 @@ const EVENTS = [
     description:
       "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.",
     status: "not_started" as EventStatus,
-    eventDate: "21 June 2026",
+    eventDate: "22 June 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
   },
@@ -249,29 +254,15 @@ export default function LandingPage() {
     return () => observer.disconnect();
   }, []);
 
-  const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Competitions", href: "#competitions" },
-    { label: "Events", href: "#events" },
-    { label: "Timeline", href: "#timeline" },
-  ];
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-navy text-white">
       {/* Navbar */}
       <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-14 w-auto" />
-        }
-        links={navLinks}
+        logo={LOGO}
+        links={LANDING_NAV_LINKS}
         activeLink={activeSection}
-        action={
-          <Link href="/login">
-            <Button variant="outline" size="lg">
-              Login
-            </Button>
-          </Link>
-        }
+        action={LANDING_NAV_ACTION}
+        mobileAction={LANDING_NAV_ACTION}
       />
 
       {/* ══════════════════════════════════════
