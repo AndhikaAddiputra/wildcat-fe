@@ -23,7 +23,7 @@ const LoginPage = () => {
       {/* Main Container */}
       <div className="max-w-[1250px] w-full flex flex-col md:flex-row items-center justify-center gap-10 md:gap-[80px]">
         
-        <div className="relative shrink-0 w-full max-w-[516px] h-[382px]">
+        <div className="relative shrink-0 w-full max-w-[387px] h-[286px]">
           <Image 
             src="/Banner.svg" 
             alt="Wildcat Banner"
