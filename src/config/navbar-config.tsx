@@ -46,9 +46,9 @@ export const PARTICIPANT_NAV_ACTION = (
 
 /** 3. Navbar Committee: CommitteeHome, Verification, CommitteeSubmission (placeholder) + Logout */
 export const COMMITTEE_NAV_LINKS: NavLink[] = [
-  { label: "CommitteeHome", href: "/committee" },
+  { label: "Home", href: "/committee/home" },
   { label: "Verification", href: "/committee/verification" },
-  { label: "CommitteeSubmission", href: "/committee/submission" },
+  { label: "Submission", href: "/committee/submission" },
 ];
 
 export const COMMITTEE_NAV_ACTION = (
@@ -62,7 +62,7 @@ export const COMMITTEE_NAV_ACTION = (
 
 /** 4. Navbar Admin: AdminHome, AccessControl, Announcement (placeholder) + Logout */
 export const ADMIN_NAV_LINKS: NavLink[] = [
-  { label: "AdminHome", href: "/admin" },
+  { label: "Home", href: "/admin/home" },
   { label: "AccessControl", href: "/admin/access-control" },
   { label: "Announcement", href: "/admin/announcement" },
 ];

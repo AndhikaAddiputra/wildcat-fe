@@ -6,14 +6,10 @@ import {
   Button,
   CardLarge,
 } from "@/components/ui";
-import { LogOut, Users, Download, Pencil } from "lucide-react";
+import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
+import { Users, Download, Pencil } from "lucide-react";
 
 export default function AdminStatisticsPage() {
-  const navLinks = [
-    { label: "Home", href: "/admin/home" },
-    { label: "Verification", href: "/admin/verification" },
-    { label: "Submission", href: "/admin/submission" },
-  ];
 
   const chartData = [
   { day: "Mon", value: 200 },
@@ -60,28 +56,24 @@ export default function AdminStatisticsPage() {
 
 
   return (
-    <div className="relative min-h-screen w-full bg-[#0A2D6E] font-['Poppins']">
-      {/* Background Image Setup */}
-      <div 
-        className="absolute inset-0 z-0 opacity-40"
-        style={{
-          backgroundImage: "url('/background-home.svg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
-
-      <Navbar
-        logo={<img src="/wildcat-logo.svg" alt="Wildcat" className="h-16 w-auto" />}
-        links={navLinks}
-        activeLink="/admin/home"
-        action={
-          <Button variant="outline" size="md" className="border-white text-white">
-            <LogOut className="h-4 w-4 mr-2" />
-            Logout
-          </Button>
-        }
-      />
+    <div className="min-h-screen w-full font-['Poppins']">
+      {/* Area biru + background hanya sampai sebelum footer */}
+      <div className="relative min-h-screen bg-[#0A2D6E]">
+        <div
+          className="absolute inset-0 z-0 opacity-40"
+          style={{
+            backgroundImage: "url('/background-home.svg')",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+          }}
+        />
+        <Navbar
+          logo={LOGO}
+          links={ADMIN_NAV_LINKS}
+          activeLink="/admin/home"
+          action={ADMIN_NAV_ACTION}
+          mobileAction={ADMIN_NAV_ACTION}
+        />
 
       <main className="relative z-10 mx-auto max-w-6xl px-6 pt-32 pb-20">
         {/* Welcome Admin */}
@@ -89,7 +81,7 @@ export default function AdminStatisticsPage() {
           <h1 className="text-4xl font-bold text-[#F6911E] sm:text-5xl">
             Hello, [Account's Name]!
           </h1>
-          <p className="mt-2 text-xl text-[#F1E1B4]">
+          <p className="mt-2 text-2xl font-semibold text-[#F1E1B4]">
             Welcome to your personal dashboard
           </p>
         </section>
@@ -126,7 +118,7 @@ export default function AdminStatisticsPage() {
           {/* Participants Tracker Placeholder (Graph Area) */}
           <div className="bg-[#3c3c9c] p-6 rounded-2xl border border-white/5 mb-8 flex flex-col">
             <div className="flex justify-between items-center mb-6">
-              <span className="text-white font-bold">Participants Tracker</span>
+              <span className="text-orange font-bold">Participants Tracker</span>
               <div className="flex gap-2">
                 <Button size="sm" className="bg-[#F6911E] h-7 text-[10px] text-[#0A2D6E] font-bold">Competition</Button>
                 <Button size="sm" variant="outline" className="h-7 text-[10px] text-white border-white/20">Events</Button>
@@ -260,6 +252,7 @@ export default function AdminStatisticsPage() {
 
         </CardLarge>
       </main>
+      </div>
 
       <Footer />
     </div>
