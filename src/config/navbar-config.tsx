@@ -63,7 +63,7 @@ export const COMMITTEE_NAV_ACTION = (
 /** 4. Navbar Admin: AdminHome, AccessControl, Announcement (placeholder) + Logout */
 export const ADMIN_NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/admin/home" },
-  { label: "AccessControl", href: "/admin/access-control" },
+  { label: "AccessControl", href: "/admin/access" },
   { label: "Announcement", href: "/admin/announcement" },
 ];
 

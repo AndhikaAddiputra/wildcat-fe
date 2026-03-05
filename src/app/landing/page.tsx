@@ -1,23 +1,27 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import {
   Button,
+  Card,
+  CompetitionCardBase,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
   Navbar,
   Footer,
-  CompetitionCard,
-  TimelineItem,
+  Modal,
 } from "@/components/ui";
 import {
   LOGO,
   LANDING_NAV_LINKS,
   LANDING_NAV_ACTION,
 } from "@/config/navbar-config";
+import type { ModalTimelineItem } from "@/components/ui";
 import {
-  FileText,
-  Briefcase,
-  FlaskConical,
-  GraduationCap,
   Heart,
   LogIn,
   Mic,
@@ -25,12 +29,13 @@ import {
   Trophy,
   Award,
   ArrowRight,
+  ExternalLink,
+  X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 const SECTION_IDS = ["#about", "#competitions", "#events", "#timeline"] as const;
-
-/** Timeline item for competition modals (label + date string) */
-type ModalTimelineItem = { label: string; date: string };
 
 /**
  * Mengambil tanggal awal dari string tanggal (untuk perbandingan).
@@ -209,6 +214,12 @@ const EVENTS = [
 
 export default function LandingPage() {
   const [activeSection, setActiveSection] = useState("#about");
+  const [contentRevealed, setContentRevealed] = useState(false);
+  const [openCompetitionId, setOpenCompetitionId] = useState<string | null>(null);
+  const [openEventId, setOpenEventId] = useState<string | null>(null);
+  const [eventCarouselIndex, setEventCarouselIndex] = useState(0);
+  const [failedCompImages, setFailedCompImages] = useState<Set<string>>(new Set());
+  const contentSectionRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
     const observers: IntersectionObserver[] = [];
@@ -227,6 +238,21 @@ export default function LandingPage() {
       observers.push(observer);
     });
     return () => observers.forEach((o) => o.disconnect());
+  }, []);
+
+  useEffect(() => {
+    const el = contentSectionRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setContentRevealed(true);
+        });
+      },
+      { rootMargin: "-10% 0px -20% 0px", threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -266,158 +292,330 @@ export default function LandingPage() {
             alt="WILDCAT 2026"
             className="mb-8 h-auto w-full max-w-[min(90vw,520px)] sm:max-w-[min(85vw,640px)]"
           />
-          <p className="mx-auto mb-10 max-w-xl text-base font-semibold leading-relaxed text-cream sm:text-2xl">
+          <p className="mx-auto mb-10 max-w-xl text-base font-semibold leading-relaxed text-[#f1e1b4] sm:text-2xl">
             Leading Petroleum Geoscience to Fuel the Future of Oil and Gas
           </p>
-          <Button
-            size="lg"
-            variant="primary"
-          >
-            Register Now
-          </Button>
+          <Link href="/register">
+            <Button size="lg" variant="primary">
+              Register Now
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
         </div>
       </section>
 
       {/* ══════════════════════════════════════
-          WHAT IS WILDCAT?
+          CONTENT SECTION (parallax reveal)
+          Gradient dimulai di bawah Transition.svg agar tidak ada garis keras;
+          area overlap hanya menampilkan wave + hero.
          ══════════════════════════════════════ */}
-      <section id="about" className="bg-cream px-6 py-20">
+      <section
+        id="content"
+        ref={contentSectionRef}
+        className="relative -mt-40 md:-mt-48"
+      >
+        {/* Gradient dimulai persis di bawah wave agar biru graphic menempel ke content */}
+        <div
+          className="absolute left-0 right-0 bottom-0 top-[140px] z-0 bg-gradient-to-b from-[#0A2D6E] via-[#7E74CD] to-[#0A2D6E] sm:top-[160px] md:top-[180px]"
+          aria-hidden
+        />
+        <div
+          className={`relative z-10 transition-all duration-700 ease-out pt-8 md:pt-12 ${
+            contentRevealed
+              ? "translate-y-0 opacity-100"
+              : "translate-y-16 opacity-0"
+          }`}
+        >
+          {/* Transition graphic: hilang di layar sempit (< md); tampil penuh tanpa terpotong bawah */}
+          <div className="w-full overflow-hidden leading-[0]">
+            <div className="hidden w-full md:block" style={{ aspectRatio: "1601/275" }}>
+              <img
+                src="/Transition.svg"
+                alt=""
+                className="block h-full w-full object-cover object-top"
+                width={1610}
+                height={273}
+              />
+            </div>
+            {/* Placeholder tinggi saat gambar disembunyikan (md ke bawah) agar konten tidak naik */}
+            <div className="w-full md:hidden" style={{ height: "145px" }} aria-hidden />
+          </div>
+
+      {/* ─── About ─── */}
+      <section id="about" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 text-center text-3xl font-extrabold text-navy sm:text-4xl">
+          {/* Tag: ABOUT THE EVENT */}
+          <div className="mb-6 flex justify-center">
+            <span className="rounded-full border border-orange px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange">
+              ABOUT THE EVENT
+            </span>
+          </div>
+
+          {/* Judul gradient: orange → kuning-orange */}
+          <h2 className="mb-4 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             WHAT IS WILDCAT?
           </h2>
-          <p className="mx-auto mb-12 max-w-2xl text-center text-sm leading-relaxed text-navy/70 sm:text-base">
+          <p className="mx-auto mb-12 max-w-2xl text-center text-sm leading-relaxed text-[#f1e1b4] sm:text-base">
             Wildcat AAPG ITB 2026 is an annual Petroleum Geoscience-themed
             competition and industry engagement platform designed to simulate
             real subsurface workflows in oil and gas.
           </p>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            <div className="rounded-2xl border-2 border-navy bg-cream p-8">
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
-                Our Vision
-              </p>
-              <h3 className="mb-3 text-xl font-bold text-navy">
-                A Gateway to Excellence
-              </h3>
-              <p className="text-sm leading-relaxed text-navy/70">
-                Providing a platform for cultivating globally-adept talent,
-                progress, and sustainable petroleum excellence, we strive to
-                uphold AAPG ITB 2026 as a pathway to excellence.
-              </p>
+          <Card className="rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] dark:!bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] shadow-[0_0_10px_4px_rgba(246,145,60,1)]">
+            <div className="grid gap-8 p-8 md:grid-cols-2 md:gap-12 md:p-10">
+              {/* Kolom kiri: Our Vision */}
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
+                  Our Vision
+                </p>
+                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">
+                  A Gateway to Excellence
+                </h3>
+                <p className="text-sm leading-relaxed text-justify text-[#f1e1b4]/90">
+                  To create a platform for wide ranges of people to learn,
+                  progress, and lead Petroleum Geoscience and embody Wildcat
+                  AAPG ITB 2026 as a gateway to excellence.
+                </p>
+              </div>
+              {/* Kolom kanan: Our Theme */}
+              <div>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
+                  Our Theme
+                </p>
+                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">
+                  Fueling the Future
+                </h3>
+                <p className="text-sm leading-relaxed text-justify text-[#f1e1b4]/90">
+                  &ldquo;Leading Petroleum Geoscience to Fuel the Future of Oil
+                  and Gas&rdquo; — connecting scientific insight with
+                  technological progress and industry responsibility.
+                </p>
+              </div>
             </div>
-
-            <div className="rounded-2xl border-2 border-navy bg-cream p-8">
-              <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
-                Our Think
-              </p>
-              <h3 className="mb-3 text-xl font-bold text-navy">
-                Fueling the Future
-              </h3>
-              <p className="text-sm leading-relaxed text-navy/70">
-                &ldquo;Wildcat Petroleum Geoscience fosters insight exchange of
-                oil and gas; partnership, scientific impact and breakthroughs,
-                alongside a greater sense of shared responsibility.&rdquo;
-              </p>
-            </div>
-          </div>
+          </Card>
         </div>
       </section>
 
       {/* ══════════════════════════════════════
-          CHOOSE YOUR PATH!
+          CHOOSE YOUR PATH! (Competitions — card + modal variant competition)
          ══════════════════════════════════════ */}
-      <section id="competitions" className="bg-lavender px-6 py-20">
+      <section id="competitions" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-12 text-center text-3xl font-extrabold text-navy sm:text-4xl">
+          <div className="mb-6 flex justify-center">
+            <span className="rounded-full border border-orange px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange">
+              OUR COMPETITIONS
+            </span>
+          </div>
+          <h2 className="mb-8 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             CHOOSE YOUR PATH!
           </h2>
 
           <div className="grid gap-6 sm:grid-cols-2">
-            <CompetitionCard
-              icon={<FileText className="h-6 w-6" />}
-              title="Paper & Poster Competition"
-              description="This competition is an international-class platform for bachelor/class students to present and communicate their scientific research in the petroleum geoscience field, while focusing on trending and innovative topics in oil and gas exploration."
-            />
-            <CompetitionCard
-              icon={<Briefcase className="h-6 w-6" />}
-              title="Business Case Competition"
-              description="An avenue for students in oil and gas business challenges in the energy sector, covering areas such as exploration, production, profitability, strategy, and sustainability-driven business planning."
-            />
-            <CompetitionCard
-              icon={<FlaskConical className="h-6 w-6" />}
-              title="GnG Case Study Competition"
-              description="A high-level technical competition challenging the critical thinking of students through integrated, exciting geoscience cases study to enrich them with data-driven analysis, problem-solving, and collaboration skills."
-            />
-            <CompetitionCard
-              icon={<GraduationCap className="h-6 w-6" />}
-              title="High School Essay Competition"
-              description="An insightful essay competition for high school students to discover and express their views on the future of energy, critical thinking, writing ability, covering topics around energy, society, and sustainability."
-            />
+            {COMPETITIONS.map((comp) => (
+              <CompetitionCardBase
+                key={comp.id}
+                className="flex max-w-none flex-col p-8"
+              >
+                <CardHeader className="flex flex-row items-start justify-between gap-4 p-0">
+                  <CardTitle className="!text-3xl !font-bold leading-tight !text-[#f1e1b4]">
+                    {comp.title}
+                  </CardTitle>
+                  {comp.imageUrl && !failedCompImages.has(comp.id) ? (
+                    <img
+                      src={comp.imageUrl}
+                      alt=""
+                      className="h-20 w-20 shrink-0 object-contain"
+                      onError={() => setFailedCompImages((prev) => new Set(prev).add(comp.id))}
+                    />
+                  ) : (
+                    <div className="flex h-12 w-12 shrink-0 rotate-45 items-center justify-center rounded-lg border-2 border-[#F6911E] bg-transparent">
+                      <X className="h-5 w-5 -rotate-45 text-[#F6911E]" />
+                    </div>
+                  )}
+                </CardHeader>
+                <CardDescription className="flex-1 px-0 pt-4 text-sm leading-relaxed text-justify !text-[#f1e1b4]">
+                  {comp.description}
+                </CardDescription>
+                <CardFooter className="flex justify-end p-0 pt-6">
+                  <Button
+                    variant="primary"
+                    size="md"
+                    onClick={() => setOpenCompetitionId(comp.id)}
+                  >
+                    Learn More
+                    <ExternalLink className="h-4 w-4" />
+                  </Button>
+                </CardFooter>
+              </CompetitionCardBase>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          SEEK OPPORTUNITIES
-         ══════════════════════════════════════ */}
-      <section id="events" className="bg-purple px-6 py-20">
+      {/* Modal competition: satu modal untuk semua kompetisi */}
+      {openCompetitionId && (() => {
+        const comp = COMPETITIONS.find((c) => c.id === openCompetitionId);
+        if (!comp) return null;
+        return (
+          <Modal
+            isOpen={!!openCompetitionId}
+            onClose={() => setOpenCompetitionId(null)}
+            variant="competition"
+            eventName={comp.title}
+            eventDescription={comp.description}
+            timeline={comp.timeline.map((item) => ({
+              ...item,
+              isActive: item.isActive ?? isTimelineDateReached(item.date),
+            }))}
+            competitionImageUrl={comp.imageUrl}
+          />
+        );
+      })()}
+
+      {/* ─── Events (carousel + modal) ─── */}
+      <section id="events" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
-          <h2 className="mb-12 text-center text-3xl font-extrabold text-cream sm:text-4xl">
+          <div className="mb-6 flex justify-center">
+            <span className="rounded-full border border-orange px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange">
+              OUR EVENTS
+            </span>
+          </div>
+          <h2 className="mb-10 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             SEEK OPPORTUNITIES
           </h2>
 
-          <div className="mx-auto max-w-2xl rounded-2xl border-2 border-navy bg-cream p-8">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-navy text-orange">
-              <Heart className="h-6 w-6" />
-            </div>
-            <h3 className="mb-2 text-xl font-bold text-navy">
-              WiACT (Community Service)
-            </h3>
-            <p className="mb-6 text-sm leading-relaxed text-navy/70">
-              This side event is a social engagement activity with children,
-              conducted in kid-friendly and creative settings that encourage
-              curiosity. It is aimed to spread awareness to increase
-              participants in participating and contributing to voluntary work
-              and education.
-            </p>
-            <a
-              href="#"
-              className="inline-flex items-center gap-2 rounded-[20px] bg-orange px-5 py-2.5 text-sm font-semibold text-white transition-opacity hover:opacity-80"
+          <div className="flex items-center justify-center gap-4 sm:gap-6">
+            <button
+              type="button"
+              onClick={() => setEventCarouselIndex((i) => (i <= 0 ? EVENTS.length - 1 : i - 1))}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#F6911E] bg-transparent text-[#F6911E] transition-opacity hover:opacity-90"
+              aria-label="Event sebelumnya"
             >
-              Learn More
-              <ArrowRight className="h-4 w-4" />
-            </a>
+              <ChevronLeft className="h-6 w-6" />
+            </button>
+
+            <div className="min-h-[320px] w-full max-w-2xl overflow-hidden">
+              {EVENTS.map((ev, idx) => (
+                <div
+                  key={ev.id}
+                  className={idx === eventCarouselIndex ? "block" : "hidden"}
+                >
+                  <div className="rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] p-8 font-sans !shadow-[0_0_15px_rgba(246,145,30,0.4)] !shadow-[0_0_10px_4px_rgba(246,145,60,1)]">
+                    <div className="mb-4 flex items-center gap-2">
+                      <span
+                        className={[
+                          "inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase",
+                          ev.status === "available" && "border-green-500 text-green-400",
+                          ev.status === "not_started" && "border-amber-400 text-amber-400",
+                          ev.status === "ended" && "border-red-500 text-red-400",
+                        ].join(" ")}
+                      >
+                        <span
+                          className={[
+                            "h-2 w-2 rounded-full",
+                            ev.status === "available" && "bg-green-500",
+                            ev.status === "not_started" && "bg-amber-400",
+                            ev.status === "ended" && "bg-red-500",
+                          ].join(" ")}
+                        />
+                        {ev.status === "available" && "Available"}
+                        {ev.status === "not_started" && "Not Yet Started"}
+                        {ev.status === "ended" && "Event Ended"}
+                      </span>
+                    </div>
+                    <h3 className="mb-3 text-xl font-bold !text-[#f1e1b4] sm:text-2xl">
+                      {ev.title}
+                    </h3>
+                    <p className="mb-6 text-sm leading-relaxed !text-[#f1e1b4]/90 text-justify">
+                      {ev.description}
+                    </p>
+                    <div className="flex justify-end">
+                      <Button
+                        variant="primary"
+                        size="md"
+                        onClick={() => setOpenEventId(ev.id)}
+                      >
+                        Learn More
+                        <ExternalLink className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setEventCarouselIndex((i) => (i >= EVENTS.length - 1 ? 0 : i + 1))}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-[#F6911E] bg-transparent text-[#F6911E] transition-opacity hover:opacity-90"
+              aria-label="Event berikutnya"
+            >
+              <ChevronRight className="h-6 w-6" />
+            </button>
+          </div>
+
+          <div className="mt-4 flex justify-center gap-2">
+            {EVENTS.map((_, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => setEventCarouselIndex(idx)}
+                className={`h-2 rounded-full transition-all ${
+                  idx === eventCarouselIndex ? "w-6 bg-[#F6911E]" : "w-2 bg-[#f1e1b4]/40"
+                }`}
+                aria-label={`Go to event ${idx + 1}`}
+              />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          TIMELINE
-         ══════════════════════════════════════ */}
-      <section id="timeline" className="bg-indigo px-6 py-20">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-12 text-center text-3xl font-extrabold text-cream sm:text-4xl">
+      {/* Modal event */}
+      {openEventId && (() => {
+        const ev = EVENTS.find((e) => e.id === openEventId);
+        if (!ev) return null;
+        return (
+          <Modal
+            isOpen={!!openEventId}
+            onClose={() => setOpenEventId(null)}
+            variant="event"
+            eventName={ev.title}
+            eventDescription={ev.description}
+            eventDate={ev.eventDate}
+            eventPlace={ev.eventPlace}
+            eventSpeaker={ev.eventSpeaker}
+          />
+        );
+      })()}
+
+      {/* ─── Timeline (sesuai gambar + TimelineSlider.png, responsif) ─── */}
+      <section id="timeline" className="px-6 py-20">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-6 flex justify-center">
+            <span className="rounded-full border border-[#F6911E] px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange shadow-[0_0_12px_rgba(246,145,30,0.3)]">
+              GRAND TIMELINE
+            </span>
+          </div>
+          <h2 className="mb-10 text-center text-3xl font-extrabold uppercase tracking-tight sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             TIMELINE
           </h2>
 
-          <div className="relative flex flex-wrap items-start justify-center gap-12 sm:gap-16 md:gap-24">
-            <div className="absolute top-8 left-1/2 hidden h-0.5 w-3/4 -translate-x-1/2 bg-orange/40 md:block" />
+          <div className="relative">
+            {/* Gambar slider timeline: responsif, full width */}
+            <div className="relative w-full overflow-hidden rounded-2xl">
+              <img
+                src="/TimelineSlider.png"
+                alt="Grand Timeline"
+                className="w-full max-w-4xl mx-auto h-auto object-contain"
+              />
+            </div>
 
-            <TimelineItem icon={<Mic className="h-6 w-6" />} label="Webinar" />
-            <TimelineItem
-              icon={<CalendarDays className="h-6 w-6" />}
-              label="Side-Event"
-            />
-            <TimelineItem
-              icon={<Trophy className="h-6 w-6" />}
-              label="Competition"
-            />
-            <TimelineItem
-              icon={<Award className="h-6 w-6" />}
-              label="Grand Seminar"
-            />
+            {/* Empat step (overlay atau di bawah): Webinar, Side-Event, Competition, Grand Seminar */}
+            
           </div>
+        </div>
+      </section>
+
         </div>
       </section>
 
