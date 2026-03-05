@@ -68,7 +68,7 @@ function Navbar({
                   "text-sm font-medium transition-colors",
                   activeLink === link.href
                     ? "text-[#F6911E]"
-                    : "text-[#f1e1b4]/90 hover:text-[#f1e1b4]"
+                    : "text-white/90 hover:text-white"
                 )}
               >
                 {link.label}
@@ -83,7 +83,7 @@ function Navbar({
           <button
             type="button"
             onClick={() => setMobileOpen(true)}
-            className="flex h-10 w-10 items-center justify-center text-[#f1e1b4] md:hidden"
+            className="flex h-10 w-10 items-center justify-center text-white md:hidden"
             aria-label="Open menu"
           >
             <Menu className="h-6 w-6" />

@@ -43,15 +43,12 @@ import {
   Shield,
   Globe,
   Rocket,
-  Calendar,
-  MapPin,
   Circle,
   ImageOff,
 } from "lucide-react";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
-  const [competitionModalOpen, setCompetitionModalOpen] = useState(false);
 
   const navLinks = [
     { label: "Home", href: "/" },
@@ -346,55 +343,28 @@ export default function Home() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Event & Competition Popups</CardTitle>
-                <CardDescription>Pilih tombol di bawah untuk melihat varian popup.</CardDescription>
+                <CardTitle>Modal Dialog</CardTitle>
+                <CardDescription>Open a modal overlay with any content.</CardDescription>
               </CardHeader>
-              <CardContent className="flex flex-wrap gap-4">
-                {/* Tombol pemicu Modal Event */}
-                <Button onClick={() => setModalOpen(true)}>
-                  Open Event Modal
-                </Button>
-                <Button onClick={() => setCompetitionModalOpen(true)}>
-                  Open Competition Modal
-                </Button>
+              <CardContent>
                 <Button size="sm" onClick={() => setModalOpen(true)}>
                   Open Modal
                 </Button>
 
-                {/* Implementasi Modal Event (Page 1 dari PDF) */}
                 <Modal
                   isOpen={modalOpen}
                   onClose={() => setModalOpen(false)}
-                  variant="event"
-                  eventName="[Event_FullName]"
-                  eventDescription="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
-                  eventDate="14 March 2026, 08.00 - 10.00 GMT+7"
-                  eventPlace="Online via Zoom Meeting"
-                  eventSpeaker="Soon to be announce"
-                  description={
-                    <>
-                      <Badge className="mb-6" variant="complete">
-                        AVAILABLE
-                      </Badge>
-                    </>
-                  }
+                  title="Confirm Action"
+                  description="Are you sure you want to proceed? This action cannot be undone."
                 >
-                </Modal>
-                <Modal
-                  isOpen={competitionModalOpen}
-                  onClose={() => setCompetitionModalOpen(false)}
-                  variant="competition"
-                  eventName="[Competition_FullName]"
-                  eventDescription="Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium..."
-                  competitionImageUrl="https://picsum.photos/seed/competition/160"
-                  timeline={[
-                    { label: "Early Registration", date: "13 - 22 March 2026", isActive: true },
-                    { label: "Normal Registration", date: "23 - 31 March 2026", isActive: true },
-                    { label: "Abstract Submission", date: "7 April 2026" },
-                    { label: "Finalist Announcement", date: "25 April 2026" },
-                    { label: "Final Pitching Day", date: "20 - 21 June 2026" },
-                  ]}
-                >
+                  <div className="flex justify-end gap-3 pt-4">
+                    <Button variant="outline" size="sm" onClick={() => setModalOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={() => setModalOpen(false)}>
+                      Confirm
+                    </Button>
+                  </div>
                 </Modal>
               </CardContent>
             </Card>
