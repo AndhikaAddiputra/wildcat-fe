@@ -149,14 +149,32 @@ export default function Home() {
                 </tbody>
               </table>
               <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
-                <div>
+                <div className="flex items-center gap-4">
                   <span className="text-cream font-semibold">Show data per page: </span>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                 </div>
-                <div className="w-[400px] min-w-fit flex justify-between">
+                <div className="w-[400px] min-w-fit flex justify-between items-center">
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     <ChevronLeft />
                     Previous
                   </Button>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     Next
                     <ChevronRight />
@@ -225,14 +243,32 @@ export default function Home() {
                 </tbody>
               </table>
               <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
-                <div>
+                <div className="flex items-center gap-4">
                   <span className="text-cream font-semibold">Show data per page: </span>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                 </div>
-                <div className="w-[400px] min-w-fit flex justify-between">
+                <div className="w-[400px] min-w-fit flex justify-between items-center">
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     <ChevronLeft />
                     Previous
                   </Button>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     Next
                     <ChevronRight />
@@ -297,14 +333,32 @@ export default function Home() {
                 </tbody>
               </table>
               <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
-                <div>
+                <div className="flex items-center gap-4">
                   <span className="text-cream font-semibold">Show data per page: </span>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                 </div>
-                <div className="w-[400px] min-w-fit flex justify-between">
+                <div className="w-[400px] min-w-fit flex justify-between items-center">
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     <ChevronLeft />
                     Previous
                   </Button>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     Next
                     <ChevronRight />
@@ -366,14 +420,32 @@ export default function Home() {
                 </tbody>
               </table>
               <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
-                <div>
+                <div className="flex items-center gap-4">
                   <span className="text-cream font-semibold">Show data per page: </span>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                 </div>
-                <div className="w-[400px] min-w-fit flex justify-between">
+                <div className="w-[400px] min-w-fit flex justify-between items-center">
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     <ChevronLeft />
                     Previous
                   </Button>
+                  <input type="number" min={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                  {/* <div className="flex items-center bg-navy rounded-2xl px-6 py-3 gap-4">
+                    <span className="text-2xl font-bold text-white">7</span>
+
+                    <div className="flex flex-col">
+                      <button className="text-white leading-none">▲</button>
+                      <button className="text-white leading-none">▼</button>
+                    </div>
+                  </div> */}
                   <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
                     Next
                     <ChevronRight />
