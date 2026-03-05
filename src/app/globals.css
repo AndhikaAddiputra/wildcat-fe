@@ -8,7 +8,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-poppins);
+  --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --color-green: #34c759;
   --color-orange: #ff8d28;
@@ -29,12 +29,46 @@ body {
   background: var(--background);
   background-image: url(/background-hero-still.svg);
   color: var(--foreground);
-  font-family: var(--font-poppins), var(--font-sans), system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+}
+
+td Button {
+  min-width: 125px;
 }
 
 @layer base {
   * {
     @apply border-zinc-200 dark:border-zinc-800;
+  }
+}
+
+@layer components {
+  .app-table-wrapper {
+    @apply rounded-xl overflow-hidden;
+  }
+
+  .app-table {
+    @apply w-full border-separate border-spacing-0;
+  }
+
+  .app-table tr {
+    @apply bg-[#9aa0d6];
+  }
+
+  .app-table tr:nth-child(even) {
+    @apply bg-[#8076d0];
+  }
+
+  .app-table th {
+    @apply text-center px-[3%] py-6;
+  }
+
+  .app-table td {
+    @apply text-left text-navy px-[3%] py-6;
+  }
+
+  .app-table td.action {
+    @apply text-center justify-center px-0;
   }
 }
 
