@@ -9,6 +9,11 @@ import {
   TimelineItem,
 } from "@/components/ui";
 import {
+  LOGO,
+  LANDING_NAV_LINKS,
+  LANDING_NAV_ACTION,
+} from "@/config/navbar-config";
+import {
   FileText,
   Briefcase,
   FlaskConical,
@@ -23,6 +28,184 @@ import {
 } from "lucide-react";
 
 const SECTION_IDS = ["#about", "#competitions", "#events", "#timeline"] as const;
+
+/** Timeline item for competition modals (label + date string) */
+type ModalTimelineItem = { label: string; date: string };
+
+/**
+ * Mengambil tanggal awal dari string tanggal (untuk perbandingan).
+ * Format didukung: "14 - 21 March 2026", "22 March - 5 April 2026", "13 April 2026", "March 2026".
+ */
+function getStartDateFromTimelineDate(dateStr: string): Date | null {
+  const s = dateStr.trim();
+  const yearMatch = s.match(/\b(20\d{2})\b/);
+  const year = yearMatch ? yearMatch[1] : String(new Date().getFullYear());
+  if (s.includes(" - ")) {
+    const [left, right] = s.split(" - ").map((x) => x.trim());
+    const startPart = left;
+    if (/^\d{1,2}\s+\w+/.test(startPart)) {
+      const parsed = new Date(`${startPart} ${year}`);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+    const endPart = right;
+    const monthYear = endPart.replace(/^\d{1,2}\s*/, "").trim();
+    const firstNum = left.match(/^\d{1,2}/);
+    const start = firstNum ? `${firstNum[0]} ${monthYear}` : `${monthYear}`;
+    const parsed = new Date(start);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+  if (/^\d{1,2}\s+\w+\s+\d{4}$/.test(s)) {
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  const monthYear = s.match(/^([A-Za-z]+)\s*(\d{4})?$/);
+  if (monthYear) {
+    const month = monthYear[1];
+    const y = monthYear[2] || year;
+    const d = new Date(`1 ${month} ${y}`);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  return null;
+}
+
+/** True jika tanggal hari ini sudah mencapai atau melewati tanggal mulai dari dateStr. */
+function isTimelineDateReached(dateStr: string): boolean {
+  const start = getStartDateFromTimelineDate(dateStr);
+  if (!start) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  start.setHours(0, 0, 0, 0);
+  return today.getTime() >= start.getTime();
+}
+
+/** Data tiap kompetisi untuk card + modal variant competition */
+const COMPETITIONS = [
+  {
+    id: "paper-poster",
+    title: "Paper & Poster Competition",
+    description:
+      "This competition is a manifestation platform of the Technology pillar for students to present real ideas and solutions through the development of geoscience technology, focusing on validating innovations that can expand the boundaries of oil and gas exploration.",
+    timeline: [
+      { label: "Early Registration", date: "13 - 22 March 2026" },
+      { label: "Normal Registration", date: "23 - 31 Maret 2026" },
+      { label: "Abstract Submission", date: "7 April 2026" },
+      { label: "Finalist Announcement", date: "25 April 2026" },
+      { label: "Final Technical Meeting I", date: "2 May 2026" },
+      { label: "Full Paper & Poster Submission", date: "12 May 2026" },
+      { label: "Final Technical Meeting II", date: "12 June 2026" },
+      { label: "Final Pitching Day", date: "20 - 21 June 2026" },
+    ] as ModalTimelineItem[],
+    imageUrl: "/PaPos.png",
+  },
+  {
+    id: "business-case",
+    title: "Business Case Competition",
+    description:
+      "An event for students to solve real business challenges in the energy sector, requiring participants to develop strategies that integrate profitability, ethics, and sustainability (Responsibility and Market Competition) in the industry.",
+    timeline: [
+      { label: "Early Registration", date: "14 - 21 March 2026" },
+      { label: "Normal Registration", date: "22 March - 5 April 2026" },
+      { label: "Preliminary Case Release", date: "13 April 2026" },
+      { label: "Preliminary Case Submission", date: "11 May 2026" },
+      { label: "Finalist Announcement", date: "21 May 2026" },
+      { label: "Mentoring 1 on 1 Session", date: "23 May 2026" },
+      { label: "Final Case Submission", date: "12 June 2026" },
+      { label: "Final Technical Meeting", date: "14 June 2026" },
+      { label: "Final Pitching Day", date: "20 - 21 June 2026" },
+    ] as ModalTimelineItem[],
+    imageUrl: "/BCC.png",
+  },
+  {
+    id: "gng-case",
+    title: "GnG Case Study Competition",
+    description:
+      "A high-level technical competition embodying the pillars of Science and Technology, testing participants' ability to integrate geological and geophysical data to comprehensively solve exploration or field development challenges.",
+    timeline: [
+      { label: "Early Registration", date: "14 -21 March 2026" },
+      { label: "Normal Registration", date: "22 March - 5 April 2026" },
+      { label: "Prelimanary Case Release", date: "13 April 2026" },
+      { label: "Prelimanary Case Submission", date: "11 May 2026" },
+      { label: "Finalist Announcement", date: "21 May 2026" },
+      { label: "Final Case Release & Software Training", date: "23 May 2026"},
+      { label: "Final Case Submission", date: "12 June 2026" },
+      { label: "Final Technical Meeting", date: "14 June 2026" },
+      { label: "Final Pitching Day", date: "20 - 21 June 2026" },
+    ] as ModalTimelineItem[],
+    imageUrl: "/GnG%20Case%20Study.png",
+  },
+  {
+    id: "high-school-essay",
+    title: "High School Essay Competition",
+    description:
+      "This science literacy competition, open to high school students and equivalents, aims to spark critical thinking among young people about the role of energy, the world of geoscience, and how future innovations can ensure global energy security.",
+    timeline: [
+      { label: "Early Registration", date: "13 - 22 March 2026" },
+      { label: "Normal Registration", date: "23March - 10 April 2026" },
+      { label: "Essay Submission", date: "20 May 2026" },
+      { label: "Finalist Announcement", date: "24 May 2026" },
+      { label: "Final Technical Meeting", date: "19 June 2026" },
+      { label: "Final Competition Day", date: "20 - 21 June 2026" },
+    ] as ModalTimelineItem[],
+    imageUrl: "/Essay.png",
+  },
+];
+
+/** Status event: available (hijau), not_started (kuning), ended (merah) */
+type EventStatus = "available" | "not_started" | "ended";
+
+/** Data event untuk card + modal variant event */
+const EVENTS = [
+  {
+    id: "wiact",
+    title: "WiACT (Community Service)",
+    description:
+      "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.",
+    status: "not_started" as EventStatus,
+    eventDate: "11 April 2026",
+    eventPlace: "TBA",
+    eventSpeaker: "Soon to be announced",
+  },
+  {
+    id: "wishare",
+    title: "WISHARE (Charity Program)",
+    description:
+      "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.",
+    status: "not_started" as EventStatus,
+    eventDate: "21 June 2026",
+    eventPlace: "TBA",
+    eventSpeaker: "Soon to be announced",
+  },
+  {
+    id: "field-trip",
+    title: "Field Trip",
+    description:
+      "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.",
+    status: "not_started" as EventStatus,
+    eventDate: "22 June 2026",
+    eventPlace: "TBA",
+    eventSpeaker: "Soon to be announced",
+  },
+  {
+    id: "webinar",
+    title: "Webinar",
+    description:
+      "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.",
+    status: "not_started" as EventStatus,
+    eventDate: "14 March 2026",
+    eventPlace: "Online via Zoom Meeting",
+    eventSpeaker: "Soon to be announced",
+  },
+  {
+    id: "grand-seminar",
+    title: "Grand Seminar",
+    description:
+      "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.",
+    status: "not_started" as EventStatus,
+    eventDate: "21 June 2026",
+    eventPlace: "TBA",
+    eventSpeaker: "Soon to be announced",
+  },
+];
 
 export default function LandingPage() {
   const [activeSection, setActiveSection] = useState("#about");
@@ -46,27 +229,15 @@ export default function LandingPage() {
     return () => observers.forEach((o) => o.disconnect());
   }, []);
 
-  const navLinks = [
-    { label: "About", href: "#about" },
-    { label: "Competitions", href: "#competitions" },
-    { label: "Events", href: "#events" },
-    { label: "Timeline", href: "#timeline" },
-  ];
-
   return (
     <div className="min-h-screen overflow-x-hidden bg-navy text-white">
       {/* Navbar */}
       <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-14 w-auto" />
-        }
-        links={navLinks}
+        logo={LOGO}
+        links={LANDING_NAV_LINKS}
         activeLink={activeSection}
-        action={
-          <Button variant="outline" size="lg">
-            Login
-          </Button>
-        }
+        action={LANDING_NAV_ACTION}
+        mobileAction={LANDING_NAV_ACTION}
       />
 
       {/* ══════════════════════════════════════
