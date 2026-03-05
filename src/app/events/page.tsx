@@ -149,16 +149,13 @@ export default function Event() {
           <Modal
             isOpen={!!openEventId}
             onClose={() => setOpenEventId(null)}
-            title={ev.title}
-            description={ev.description}
-            className="max-w-lg border-[#F6911E]/50 bg-[#0A2D6E] text-[#f1e1b4] shadow-[0_0_20px_rgba(246,145,30,0.3)]"
-          >
-            <div className="mt-4 space-y-3 text-sm">
-              <p><span className="font-semibold text-[#F6911E]">Date:</span> {ev.eventDate}</p>
-              <p><span className="font-semibold text-[#F6911E]">Place:</span> {ev.eventPlace}</p>
-              <p><span className="font-semibold text-[#F6911E]">Speaker:</span> {ev.eventSpeaker}</p>
-            </div>
-          </Modal>
+            variant="event"
+            eventName={ev.title}
+            eventDescription={ev.description}
+            eventDate={ev.eventDate}
+            eventPlace={ev.eventPlace}
+            eventSpeaker={ev.eventSpeaker}
+          />
         );
       })()}
 

@@ -1,7 +1,7 @@
 export { Button } from "./button";
 export type { ButtonProps } from "./button";
 
-export { Card, CardSmall, CardMedium, CardLarge, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./card";
+export { Card, CompetitionCardBase, CardSmall, CardMedium, CardLarge, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "./card";
 
 export { Input } from "./input";
 export type { InputProps } from "./input";
@@ -16,7 +16,7 @@ export { Avatar } from "./avatar";
 export type { AvatarProps } from "./avatar";
 
 export { Modal } from "./modal";
-export type { ModalProps } from "./modal";
+export type { ModalProps, ModalTimelineItem } from "./modal";
 
 export { Separator } from "./separator";
 export type { SeparatorProps } from "./separator";

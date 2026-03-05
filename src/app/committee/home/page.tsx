@@ -56,7 +56,6 @@ export default function CommitteeStatisticsPage() {
 
   return (
     <div className="min-h-screen w-full font-['Poppins']">
-      {/* Area biru + background hanya sampai sebelum footer */}
       <div className="relative min-h-screen bg-[#0A2D6E]">
         <div
           className="absolute inset-0 z-0 opacity-40"
@@ -80,7 +79,7 @@ export default function CommitteeStatisticsPage() {
           <h1 className="text-4xl font-bold text-[#F6911E] sm:text-5xl">
             Hello, [Account's Name]!
           </h1>
-          <p className="mt-2 text-2xl font-semibold text-[#F1E1B4]">
+          <p className="mt-2 text-xl text-[#F1E1B4]">
             Welcome to your personal dashboard
           </p>
         </section>

@@ -3,52 +3,14 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
-  CardSmall,    
-  CardMedium,   
-  CardLarge,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Textarea,
-  Badge,
-  Avatar,
-  Modal,
-  Separator,
   Navbar,
   Footer,
 } from "@/components/ui";
+import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
 import {
-  Heart,
-  Star,
-  Search,
-  Bell,
-  Settings,
-  User,
-  Mail,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  LogIn,
-  ExternalLink,
-  Trash2,
   Plus,
-  Download,
-  Share2,
-  Zap,
-  Shield,
-  Globe,
-  Rocket,
-  Circle,
-  ImageOff,
-  ChevronLeft,
-  ChevronRight,
-  Funnel,
   RotateCw,
+  Funnel,
   Pencil,
   SquareSlash,
 } from "lucide-react";
@@ -56,39 +18,25 @@ import {
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Access Control", href: "/admin/access" },
-    { label: "Announcement", href: "/admin/announcement" },
-  ];
-
   return (
-    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
-      <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
-        activeLink="/admin/announcement"
-        action={
-          <Button variant="outline" size="lg">
-            <LogIn className="h-4 w-4" />
-            Login
-          </Button>
-        }
-      />
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative min-h-screen flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
+        <Navbar
+          logo={LOGO}
+          links={ADMIN_NAV_LINKS}
+          activeLink="/admin/announcement"
+          action={ADMIN_NAV_ACTION}
+          mobileAction={ADMIN_NAV_ACTION}
+        />
 
       {/* Hero Section */}
       <section className="relative flex pt-32 mx-auto w-[80%] items-center">
         <div className="text-left">
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
-            Access Control
+            Announcement
           </h3>
-          <p className="">
-            Grant access and control accounts limitation here
+          <p className="text-2xl font-semibold text-[#F1E1B4]">
+            Make & Control Announcement here!
           </p>
         </div>
       </section>
@@ -138,6 +86,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      </div>
 
       <Footer />
     </div>

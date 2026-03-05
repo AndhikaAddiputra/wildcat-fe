@@ -3,81 +3,31 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
-  CardSmall,    
-  CardMedium,   
-  CardLarge,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-  CardFooter,
-  Input,
-  Textarea,
-  Badge,
-  Avatar,
-  Modal,
-  Separator,
   Navbar,
   Footer,
 } from "@/components/ui";
+import { LOGO, COMMITTEE_NAV_LINKS, COMMITTEE_NAV_ACTION } from "@/config/navbar-config";
 import {
-  Heart,
-  Star,
-  Search,
-  Bell,
-  Settings,
-  User,
-  Mail,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  LogIn,
-  ExternalLink,
-  Trash2,
-  Plus,
-  Download,
-  Share2,
-  Zap,
-  Shield,
-  Globe,
-  Rocket,
-  Circle,
-  ImageOff,
   ChevronLeft,
   ChevronRight,
   RotateCw,
   Funnel,
+  Download,
 } from "lucide-react";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Verification", href: "/commitee/verification" },
-    { label: "Submission", href: "/commitee/submission" },
-  ];
-
   return (
-    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
-      <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
-        activeLink="/commitee/submission"
-        action={
-          <Button variant="outline" size="lg">
-            <LogIn className="h-4 w-4" />
-            Login
-          </Button>
-        }
-      />
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative min-h-screen flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
+        <Navbar
+          logo={LOGO}
+          links={COMMITTEE_NAV_LINKS}
+          activeLink="/committee/submission"
+          action={COMMITTEE_NAV_ACTION}
+          mobileAction={COMMITTEE_NAV_ACTION}
+        />
 
       {/* Hero Section */}
       <section className="relative flex pt-32 mx-auto w-[80%] items-center">
@@ -85,7 +35,7 @@ export default function Home() {
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
             Participant's Submission
           </h3>
-          <p className="">
+          <p className="mt-2 text-2xl font-semibold text-[#F1E1B4]">
             Download and track participant's submission here
           </p>
         </div>
@@ -113,8 +63,15 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "20%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Submission Date</th>
                     <th>Team Name</th>
                     <th>Abstract</th>
@@ -204,8 +161,15 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "20%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Submission Date</th>
                     <th>Team Name</th>
                     <th>Executive Summary</th>
@@ -298,8 +262,14 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "28%" }} />
+                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "25%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Submission Date</th>
                     <th>Team Name</th>
                     <th>Abstract</th>
@@ -388,8 +358,14 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "28%" }} />
+                  <col style={{ width: "25%" }} />
+                  <col style={{ width: "25%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Submission Date</th>
                     <th>Team Name</th>
                     <th>Technical Essay</th>
@@ -456,6 +432,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      </div>
 
       <Footer />
     </div>

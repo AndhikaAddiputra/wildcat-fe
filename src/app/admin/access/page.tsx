@@ -21,6 +21,7 @@ import {
   Navbar,
   Footer,
 } from "@/components/ui";
+import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
 import {
   Heart,
   Star,
@@ -33,7 +34,6 @@ import {
   CheckCircle,
   AlertTriangle,
   Info,
-  LogIn,
   ExternalLink,
   Trash2,
   Plus,
@@ -55,29 +55,15 @@ import {
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
-  const navLinks = [
-    { label: "Home", href: "/" },
-    { label: "Access Control", href: "/admin/access" },
-    { label: "Announcement", href: "/admin/announcement" },
-  ];
-
   return (
-    <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
-      <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative min-h-screen flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
+        <Navbar
+        logo={LOGO}
+        links={ADMIN_NAV_LINKS}
         activeLink="/admin/access"
-        action={
-          <Button variant="outline" size="lg">
-            <LogIn className="h-4 w-4" />
-            Login
-          </Button>
-        }
+        action={ADMIN_NAV_ACTION}
+        mobileAction={ADMIN_NAV_ACTION}
       />
 
       {/* Hero Section */}
@@ -86,13 +72,13 @@ export default function Home() {
           <h3 className="text-[48px] font-extrabold text-transparent bg-clip-text bg-gradient-to-b from-orange-500 to-yellow-400">
             Access Control
           </h3>
-          <p className="">
+          <p className="text-2xl font-semibold text-[#F1E1B4]">
             Grant access and control accounts limitation here
           </p>
         </div>
       </section>
 
-      <main className="flex justify-center mx-auto py-12 min-h-[55vw]">
+      <main className="flex flex-1 justify-center mx-auto py-12 min-h-[55vw]">
         <section className="w-[80%]">
           <div className="flex flex-col justify-center bg-navy rounded-[20px] p-12">
             <div className="flex justify-between items-center w-full">
@@ -118,8 +104,15 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "28%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "17%" }} />
+                  <col style={{ width: "17%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Account Created</th>
                     <th>Gmail Account</th>
                     <th>Role</th>
@@ -138,7 +131,7 @@ export default function Home() {
                       <td>{row.date}</td>
                       <td>{row.mail}</td>
                       <td className="action">
-                        <Badge variant="default" className="bg-transparent text-navy border-navy">Commitee</Badge>
+                        <Badge variant="verified" className="bg-transparent text-navy border-navy">Commitee</Badge>
                       </td>
                       <td className="action">
                         <Button variant="secondary">
@@ -215,8 +208,15 @@ export default function Home() {
             </div>
             <div className="w-full pt-8 app-table-wrapper">
               <table className="app-table">
+                <colgroup>
+                  <col style={{ width: "20%" }} />
+                  <col style={{ width: "28%" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "17%" }} />
+                  <col style={{ width: "17%" }} />
+                </colgroup>
                 <thead>
-                  <tr className="bg-[#3c3f9e] text-cream">
+                  <tr className="text-white">
                     <th>Account Created</th>
                     <th>Gmail Account</th>
                     <th>Status</th>
@@ -280,6 +280,7 @@ export default function Home() {
           </div>
         </section>
       </main>
+      </div>
 
       <Footer />
     </div>
