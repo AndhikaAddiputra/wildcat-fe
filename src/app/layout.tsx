@@ -21,6 +21,9 @@ const poppins = Poppins({
 export const metadata: Metadata = {
   title: "Wildcat",
   description: "Wildcat Frontend Application",
+  icons: {
+    icon: "/wildcat-logo.svg",
+  },
 };
 
 export default function RootLayout({
