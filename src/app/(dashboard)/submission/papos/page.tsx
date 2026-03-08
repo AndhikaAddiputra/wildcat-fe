@@ -12,8 +12,13 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFile, uploadFiles } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
 export default function PaposSubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
   const [submitting, setSubmitting] = useState(false);
   const [extendedAbstract, setExtendedAbstract] = useState<File | null>(null);
   const [fullPaper, setFullPaper] = useState<File | null>(null);
@@ -24,15 +29,16 @@ export default function PaposSubmissionPage() {
       alert("Please select a file for Extended Abstract.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("extended_abstract", extendedAbstract);
-      const res = await fetch("/api/submission/papos", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFile(teamId, DOCUMENT_TYPES.EXTENDED_ABSTRACT, extendedAbstract);
       alert("Preliminary stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -43,16 +49,19 @@ export default function PaposSubmissionPage() {
       alert("Please select files for both Full Paper and Poster.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("full_paper", fullPaper);
-      formData.append("poster", poster);
-      const res = await fetch("/api/submission/papos/final", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFiles(teamId, [
+        { documentType: DOCUMENT_TYPES.FULL_PAPER, file: fullPaper },
+        { documentType: DOCUMENT_TYPES.POSTER, file: poster },
+      ]);
       alert("Final stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
