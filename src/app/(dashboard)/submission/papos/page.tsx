@@ -6,16 +6,57 @@ import {
   CardLarge,
   CardHeader,
   CardTitle,
-  CardDescription,
   CardFooter,
   Navbar,
   Footer,
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
-import { Plus } from "lucide-react";
+import { FileUploadZone } from "@/components/shared/FileUploadZone";
 
-export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
+export default function PaposSubmissionPage() {
+  const [submitting, setSubmitting] = useState(false);
+  const [extendedAbstract, setExtendedAbstract] = useState<File | null>(null);
+  const [fullPaper, setFullPaper] = useState<File | null>(null);
+  const [poster, setPoster] = useState<File | null>(null);
+
+  const submitPreliminary = async () => {
+    if (!extendedAbstract) {
+      alert("Please select a file for Extended Abstract.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("extended_abstract", extendedAbstract);
+      const res = await fetch("/api/submission/papos", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      alert("Preliminary stage submitted successfully.");
+    } catch {
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitFinal = async () => {
+    if (!fullPaper || !poster) {
+      alert("Please select files for both Full Paper and Poster.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("full_paper", fullPaper);
+      formData.append("poster", poster);
+      const res = await fetch("/api/submission/papos/final", { method: "POST", body: formData });
+      if (!res.ok) throw new Error("Upload failed");
+      alert("Final stage submitted successfully.");
+    } catch {
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
@@ -48,17 +89,12 @@ export default function Home() {
                 </CardTitle>
                 <div className="w-full max-w-[95%] min-h-[320px] sm:min-h-[425px] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                   <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Extended Abstract*</span>
-                  <div className="flex-1 min-h-[240px] sm:min-h-[300px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                    <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                    <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                    <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                    <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                  </div>
+                  <FileUploadZone value={extendedAbstract} onChange={setExtendedAbstract} zoneClassName="flex-1 min-h-[240px] sm:min-h-[300px]" />
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end mx-auto p-4 sm:p-6 w-full max-w-[95%]">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={submitPreliminary} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
@@ -71,27 +107,17 @@ export default function Home() {
                 <div className="flex flex-col md:flex-row md:justify-between gap-4 w-full max-w-[95%] mx-auto">
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                     <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Full Paper*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <FileUploadZone value={fullPaper} onChange={setFullPaper} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                     <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Poster*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <FileUploadZone value={poster} onChange={setPoster} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end p-4 sm:p-6 w-full max-w-[95%] mx-auto">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={submitFinal} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
