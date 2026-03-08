@@ -5,8 +5,6 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  
-  console.log("--- CALLBACK PROCESS START ---");
 
   if (code) {
     const cookieStore = await cookies();
@@ -46,35 +44,45 @@ export async function GET(request: Request) {
     }
 
     try {
-      // 2. Lakukan API Call ke Backend Hono
-      // Pastikan NEXT_PUBLIC_BACKEND_URL ada di file .env kamu (misal: http://localhost:8787)
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3030'; 
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3030';
       const checkStatusUrl = `${backendUrl}/api/landing/check-registration`;
 
-      console.log("Fetching status dari Backend:", checkStatusUrl);
-      console.log("Mengirim access token:", accessToken);
+      const fetchWithTimeout = (url: string, options: RequestInit, timeoutMs = 20_000) => {
+        const controller = new AbortController();
+        const id = setTimeout(() => controller.abort(), timeoutMs);
+        return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(id));
+      };
 
-      const statusResponse = await fetch(checkStatusUrl, {
-        method: 'GET',
-        headers: {
-          // WAJIB: Kirim token agar Hono bisa memproses `c.get('user')`
-          'Authorization': `Bearer ${accessToken}`,
-          'Content-Type': 'application/json'
+      const doCheck = () =>
+        fetchWithTimeout(checkStatusUrl, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          }
+        }, 20_000);
+
+      let statusResponse: Response | undefined;
+      try {
+        statusResponse = await doCheck();
+      } catch (firstErr) {
+        await new Promise((r) => setTimeout(r, 800));
+        try {
+          statusResponse = await doCheck();
+        } catch {
+          throw firstErr;
         }
-      });
-
-      if (!statusResponse.ok) {
-        const errText = await statusResponse.text();
-        throw new Error(`Backend merespons dengan status ${statusResponse.status}: ${errText}`);
       }
 
-      // Sesuai dengan response dari API Hono kamu
-      // { registered: boolean, teamId?, competitionId?, isCompleted? }
-      const statusData = await statusResponse.json();
-      console.log("Status Registrasi dari Hono:", statusData);
+      if (!statusResponse?.ok) {
+        const errText = statusResponse ? await statusResponse.text() : "";
+        throw new Error(`Backend merespons dengan status ${statusResponse?.status ?? 0}: ${errText}`);
+      }
 
-      const isRegistered = statusData.registered;
-      const isCompleted = statusData.isCompleted;
+      if (!statusResponse) throw new Error("Backend unreachable");
+      const statusData = await statusResponse.json().catch(() => ({}));
+      const isRegistered = statusData?.registered === true;
+      const isCompleted = statusData?.isCompleted === true;
 
       // 3. Logika Pengalihan (Redirect)
       if (isRegistered && isCompleted) {
@@ -82,7 +90,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/home`); // atau ke /dashboard
       } else if (isRegistered && !isCompleted) {
         // Baru melengkapi Step 1, lanjut ke Step 2
-        return NextResponse.redirect(`${origin}/teams`);
+        return NextResponse.redirect(`${origin}/home`);
       } else {
         // Belum daftar sama sekali, mulai dari Step 1
         return NextResponse.redirect(`${origin}/register?step=2`);
@@ -90,8 +98,9 @@ export async function GET(request: Request) {
 
     } catch (err) {
       console.error("Kesalahan saat mengecek status via API:", err);
-      // Jika Backend mati atau error, arahkan ke register saja atau tampilkan pesan error
-      return NextResponse.redirect(`${origin}/register?error=backend_failed`);
+      // Backend tidak bisa diakses: tetap redirect ke dashboard home participant.
+      // Middleware bisa redirect ke /register jika user belum punya tim.
+      return NextResponse.redirect(`${origin}/home`);
     }
   }
 

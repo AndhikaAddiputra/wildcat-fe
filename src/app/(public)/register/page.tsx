@@ -51,10 +51,7 @@ const RegisterPage = () => {
       }
     }
   }, [searchParams]);
-  const [teamName, setTeamName] = useState("");
-  const [leaderFullName, setLeaderFullName] = useState("");
-  const [university, setUniversity] = useState("");
-  const [major, setMajor] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -85,7 +82,6 @@ const RegisterPage = () => {
   const handleSubmitRegistration = async () => {
     setIsLoading(true);
     try {
-      // 1. Ambil session/token saat ini
       const { data: authData } = await supabase.auth.getSession();
       const accessToken = authData.session?.access_token;
 
@@ -95,72 +91,46 @@ const RegisterPage = () => {
         return;
       }
 
-      // 2. Mapping nama kompetisi ke ID/Format yang diterima backend (sesuaikan dengan tabel competitions di DB kamu)
-      // Misalnya, kamu punya UUID kompetisi, kita asumsikan sementara pakai nama string.
-      // (PENTING: Pastikan competitionId ini cocok dengan ID di database Drizzle kamu nantinya)
-      
       const payload = {
-        competitionId: selectedComp, // Nanti ganti dengan UUID kompetisi yang sesuai
+        competitionId: selectedComp,
         teamName,
         leadName,
         institution,
         leadMajor
       };
 
-      // 3. Hit API Backend Hono
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8787';
-      const response = await fetch(`${backendUrl}/api/landing/register/step1`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${accessToken}`
-        },
-        body: JSON.stringify(payload)
-      });
+      const doRequest = () =>
+        fetch(`${backendUrl}/api/landing/register/step1`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`
+          },
+          body: JSON.stringify(payload)
+        });
+
+      let response = await doRequest();
+
+      // Jika gagal pertama kali (mis. query competitions cold start), coba sekali lagi
+      if (!response.ok) {
+        await new Promise((r) => setTimeout(r, 600));
+        response = await doRequest();
+      }
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Gagal mendaftar");
+        const errorData = await response.json().catch(() => ({}));
+        const msg = errorData?.error || errorData?.message || "Gagal mendaftar";
+        const isDbError = typeof msg === 'string' && (msg.includes('competitions') || msg.includes('Failed query') || msg.includes('select '));
+        throw new Error(isDbError ? "Koneksi database sibuk. Silakan klik Submit sekali lagi." : msg);
       }
 
-      // 4. Jika sukses, lanjut ke Step 2 Pengisian Kontak (yang mungkin akan kita buat nanti)
-      // Karena backend memisahkan identitas tim (step1) dan kontak (step2)
-      window.location.href = "/register?step=2"; 
-      
+      window.location.href = "/home";
     } catch (error: any) {
       console.error("Submission error:", error);
-      alert(`Terjadi kesalahan: ${error.message}`);
+      alert(error?.message || "Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
-  const handleFinalContinue = async () => {
-    if (!selectedComp) return;
-    const competitionId = COMPETITION_NAME_TO_ID[selectedComp] ?? selectedComp;
-    setIsSubmitting(true);
-    setSubmitError(null);
-    try {
-      const payload: RegistrationFormData = {
-        teamName,
-        leaderFullName,
-        university,
-        major,
-        competitionId,
-      };
-      const res = await fetch("/api/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        setSubmitError(data.error ?? "Registrasi gagal. Silakan coba lagi.");
-        return;
-      }
-      alert(`Registrasi berhasil! Kamu mendaftar lomba: ${selectedComp}`);
-      // TODO: redirect to dashboard or next step (e.g. after Google auth)
-    } catch {
-      setSubmitError("Koneksi gagal. Silakan coba lagi.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -237,16 +207,11 @@ const RegisterPage = () => {
                 <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   Team&apos;s Name
                 </label>
-                <input 
-                  type="text" 
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="E.g. GeoChampions"
-                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
                 <input
                   type="text"
                   value={teamName}
                   onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="E.g. GeoChampions"
                   className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                 />
               </div>
@@ -255,16 +220,11 @@ const RegisterPage = () => {
                 <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   Leader&apos;s Full Name
                 </label>
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   value={leadName}
                   onChange={(e) => setLeadName(e.target.value)}
                   placeholder="John Doe"
-                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
-                <input
-                  type="text"
-                  value={leaderFullName}
-                  onChange={(e) => setLeaderFullName(e.target.value)}
                   className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                 />
               </div>
@@ -274,16 +234,11 @@ const RegisterPage = () => {
                   <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     University/ School
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={institution}
                     onChange={(e) => setInstitution(e.target.value)}
                     placeholder="ITB"
-                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
-                  <input
-                    type="text"
-                    value={university}
-                    onChange={(e) => setUniversity(e.target.value)}
                     className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                   />
                 </div>
@@ -291,16 +246,11 @@ const RegisterPage = () => {
                   <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     Major
                   </label>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={leadMajor}
                     onChange={(e) => setLeadMajor(e.target.value)}
                     placeholder="Geology"
-                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
-                  <input
-                    type="text"
-                    value={major}
-                    onChange={(e) => setMajor(e.target.value)}
                     className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                   />
                 </div>
@@ -372,21 +322,16 @@ const RegisterPage = () => {
                   {submitError}
                 </p>
               )}
-              <button 
+              <button
                 onClick={handleSubmitRegistration}
                 disabled={!selectedComp || isLoading}
                 className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
                   ${selectedComp && !isLoading
-                onClick={handleFinalContinue}
-                disabled={!selectedComp || isSubmitting}
-                className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
-                  ${selectedComp && !isSubmitting
                     ? 'shadow-[0px_4px_10px_rgba(0,0,0,0.25)] hover:opacity-90' 
                     : 'opacity-50 cursor-not-allowed shadow-none'}`}
                 style={{ fontFamily: "'Manrope', sans-serif" }}
               >
                 {isLoading ? "Submitting..." : "Submit Registration"}
-                {isSubmitting ? "Mengirim..." : "Continue"}
               </button>
             </div>
           )}
