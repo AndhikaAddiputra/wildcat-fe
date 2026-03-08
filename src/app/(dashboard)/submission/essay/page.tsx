@@ -3,78 +3,57 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
-  CardSmall,    
-  CardMedium,   
   CardLarge,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
   CardFooter,
-  Input,
-  Textarea,
-  Badge,
-  Avatar,
-  Modal,
-  Separator,
   Navbar,
   Footer,
 } from "@/components/ui";
-import {
-  Heart,
-  Star,
-  Search,
-  Bell,
-  Settings,
-  User,
-  Mail,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  LogIn,
-  ExternalLink,
-  Trash2,
-  Plus,
-  Download,
-  Share2,
-  Zap,
-  Shield,
-  Globe,
-  Rocket,
-  Circle,
-  ImageOff,
-} from "lucide-react";
+import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
+import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFiles } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
-export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
+export default function EssaySubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
+  const [submitting, setSubmitting] = useState(false);
+  const [abstract, setAbstract] = useState<File | null>(null);
+  const [fullEssay, setFullEssay] = useState<File | null>(null);
 
-  const navLinks = [
-    { label: "Home", href: "/home" },
-    { label: "Team", href: "/teams" },
-    { label: "Administration", href: "/administration" },
-    { label: "Events", href: "/events" },
-    { label: "Submission", href: "/submission" },
-  ];
+  const handleSubmit = async () => {
+    if (!abstract || !fullEssay) {
+      alert("Please select files for both Abstract and Full Essay.");
+      return;
+    }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await uploadFiles(teamId, [
+        { documentType: DOCUMENT_TYPES.ESSAY_ABSTRACT, file: abstract },
+        { documentType: DOCUMENT_TYPES.FULL_ESSAY, file: fullEssay },
+      ]);
+      alert("Submitted successfully.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
       <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
+        logo={LOGO}
+        links={PARTICIPANT_NAV_LINKS}
         activeLink="/submission"
-        action={
-          <Button variant="outline" size="lg">
-            <LogIn className="h-4 w-4" />
-            Login
-          </Button>
-        }
+        action={PARTICIPANT_NAV_ACTION}
+        mobileAction={PARTICIPANT_NAV_ACTION}
       />
 
       {/* Hero Section */}
@@ -99,27 +78,17 @@ export default function Home() {
                 <div className="flex flex-col md:flex-row md:justify-between gap-4 w-full max-w-[95%] mx-auto">
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                     <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Abstract*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <FileUploadZone value={abstract} onChange={setAbstract} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                     <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Full Essay*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <FileUploadZone value={fullEssay} onChange={setFullEssay} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end mx-auto p-4 sm:p-6 w-full max-w-[95%]">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={handleSubmit} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
