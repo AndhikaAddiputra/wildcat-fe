@@ -2,6 +2,17 @@
  * Data tiap kompetisi (timeline, judul, dll.).
  * Dipakai di landing page dan participant home.
  */
+
+/**
+ * Peta competitionId → rute submission yang sesuai.
+ * Dipakai oleh useSubmissionGuard untuk redirect peserta ke halaman yang benar.
+ */
+export const COMPETITION_SUBMISSION_ROUTES: Record<string, string> = {
+  "business-case": "/submission/bcc",
+  "gng-case": "/submission/gng",
+  "high-school-essay": "/submission/essay",
+  "paper-poster": "/submission/papos",
+};
 export interface CompetitionTimelineItem {
   label: string;
   date: string;
