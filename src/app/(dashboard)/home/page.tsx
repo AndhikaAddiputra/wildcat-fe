@@ -10,6 +10,7 @@ import {
   Badge,
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
+import { getGuidebookUrl } from "@/lib/constants/guidebooks";
 import { Download } from "lucide-react";
 
 // Tipe untuk status pendaftaran
@@ -91,7 +92,12 @@ export default function ParticipantHomePage() {
                </div>
                <h2 className="text-l font-bold text-[#f1e1b4] tracking-wide">[Competition_Name] Competition</h2>
             </div>
-            <Button variant="primary" size="lg" className="flex gap-2">
+            <Button
+              variant="primary"
+              size="lg"
+              className="flex gap-2"
+              onClick={() => window.open(getGuidebookUrl("paper-poster"), "_blank")}
+            >
               <Download className="h-5 w-5" />
               Download Guidebook
             </Button>

@@ -28,6 +28,8 @@ export interface ModalProps {
   timeline?: ModalTimelineItem[];
   /** URL gambar yang ditampilkan di atas judul (hanya untuk variant="competition") */
   competitionImageUrl?: string;
+  /** URL guidebook untuk tombol Download (variant="competition") */
+  guidebookUrl?: string;
 }
 
 function Modal({ 
@@ -44,6 +46,7 @@ function Modal({
   eventSpeaker = "Soon to be announced",
   timeline = [],
   competitionImageUrl,
+  guidebookUrl,
 }: ModalProps) {
   const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
@@ -240,8 +243,12 @@ function Modal({
                 
               </div>
               <div className="flex flex-col gap-3 mt-8">
-                    <Button variant="outline" className="w-full border-[#f6911e] text-[#f6911e] hover:bg-[#f6911e] hover:text-white" onClick={() => window.open("/guidebook.pdf", "_blank")}>
-                    <Download className="h-4 w-4" />
+                    <Button
+                      variant="outline"
+                      className="w-full border-[#f6911e] text-[#f6911e] hover:bg-[#f6911e] hover:text-white"
+                      onClick={() => guidebookUrl && window.open(guidebookUrl, "_blank")}
+                    >
+                      <Download className="h-4 w-4" />
                       Download Guidebook
                     </Button>
                     <Button variant="primary">
