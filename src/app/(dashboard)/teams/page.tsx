@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   Button,
   CardLarge,
@@ -10,6 +11,8 @@ import {
   Input,
   Navbar,
   Footer,
+  InlineLoader,
+  Spinner,
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { useTeamProfile } from "@/hooks/useTeamProfile";
@@ -53,8 +56,11 @@ export default function Teams() {
         m2Name: form.m2Name,
         m2Major: form.m2Major,
       });
+      toast.success("Data tim berhasil disimpan.");
     } catch (e) {
-      setSaveError(e instanceof Error ? e.message : "Gagal menyimpan");
+      const msg = e instanceof Error ? e.message : "Gagal menyimpan";
+      setSaveError(msg);
+      toast.error(msg);
     } finally {
       setSaving(false);
     }
@@ -94,8 +100,8 @@ export default function Teams() {
             <p className="mb-4 text-center text-red-300">{error}</p>
           )}
           {loading ? (
-            <CardLarge className="w-full max-w-full p-10 text-center text-[#F1E1B4]">
-              Memuat data tim...
+            <CardLarge className="w-full max-w-full p-10 flex items-center justify-center">
+              <InlineLoader text="Memuat data tim..." size="md" />
             </CardLarge>
           ) : (
           <CardLarge className="w-full max-w-full">
@@ -217,7 +223,7 @@ export default function Teams() {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? "Menyimpan..." : "Save Changes"}
+                {saving ? <><Spinner size="xs" /> Menyimpan...</> : "Save Changes"}
               </Button>
             </CardFooter>
           </CardLarge>
