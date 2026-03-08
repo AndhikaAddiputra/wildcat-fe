@@ -19,7 +19,8 @@
 
 # production
 /build
-.open-next
+.open-next/
+.wrangler/
 
 # misc
 .DS_Store
