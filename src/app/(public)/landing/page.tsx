@@ -20,6 +20,7 @@ import {
   LANDING_NAV_LINKS,
   LANDING_NAV_ACTION,
 } from "@/config/navbar-config";
+import { getGuidebookUrl } from "@/lib/constants/guidebooks";
 import type { ModalTimelineItem } from "@/components/ui";
 import {
   ArrowRight,
@@ -425,6 +426,7 @@ export default function LandingPage() {
               isActive: item.isActive ?? isTimelineDateReached(item.date),
             }))}
             competitionImageUrl={comp.imageUrl}
+            guidebookUrl={getGuidebookUrl(comp.id)}
           />
         );
       })()}
