@@ -12,8 +12,13 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFile } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
 export default function GnGSubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
   const [submitting, setSubmitting] = useState(false);
   const [technicalEssay, setTechnicalEssay] = useState<File | null>(null);
   const [technicalReport, setTechnicalReport] = useState<File | null>(null);
@@ -23,15 +28,16 @@ export default function GnGSubmissionPage() {
       alert("Please select a file for Technical Essay.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("technical_essay", technicalEssay);
-      const res = await fetch("/api/submission/gng", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFile(teamId, DOCUMENT_TYPES.TECHNICAL_ESSAY, technicalEssay);
       alert("Preliminary stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -42,15 +48,16 @@ export default function GnGSubmissionPage() {
       alert("Please select a file for Technical Report.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("technical_report", technicalReport);
-      const res = await fetch("/api/submission/gng/final", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFile(teamId, DOCUMENT_TYPES.TECHNICAL_REPORT, technicalReport);
       alert("Final stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

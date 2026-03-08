@@ -12,8 +12,13 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFiles } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
 export default function Home() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
   const [submitting, setSubmitting] = useState(false);
   // 1. Upload Documents
   const [ktmLeader, setKtmLeader] = useState<File | null>(null);
@@ -25,23 +30,26 @@ export default function Home() {
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
 
   const handleSubmitDocuments = async () => {
+    if (!teamId) {
+      alert("Please log in to submit documents.");
+      return;
+    }
+    const items: { documentType: string; file: File }[] = [];
+    if (ktmLeader) items.push({ documentType: DOCUMENT_TYPES.LEAD_KTM, file: ktmLeader });
+    if (ktmMember1) items.push({ documentType: DOCUMENT_TYPES.MEMBER_KTM_1, file: ktmMember1 });
+    if (ktmMember2) items.push({ documentType: DOCUMENT_TYPES.MEMBER_KTM_2, file: ktmMember2 });
+    if (twibbonProof) items.push({ documentType: DOCUMENT_TYPES.PROOF_TWIBBON, file: twibbonProof });
+    if (posterIgProof) items.push({ documentType: DOCUMENT_TYPES.PROOF_POSTER_IG, file: posterIgProof });
+    if (items.length === 0) {
+      alert("At least one document is required.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      if (ktmLeader) formData.append("ktm_leader", ktmLeader);
-      if (ktmMember1) formData.append("ktm_member1", ktmMember1);
-      if (ktmMember2) formData.append("ktm_member2", ktmMember2);
-      if (twibbonProof) formData.append("proof_twibbon", twibbonProof);
-      if (posterIgProof) formData.append("proof_poster_ig", posterIgProof);
-      // TODO: ganti URL dengan endpoint backend Anda
-      const res = await fetch("/api/administration/documents", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFiles(teamId, items);
       alert("Documents submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -52,18 +60,18 @@ export default function Home() {
       alert("Please upload payment proof first.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit payment proof.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("payment_proof", paymentProof);
-      const res = await fetch("/api/administration/payment-proof", {
-        method: "POST",
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFiles(teamId, [
+        { documentType: DOCUMENT_TYPES.PAYMENT_PROOF, file: paymentProof },
+      ]);
       alert("Payment proof submitted for verification.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
