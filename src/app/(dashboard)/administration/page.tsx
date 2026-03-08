@@ -11,10 +11,63 @@ import {
   Footer,
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
-import { Plus } from "lucide-react";
+import { FileUploadZone } from "@/components/shared/FileUploadZone";
 
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  // 1. Upload Documents
+  const [ktmLeader, setKtmLeader] = useState<File | null>(null);
+  const [ktmMember1, setKtmMember1] = useState<File | null>(null);
+  const [ktmMember2, setKtmMember2] = useState<File | null>(null);
+  const [twibbonProof, setTwibbonProof] = useState<File | null>(null);
+  const [posterIgProof, setPosterIgProof] = useState<File | null>(null);
+  // 2. Payment
+  const [paymentProof, setPaymentProof] = useState<File | null>(null);
+
+  const handleSubmitDocuments = async () => {
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      if (ktmLeader) formData.append("ktm_leader", ktmLeader);
+      if (ktmMember1) formData.append("ktm_member1", ktmMember1);
+      if (ktmMember2) formData.append("ktm_member2", ktmMember2);
+      if (twibbonProof) formData.append("proof_twibbon", twibbonProof);
+      if (posterIgProof) formData.append("proof_poster_ig", posterIgProof);
+      // TODO: ganti URL dengan endpoint backend Anda
+      const res = await fetch("/api/administration/documents", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      alert("Documents submitted successfully.");
+    } catch {
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleVerifyPayment = async () => {
+    if (!paymentProof) {
+      alert("Please upload payment proof first.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("payment_proof", paymentProof);
+      const res = await fetch("/api/administration/payment-proof", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) throw new Error("Upload failed");
+      alert("Payment proof submitted for verification.");
+    } catch {
+      alert("Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
@@ -46,61 +99,36 @@ export default function Home() {
                   1. Upload Documents
                 </CardTitle>
                 <div className="w-full max-w-[95%] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4 sm:p-6">
-                  <span className="ml-2 sm:ml-8 my-3 sm:my-4 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Kartu Tanda Mahasiswa/Pelajar</span>
+                  <span className="ml-2 sm:ml-8 my-3 sm:my-4 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Student ID Card</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3 w-full">
-                    <div className="flex flex-col gap-2">
-                      <span className="text-sm sm:text-base font-medium">Team&apos;s Leader*</span>
-                      <div className="min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] w-full border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                        <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                        <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                        <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                        <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                      </div>
+                    <div className="flex flex-col gap-1">
+                      <span className="!text-md !font-semibold sm:text-base font-medium">Team&apos;s Leader*</span>
+                      <FileUploadZone value={ktmLeader} onChange={setKtmLeader} />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-sm sm:text-base font-medium">Member 1</span>
-                      <div className="min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] w-full border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                        <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                        <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                        <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                        <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                      </div>
+                      <span className="text-md font-semibold sm:text-base font-medium">Member 1 (Optional)</span>
+                      <FileUploadZone value={ktmMember1} onChange={setKtmMember1} />
                     </div>
                     <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
-                      <span className="text-sm sm:text-base font-medium">Member 2</span>
-                      <div className="min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] w-full border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                        <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                        <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                        <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                        <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                      </div>
+                      <span className="text-md font-semibold sm:text-base font-medium">Member 2 (Optional)</span>
+                      <FileUploadZone value={ktmMember2} onChange={setKtmMember2} />
                     </div>
                   </div>
                 </div>
                 <div className="w-full max-w-[95%] mx-auto flex flex-col md:flex-row md:justify-between gap-4 my-4">
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Full Paper*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Twibbon*</span>
+                    <FileUploadZone value={twibbonProof} onChange={setTwibbonProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Poster*</span>
-                    <div className="flex-1 min-h-[240px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                      <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                      <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                      <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                      <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Poster on IG Status*</span>
+                    <FileUploadZone value={posterIgProof} onChange={setPosterIgProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
                   </div>
                 </div>
               </CardHeader>
               <CardFooter className="flex w-full max-w-[95%] mx-auto p-4 sm:p-6">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={handleSubmitDocuments} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
@@ -126,16 +154,13 @@ export default function Home() {
                 </span>
 
                 <div className="w-full max-w-[95%] min-h-[240px] sm:min-h-[300px] mx-auto flex flex-col rounded-[20px] border-4 border-dashed border-navy bg-[#9aa0d6] text-navy p-4">
-                    <div className="flex-1 min-h-[200px] rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center">
-                        <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                        <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                        <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                        <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                    </div>
+                    <FileUploadZone value={paymentProof} onChange={setPaymentProof} zoneClassName="min-h-[200px] flex-1" />
                 </div>
               </CardHeader>
               <CardFooter className="w-full max-w-[95%] mx-auto my-auto p-4 sm:p-6">
-                <Button variant="outline" size="lg" className="w-full border-2 border-orange text-orange">Verify</Button>
+                <Button variant="outline" size="lg" className="w-full border-2 border-orange text-orange" onClick={handleVerifyPayment} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Verify"}
+                </Button>
               </CardFooter>
             </CardLarge>
         </section>
