@@ -251,10 +251,26 @@ const RegisterPage = () => {
             <div className="w-full max-w-[484px] flex-1 flex flex-col pt-[15px] pb-0 items-center">
               <div className="grid grid-cols-2 gap-x-[25px] gap-y-[16px] mb-4 mx-auto w-fit">
                 {[
-                  { name: "Paper & Poster", id: "paper-poster", imageUrl: "/PaPos.png" },
-                  { name: "Business Case", id: "business-case", imageUrl: "/BCC.png" },
-                  { name: "GnG Case Study", id: "gng-case", imageUrl: "/GnG%20Case%20Study.png" },
-                  { name: "Essay", id: "essay", imageUrl: "/Essay.png" },
+                  { 
+                    name: "Paper & Poster", 
+                    id: "77597754-e64c-402d-a71f-a359a39be953", // ID Real dari DB
+                    imageUrl: "/PaPos.png" 
+                  },
+                  { 
+                    name: "Business Case", 
+                    id: "9a493de9-4b3f-45f2-aa51-c43d29882738", // ID Real dari DB
+                    imageUrl: "/BCC.png" 
+                  },
+                  { 
+                    name: "GnG Case Study", 
+                    id: "a1baa39c-5806-42c5-8762-23613344f6fe", // ID Real dari DB
+                    imageUrl: "/GnG%20Case%20Study.png" 
+                  },
+                  { 
+                    name: "Essay", 
+                    id: "a83cf52f-08fe-47ca-8e43-ae8c1f8b78ce", // ID Real dari DB
+                    imageUrl: "/Essay.png" 
+                  },
                 ].map(({ name, id, imageUrl }) => (
                   <div 
                     key={id} 
