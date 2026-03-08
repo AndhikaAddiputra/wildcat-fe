@@ -7,6 +7,22 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { createBrowserClient } from '@supabase/ssr'; // Gunakan Supabase Client untuk di browser
 
+/** Map competition display name (step 3) to competition ID for API */
+const COMPETITION_NAME_TO_ID: Record<string, string> = {
+  "Paper & Poster": "paper-poster",
+  "Business Case": "business-case",
+  "GnG Case Study": "gng-case",
+  "Essay": "high-school-essay",
+};
+
+export interface RegistrationFormData {
+  teamName: string;
+  leaderFullName: string;
+  university: string;
+  major: string;
+  competitionId: string;
+}
+
 const RegisterPage = () => {
   const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
@@ -35,6 +51,12 @@ const RegisterPage = () => {
       }
     }
   }, [searchParams]);
+  const [teamName, setTeamName] = useState("");
+  const [leaderFullName, setLeaderFullName] = useState("");
+  const [university, setUniversity] = useState("");
+  const [major, setMajor] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleBack = () => {
     if (step > 1) {
@@ -110,6 +132,35 @@ const RegisterPage = () => {
       alert(`Terjadi kesalahan: ${error.message}`);
     } finally {
       setIsLoading(false);
+  const handleFinalContinue = async () => {
+    if (!selectedComp) return;
+    const competitionId = COMPETITION_NAME_TO_ID[selectedComp] ?? selectedComp;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const payload: RegistrationFormData = {
+        teamName,
+        leaderFullName,
+        university,
+        major,
+        competitionId,
+      };
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Registrasi gagal. Silakan coba lagi.");
+        return;
+      }
+      alert(`Registrasi berhasil! Kamu mendaftar lomba: ${selectedComp}`);
+      // TODO: redirect to dashboard or next step (e.g. after Google auth)
+    } catch {
+      setSubmitError("Koneksi gagal. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -192,6 +243,11 @@ const RegisterPage = () => {
                   onChange={(e) => setTeamName(e.target.value)}
                   placeholder="E.g. GeoChampions"
                   className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
+                <input
+                  type="text"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                 />
               </div>
               
@@ -205,6 +261,11 @@ const RegisterPage = () => {
                   onChange={(e) => setLeadName(e.target.value)}
                   placeholder="John Doe"
                   className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
+                <input
+                  type="text"
+                  value={leaderFullName}
+                  onChange={(e) => setLeaderFullName(e.target.value)}
+                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                 />
               </div>
               
@@ -219,6 +280,11 @@ const RegisterPage = () => {
                     onChange={(e) => setInstitution(e.target.value)}
                     placeholder="ITB"
                     className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
+                  <input
+                    type="text"
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                   />
                 </div>
                 <div className="flex flex-col gap-[10px]">
@@ -231,6 +297,11 @@ const RegisterPage = () => {
                     onChange={(e) => setLeadMajor(e.target.value)}
                     placeholder="Geology"
                     className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" 
+                  <input
+                    type="text"
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
                   />
                 </div>
               </div>
@@ -296,16 +367,26 @@ const RegisterPage = () => {
                 ))}
               </div>
 
+              {submitError && (
+                <p className="text-[#FF5B5B] text-sm mt-2 text-center" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  {submitError}
+                </p>
+              )}
               <button 
                 onClick={handleSubmitRegistration}
                 disabled={!selectedComp || isLoading}
                 className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
                   ${selectedComp && !isLoading
+                onClick={handleFinalContinue}
+                disabled={!selectedComp || isSubmitting}
+                className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
+                  ${selectedComp && !isSubmitting
                     ? 'shadow-[0px_4px_10px_rgba(0,0,0,0.25)] hover:opacity-90' 
                     : 'opacity-50 cursor-not-allowed shadow-none'}`}
                 style={{ fontFamily: "'Manrope', sans-serif" }}
               >
                 {isLoading ? "Submitting..." : "Submit Registration"}
+                {isSubmitting ? "Mengirim..." : "Continue"}
               </button>
             </div>
           )}

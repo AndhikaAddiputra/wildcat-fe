@@ -3,78 +3,74 @@
 import { useState } from "react";
 import {
   Button,
-  Card,
-  CardSmall,    
-  CardMedium,   
   CardLarge,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
   CardFooter,
-  Input,
-  Textarea,
-  Badge,
-  Avatar,
-  Modal,
-  Separator,
   Navbar,
   Footer,
 } from "@/components/ui";
-import {
-  Heart,
-  Star,
-  Search,
-  Bell,
-  Settings,
-  User,
-  Mail,
-  ArrowRight,
-  CheckCircle,
-  AlertTriangle,
-  Info,
-  LogIn,
-  ExternalLink,
-  Trash2,
-  Plus,
-  Download,
-  Share2,
-  Zap,
-  Shield,
-  Globe,
-  Rocket,
-  Circle,
-  ImageOff,
-} from "lucide-react";
+import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
+import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFile } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
-export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
+export default function BCCSubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
+  const [submitting, setSubmitting] = useState(false);
+  const [businessProposal, setBusinessProposal] = useState<File | null>(null);
+  const [pitchDeck, setPitchDeck] = useState<File | null>(null);
 
-  const navLinks = [
-    { label: "Home", href: "/home" },
-    { label: "Team", href: "/teams" },
-    { label: "Administration", href: "/administration" },
-    { label: "Events", href: "/events" },
-    { label: "Submission", href: "/submission" },
-  ];
+  const submitPreliminary = async () => {
+    if (!businessProposal) {
+      alert("Please select a file for Business Proposal.");
+      return;
+    }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await uploadFile(teamId, DOCUMENT_TYPES.BUSINESS_PROPOSAL, businessProposal);
+      alert("Preliminary stage submitted successfully.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitFinal = async () => {
+    if (!pitchDeck) {
+      alert("Please select a file for Pitch Deck.");
+      return;
+    }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await uploadFile(teamId, DOCUMENT_TYPES.PITCH_DECK, pitchDeck);
+      alert("Final stage submitted successfully.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');`}</style>
-      <style>{`@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&family=Poppins:wght@400;600;700&display=swap');`}</style>
-      {/* Navbar - transparent to solid */}
       <Navbar
-        logo={
-          <img src="/wildcat-logo.svg" alt="Wildcat" className="h-20 w-auto" />
-        }
-        links={navLinks}
+        logo={LOGO}
+        links={PARTICIPANT_NAV_LINKS}
         activeLink="/submission"
-        action={
-          <Button variant="outline" size="lg">
-            <LogIn className="h-4 w-4" />
-            Login
-          </Button>
-        }
+        action={PARTICIPANT_NAV_ACTION}
+        mobileAction={PARTICIPANT_NAV_ACTION}
       />
 
       {/* Hero Section */}
@@ -98,17 +94,12 @@ export default function Home() {
                 </CardTitle>
                 <div className="w-full max-w-[95%] min-h-[320px] sm:min-h-[425px] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                   <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Business Proposal*</span>
-                  <div className="flex-1 min-h-[240px] sm:min-h-[300px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                    <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                    <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                    <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                    <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                  </div>
+                  <FileUploadZone value={businessProposal} onChange={setBusinessProposal} zoneClassName="flex-1 min-h-[240px] sm:min-h-[300px]" />
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end mx-auto p-4 sm:p-6 w-full max-w-[95%]">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={submitPreliminary} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
@@ -120,17 +111,12 @@ export default function Home() {
                 </CardTitle>
                 <div className="w-full max-w-[95%] min-h-[320px] sm:min-h-[425px] mx-auto flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
                   <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Pitch Deck*</span>
-                  <div className="flex-1 min-h-[240px] sm:min-h-[300px] w-full max-w-[95%] mx-auto border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center p-4">
-                    <Plus className="h-6 w-6 sm:h-8 sm:w-8" />
-                    <span className="font-semibold text-base sm:text-lg md:text-[22px] text-center">Drag and drop your files</span>
-                    <span className="font-medium text-sm sm:text-[20px] text-center">JPG, PNG, or PDF, up to 1 MB</span>
-                    <Button variant="outline" size="md" className="text-navy border-navy">Select File</Button>
-                  </div>
+                  <FileUploadZone value={pitchDeck} onChange={setPitchDeck} zoneClassName="flex-1 min-h-[240px] sm:min-h-[300px]" />
                 </div>
               </CardHeader>
               <CardFooter className="flex justify-end mx-auto p-4 sm:p-6 w-full max-w-[95%]">
-                <Button variant="primary" size="lg" className="w-full mx-auto">
-                  Submit
+                <Button variant="primary" size="lg" className="w-full mx-auto" onClick={submitFinal} disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
