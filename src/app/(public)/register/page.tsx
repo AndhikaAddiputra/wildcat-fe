@@ -5,15 +5,69 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 
+/** Map competition display name (step 3) to competition ID for API */
+const COMPETITION_NAME_TO_ID: Record<string, string> = {
+  "Paper & Poster": "paper-poster",
+  "Business Case": "business-case",
+  "GnG Case Study": "gng-case",
+  "Essay": "high-school-essay",
+};
+
+export interface RegistrationFormData {
+  teamName: string;
+  leaderFullName: string;
+  university: string;
+  major: string;
+  competitionId: string;
+}
+
 const RegisterPage = () => {
   const [step, setStep] = useState(1);
   const [selectedComp, setSelectedComp] = useState("");
+  const [teamName, setTeamName] = useState("");
+  const [leaderFullName, setLeaderFullName] = useState("");
+  const [university, setUniversity] = useState("");
+  const [major, setMajor] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const handleBack = () => {
     if (step > 1) {
       setStep(step - 1);
     } else {
       window.location.href = "/landing";
+    }
+  };
+
+  const handleFinalContinue = async () => {
+    if (!selectedComp) return;
+    const competitionId = COMPETITION_NAME_TO_ID[selectedComp] ?? selectedComp;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const payload: RegistrationFormData = {
+        teamName,
+        leaderFullName,
+        university,
+        major,
+        competitionId,
+      };
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setSubmitError(data.error ?? "Registrasi gagal. Silakan coba lagi.");
+        return;
+      }
+      alert(`Registrasi berhasil! Kamu mendaftar lomba: ${selectedComp}`);
+      // TODO: redirect to dashboard or next step (e.g. after Google auth)
+    } catch {
+      setSubmitError("Koneksi gagal. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -85,14 +139,24 @@ const RegisterPage = () => {
                 <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   Team&apos;s Name
                 </label>
-                <input type="text" className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" />
+                <input
+                  type="text"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
+                />
               </div>
               
               <div className="flex flex-col gap-[10px] mb-5">
                 <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                   Leader&apos;s Full Name
                 </label>
-                <input type="text" className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" />
+                <input
+                  type="text"
+                  value={leaderFullName}
+                  onChange={(e) => setLeaderFullName(e.target.value)}
+                  className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
+                />
               </div>
               
               <div className="grid grid-cols-2 gap-[18px]">
@@ -100,13 +164,23 @@ const RegisterPage = () => {
                   <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     University/ School
                   </label>
-                  <input type="text" className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" />
+                  <input
+                    type="text"
+                    value={university}
+                    onChange={(e) => setUniversity(e.target.value)}
+                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
+                  />
                 </div>
                 <div className="flex flex-col gap-[10px]">
                   <label className="text-[#F1E1B4] text-[16px] font-medium ml-1" style={{ fontFamily: "'Poppins', sans-serif" }}>
                     Major
                   </label>
-                  <input type="text" className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors" />
+                  <input
+                    type="text"
+                    value={major}
+                    onChange={(e) => setMajor(e.target.value)}
+                    className="w-full h-[70px] bg-white/10 backdrop-blur-md border-[3px] border-[#F1E1B4] rounded-[20px] px-5 text-white focus:outline-none focus:border-[#F6911E] transition-colors"
+                  />
                 </div>
               </div>
 
@@ -153,16 +227,21 @@ const RegisterPage = () => {
                 ))}
               </div>
 
+              {submitError && (
+                <p className="text-[#FF5B5B] text-sm mt-2 text-center" style={{ fontFamily: "'Poppins', sans-serif" }}>
+                  {submitError}
+                </p>
+              )}
               <button 
-                onClick={() => alert(`Kamu mendaftar lomba: ${selectedComp}`)}
-                disabled={!selectedComp}
+                onClick={handleFinalContinue}
+                disabled={!selectedComp || isSubmitting}
                 className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
-                  ${selectedComp 
+                  ${selectedComp && !isSubmitting
                     ? 'shadow-[0px_4px_10px_rgba(0,0,0,0.25)] hover:opacity-90' 
                     : 'opacity-50 cursor-not-allowed shadow-none'}`}
                 style={{ fontFamily: "'Manrope', sans-serif" }}
               >
-                Continue
+                {isSubmitting ? "Mengirim..." : "Continue"}
               </button>
             </div>
           )}
