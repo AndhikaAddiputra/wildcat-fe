@@ -38,7 +38,6 @@ const RegisterPage = () => {
           />
         </div>
 
-        {/* Card Form */}
         <div className="w-full max-w-[592px] h-[613px] bg-[#0A2D6E] rounded-[20px] p-[40px] shadow-[0_0_40px_10px_rgba(246,145,30,0.5)] flex flex-col items-center relative">
           <h2 
             className="text-[36px] font-semibold text-[#F6911E]"
@@ -47,7 +46,6 @@ const RegisterPage = () => {
             {step === 3 ? "Choose Competition" : "Register"}
           </h2>
 
-          {/* Step 1: Google Register */}
           {step === 1 && (
             <div className="w-full flex-1 flex flex-col items-center pt-6">
               <div className="relative w-[329px] h-[235px] shrink-0 mb-6">
@@ -78,11 +76,9 @@ const RegisterPage = () => {
                   Already have an account? <Link href="/login" className="text-[#F6911E] font-bold hover:underline">Click Here</Link>
                 </p>
               </div>
-
             </div>
           )}
 
-          {/* Step 2: Fill the Data */}
           {step === 2 && (
             <div className="w-full max-w-[484px] flex-1 flex flex-col pt-2 pb-2">
               <div className="flex flex-col gap-[10px] mb-5">
@@ -124,7 +120,6 @@ const RegisterPage = () => {
             </div>
           )}
           
-          {/* Step 3: Choose the Competition — asset per lomba */}
           {step === 3 && (
             <div className="w-full max-w-[484px] flex-1 flex flex-col pt-[15px] pb-0 items-center">
               <div className="grid grid-cols-2 gap-x-[25px] gap-y-[16px] mb-4 mx-auto w-fit">

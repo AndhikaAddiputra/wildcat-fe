@@ -22,12 +22,6 @@ import {
 } from "@/config/navbar-config";
 import type { ModalTimelineItem } from "@/components/ui";
 import {
-  Heart,
-  LogIn,
-  Mic,
-  CalendarDays,
-  Trophy,
-  Award,
   ArrowRight,
   ExternalLink,
   X,
@@ -194,7 +188,7 @@ const EVENTS = [
     id: "webinar",
     title: "Webinar",
     description:
-      "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.",
+      "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. It is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.",
     status: "not_started" as EventStatus,
     eventDate: "14 March 2026",
     eventPlace: "Online via Zoom Meeting",
@@ -257,7 +251,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-navy text-white">
-      {/* Navbar */}
       <Navbar
         logo={LOGO}
         links={LANDING_NAV_LINKS}
@@ -266,26 +259,18 @@ export default function LandingPage() {
         mobileAction={LANDING_NAV_ACTION}
       />
 
-      {/* ══════════════════════════════════════
-          HERO SECTION
-         ══════════════════════════════════════ */}
       <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
-        {/* Background still */}
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: "url('/background-hero-still.svg')" }}
         />
-
-        {/* Background move - rotating counter-clockwise */}
         <div className="absolute inset-0 flex items-center justify-center">
           <img
             src="/background-hero-move.svg"
             alt=""
-            className="animate-spin-slow-reverse h-[140%] w-[140%] max-w-none object-contain opacity-60"
+            className="animate-spin-slow-reverse h-[140%] w-[140%] max-w-none object-contain opacity-75"
           />
         </div>
-
-        {/* Content */}
         <div className="relative z-10 flex flex-col items-center px-6 text-center">
           <img
             src="/Main-title.svg"
@@ -304,17 +289,11 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          CONTENT SECTION (parallax reveal)
-          Gradient dimulai di bawah Transition.svg agar tidak ada garis keras;
-          area overlap hanya menampilkan wave + hero.
-         ══════════════════════════════════════ */}
       <section
         id="content"
         ref={contentSectionRef}
         className="relative -mt-40 md:-mt-48"
       >
-        {/* Gradient dimulai persis di bawah wave agar biru graphic menempel ke content */}
         <div
           className="absolute left-0 right-0 bottom-0 top-[140px] z-0 bg-gradient-to-b from-[#0A2D6E] via-[#7E74CD] to-[#0A2D6E] sm:top-[160px] md:top-[180px]"
           aria-hidden
@@ -326,7 +305,6 @@ export default function LandingPage() {
               : "translate-y-16 opacity-0"
           }`}
         >
-          {/* Transition graphic: hilang di layar sempit (< md); tampil penuh tanpa terpotong bawah */}
           <div className="w-full overflow-hidden leading-[0]">
             <div className="hidden w-full md:block" style={{ aspectRatio: "1601/275" }}>
               <img
@@ -337,21 +315,16 @@ export default function LandingPage() {
                 height={273}
               />
             </div>
-            {/* Placeholder tinggi saat gambar disembunyikan (md ke bawah) agar konten tidak naik */}
             <div className="w-full md:hidden" style={{ height: "145px" }} aria-hidden />
           </div>
 
-      {/* ─── About ─── */}
       <section id="about" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
-          {/* Tag: ABOUT THE EVENT */}
           <div className="mb-6 flex justify-center">
             <span className="rounded-full border border-orange px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange">
               ABOUT THE EVENT
             </span>
           </div>
-
-          {/* Judul gradient: orange → kuning-orange */}
           <h2 className="mb-4 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             WHAT IS WILDCAT?
           </h2>
@@ -360,31 +333,20 @@ export default function LandingPage() {
             competition and industry engagement platform designed to simulate
             real subsurface workflows in oil and gas.
           </p>
-
           <Card className="rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] dark:!bg-[#0A2D6E] shadow-[0_0_15px_rgba(246,145,30,0.4)] shadow-[0_0_10px_4px_rgba(246,145,60,1)]">
             <div className="grid gap-8 p-8 md:grid-cols-2 md:gap-12 md:p-10">
-              {/* Kolom kiri: Our Vision */}
               <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
-                  Our Vision
-                </p>
-                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">
-                  A Gateway to Excellence
-                </h3>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">Our Vision</p>
+                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">A Gateway to Excellence</h3>
                 <p className="text-sm leading-relaxed text-justify text-[#f1e1b4]/90">
                   To create a platform for wide ranges of people to learn,
                   progress, and lead Petroleum Geoscience and embody Wildcat
                   AAPG ITB 2026 as a gateway to excellence.
                 </p>
               </div>
-              {/* Kolom kanan: Our Theme */}
               <div>
-                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">
-                  Our Theme
-                </p>
-                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">
-                  Fueling the Future
-                </h3>
+                <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">Our Theme</p>
+                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">Fueling the Future</h3>
                 <p className="text-sm leading-relaxed text-justify text-[#f1e1b4]/90">
                   &ldquo;Leading Petroleum Geoscience to Fuel the Future of Oil
                   and Gas&rdquo; — connecting scientific insight with
@@ -396,9 +358,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════
-          CHOOSE YOUR PATH! (Competitions — card + modal variant competition)
-         ══════════════════════════════════════ */}
       <section id="competitions" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
           <div className="mb-6 flex justify-center">
@@ -409,7 +368,6 @@ export default function LandingPage() {
           <h2 className="mb-8 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             CHOOSE YOUR PATH!
           </h2>
-
           <div className="grid gap-6 sm:grid-cols-2">
             {COMPETITIONS.map((comp) => (
               <CompetitionCardBase
@@ -452,7 +410,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Modal competition: satu modal untuk semua kompetisi */}
       {openCompetitionId && (() => {
         const comp = COMPETITIONS.find((c) => c.id === openCompetitionId);
         if (!comp) return null;
@@ -472,7 +429,6 @@ export default function LandingPage() {
         );
       })()}
 
-      {/* ─── Events (carousel + modal) ─── */}
       <section id="events" className="px-6 py-20">
         <div className="mx-auto max-w-5xl">
           <div className="mb-6 flex justify-center">
@@ -483,7 +439,6 @@ export default function LandingPage() {
           <h2 className="mb-10 text-center text-3xl font-extrabold sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             SEEK OPPORTUNITIES
           </h2>
-
           <div className="flex items-center justify-center gap-4 sm:gap-6">
             <button
               type="button"
@@ -493,7 +448,6 @@ export default function LandingPage() {
             >
               <ChevronLeft className="h-6 w-6" />
             </button>
-
             <div className="min-h-[320px] w-full max-w-2xl overflow-hidden">
               {EVENTS.map((ev, idx) => (
                 <div
@@ -523,18 +477,10 @@ export default function LandingPage() {
                         {ev.status === "ended" && "Event Ended"}
                       </span>
                     </div>
-                    <h3 className="mb-3 text-xl font-bold !text-[#f1e1b4] sm:text-2xl">
-                      {ev.title}
-                    </h3>
-                    <p className="mb-6 text-sm leading-relaxed !text-[#f1e1b4]/90 text-justify">
-                      {ev.description}
-                    </p>
+                    <h3 className="mb-3 text-xl font-bold !text-[#f1e1b4] sm:text-2xl">{ev.title}</h3>
+                    <p className="mb-6 text-sm leading-relaxed !text-[#f1e1b4]/90 text-justify">{ev.description}</p>
                     <div className="flex justify-end">
-                      <Button
-                        variant="primary"
-                        size="md"
-                        onClick={() => setOpenEventId(ev.id)}
-                      >
+                      <Button variant="primary" size="md" onClick={() => setOpenEventId(ev.id)}>
                         Learn More
                         <ExternalLink className="h-4 w-4" />
                       </Button>
@@ -543,7 +489,6 @@ export default function LandingPage() {
                 </div>
               ))}
             </div>
-
             <button
               type="button"
               onClick={() => setEventCarouselIndex((i) => (i >= EVENTS.length - 1 ? 0 : i + 1))}
@@ -553,7 +498,6 @@ export default function LandingPage() {
               <ChevronRight className="h-6 w-6" />
             </button>
           </div>
-
           <div className="mt-4 flex justify-center gap-2">
             {EVENTS.map((_, idx) => (
               <button
@@ -570,7 +514,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Modal event */}
       {openEventId && (() => {
         const ev = EVENTS.find((e) => e.id === openEventId);
         if (!ev) return null;
@@ -588,20 +531,17 @@ export default function LandingPage() {
         );
       })()}
 
-      {/* ─── Timeline (sesuai gambar + TimelineSlider.png, responsif) ─── */}
       <section id="timeline" className="px-6 py-20">
         <div className="mx-auto max-w-6xl">
           <div className="mb-6 flex justify-center">
-            <span className="rounded-full border border-[#F6911E] px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange shadow-[0_0_12px_rgba(246,145,30,0.3)]">
+            <span className="rounded-full border border-orange px-6 py-2 text-xs font-bold uppercase tracking-widest text-orange shadow-[0_0_12px_rgba(246,145,30,0.3)]">
               GRAND TIMELINE
             </span>
           </div>
           <h2 className="mb-10 text-center text-3xl font-extrabold uppercase tracking-tight sm:text-4xl bg-gradient-to-r from-orange to-amber-400 bg-clip-text text-transparent">
             TIMELINE
           </h2>
-
           <div className="relative">
-            {/* Gambar slider timeline: responsif, full width */}
             <div className="relative w-full overflow-hidden rounded-2xl">
               <img
                 src="/TimelineSlider.png"
@@ -609,9 +549,6 @@ export default function LandingPage() {
                 className="w-full max-w-4xl mx-auto h-auto object-contain"
               />
             </div>
-
-            {/* Empat step (overlay atau di bawah): Webinar, Side-Event, Competition, Grand Seminar */}
-            
           </div>
         </div>
       </section>
