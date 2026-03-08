@@ -82,7 +82,7 @@ export async function GET(request: Request) {
         return NextResponse.redirect(`${origin}/home`); // atau ke /dashboard
       } else if (isRegistered && !isCompleted) {
         // Baru melengkapi Step 1, lanjut ke Step 2
-        return NextResponse.redirect(`${origin}/register?step=2`);
+        return NextResponse.redirect(`${origin}/teams`);
       } else {
         // Belum daftar sama sekali, mulai dari Step 1
         return NextResponse.redirect(`${origin}/register?step=2`);
