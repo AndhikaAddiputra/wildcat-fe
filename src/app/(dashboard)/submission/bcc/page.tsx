@@ -12,9 +12,13 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
-import { Plus } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFile } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
 export default function BCCSubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
   const [submitting, setSubmitting] = useState(false);
   const [businessProposal, setBusinessProposal] = useState<File | null>(null);
   const [pitchDeck, setPitchDeck] = useState<File | null>(null);
@@ -24,15 +28,16 @@ export default function BCCSubmissionPage() {
       alert("Please select a file for Business Proposal.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("business_proposal", businessProposal);
-      const res = await fetch("/api/submission/bcc", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFile(teamId, DOCUMENT_TYPES.BUSINESS_PROPOSAL, businessProposal);
       alert("Preliminary stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -43,15 +48,16 @@ export default function BCCSubmissionPage() {
       alert("Please select a file for Pitch Deck.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("pitch_deck", pitchDeck);
-      const res = await fetch("/api/submission/bcc/final", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFile(teamId, DOCUMENT_TYPES.PITCH_DECK, pitchDeck);
       alert("Final stage submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

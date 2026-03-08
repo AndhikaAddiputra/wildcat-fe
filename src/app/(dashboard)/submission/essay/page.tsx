@@ -12,8 +12,13 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
+import { useAuth } from "@/hooks/useAuth";
+import { uploadFiles } from "@/services/upload.service";
+import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 
 export default function EssaySubmissionPage() {
+  const { user } = useAuth();
+  const teamId = user?.teamId;
   const [submitting, setSubmitting] = useState(false);
   const [abstract, setAbstract] = useState<File | null>(null);
   const [fullEssay, setFullEssay] = useState<File | null>(null);
@@ -23,16 +28,19 @@ export default function EssaySubmissionPage() {
       alert("Please select files for both Abstract and Full Essay.");
       return;
     }
+    if (!teamId) {
+      alert("Please log in to submit.");
+      return;
+    }
     setSubmitting(true);
     try {
-      const formData = new FormData();
-      formData.append("abstract", abstract);
-      formData.append("full_essay", fullEssay);
-      const res = await fetch("/api/submission/essay", { method: "POST", body: formData });
-      if (!res.ok) throw new Error("Upload failed");
+      await uploadFiles(teamId, [
+        { documentType: DOCUMENT_TYPES.ESSAY_ABSTRACT, file: abstract },
+        { documentType: DOCUMENT_TYPES.FULL_ESSAY, file: fullEssay },
+      ]);
       alert("Submitted successfully.");
-    } catch {
-      alert("Failed to submit. Please try again.");
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
