@@ -91,13 +91,29 @@ export interface EventItem {
 // Authenticated: target_audience = "All" OR user's competition name.
 // Unauthenticated: target_audience = "All" only.
 
+import type { AnnouncementAudience } from "@/lib/constants/announcement-audience";
+
 export interface AnnouncementItem {
   id: string;
   title: string;
   content: string;
-  /** "All" or competition name */
-  targetAudience?: string;
+  /**
+   * Nilai enum target_audience dari backend.
+   * Lihat ANNOUNCEMENT_AUDIENCE di lib/constants/announcement-audience.ts.
+   */
+  targetAudience?: AnnouncementAudience | string;
   attachmentUrl?: string | null;
   /** ISO timestamp */
   createdAt?: string;
+}
+
+/** Body untuk POST/PUT /api/admin/announcements */
+export interface AnnouncementUpsertBody {
+  title: string;
+  content: string;
+  /** Harus salah satu dari ANNOUNCEMENT_AUDIENCE */
+  targetAudience: AnnouncementAudience;
+  attachmentUrl?: string;
+  /** Hanya ada saat update — ID announcement yang diedit */
+  id?: string;
 }
