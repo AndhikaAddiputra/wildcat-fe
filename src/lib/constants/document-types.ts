@@ -3,12 +3,12 @@
  * Must match backend expectations.
  */
 export const DOCUMENT_TYPES = {
-  // Administration
+  // Administration — nilai harus match backend: lead_ktm, m1_ktm, m2_ktm, twibbon_proof, poster_proof
   LEAD_KTM: "lead_ktm",
-  MEMBER_KTM_1: "member_ktm_1",
-  MEMBER_KTM_2: "member_ktm_2",
-  PROOF_TWIBBON: "proof_twibbon",
-  PROOF_POSTER_IG: "proof_poster_ig",
+  MEMBER_KTM_1: "m1_ktm",
+  MEMBER_KTM_2: "m2_ktm",
+  PROOF_TWIBBON: "twibbon_proof",
+  PROOF_POSTER_IG: "poster_proof",
   PAYMENT_PROOF: "payment_proof",
   // Submission BCC
   BUSINESS_PROPOSAL: "business_proposal",
