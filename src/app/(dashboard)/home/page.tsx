@@ -10,7 +10,9 @@ import {
   Badge,
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
+import { COMPETITIONS } from "@/lib/constants/competitions";
 import { getGuidebookUrl } from "@/lib/constants/guidebooks";
+import type { GuidebookCompetitionId } from "@/lib/constants/guidebooks";
 import { Download } from "lucide-react";
 
 // Tipe untuk status pendaftaran
@@ -19,14 +21,16 @@ type RegistrationStatus = "Registered" | "Document Verified" | "Paid";
 export default function ParticipantHomePage() {
   // Mode simulasi status: Ganti nilai awal ini untuk testing mode berbeda
   const [regStatus, setRegStatus] = useState<RegistrationStatus>("Document Verified");
+  // Kompetisi yang dipilih untuk menampilkan timeline & guidebook
+  const [selectedCompetitionId, setSelectedCompetitionId] = useState<GuidebookCompetitionId>("paper-poster");
 
-  const timelineData = [
-    { label: "Early Registration", date: "13 - 22 March 2026", active: true },
-    { label: "Normal Registration", date: "23 - 31 March 2026", active: false },
-    { label: "Abstract Submission", date: "7 April 2026", active: false },
-    { label: "Finalist Announcement", date: "25 April 2026", active: false },
-    { label: "Final Technical Meeting", date: "2 May 2026", active: false },
-  ];
+  const selectedCompetition = COMPETITIONS.find((c) => c.id === selectedCompetitionId) ?? COMPETITIONS[0];
+  // Timeline untuk kompetisi terpilih (item pertama sebagai active untuk highlight)
+  const timelineData = selectedCompetition.timeline.map((item, idx) => ({
+    label: item.label,
+    date: item.date,
+    active: idx === 0,
+  }));
 
   // Konfigurasi konten Progress Bar berdasarkan mode
   const regConfig = {
@@ -87,16 +91,20 @@ export default function ParticipantHomePage() {
           {/* Competition Info Card */}
           <CardLarge className="min-h-0 h-[150px] flex flex-row items-center justify-between p-8 bg-[#0A2D6E]/80 backdrop-blur-sm border-[#F6911E]">
             <div className="flex items-center gap-4">
-               <div className="h-12 w-12 border-2 border-[#F6911E] flex items-center justify-center rounded">
-                  <div className="h-6 w-6 border-2 border-[#F6911E] rotate-45" />
+               <div className="h-16 w-16 shrink-0 flex items-center justify-center rounded overflow-hidden">
+                  <img
+                    src={selectedCompetition.imageUrl}
+                    alt=""
+                    className="h-full w-full object-contain"
+                  />
                </div>
-               <h2 className="text-l font-bold text-[#f1e1b4] tracking-wide">[Competition_Name] Competition</h2>
+               <h2 className="text-l font-bold text-[#f1e1b4] tracking-wide">{selectedCompetition.title}</h2>
             </div>
             <Button
               variant="primary"
               size="lg"
               className="flex gap-2"
-              onClick={() => window.open(getGuidebookUrl("paper-poster"), "_blank")}
+              onClick={() => window.open(getGuidebookUrl(selectedCompetitionId), "_blank")}
             >
               <Download className="h-5 w-5" />
               Download Guidebook
@@ -105,7 +113,21 @@ export default function ParticipantHomePage() {
 
           {/* Competition Timeline Card */}
           <CardLarge className="p-10 bg-[#96a0d2] border-white/20">
-            <h3 className="mb-10 text-2xl font-bold text-[#0A2D6E]">Competition's Timeline</h3>
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              <h3 className="text-2xl font-bold text-[#0A2D6E]">Competition&apos;s Timeline</h3>
+              <select
+                value={selectedCompetitionId}
+                onChange={(e) => setSelectedCompetitionId(e.target.value as GuidebookCompetitionId)}
+                className="rounded-xl border-2 border-[#0A2D6E] bg-white/90 px-4 py-2 text-sm font-semibold text-[#0A2D6E] outline-none focus:ring-2 focus:ring-[#F6911E]"
+                aria-label="Pilih kompetisi"
+              >
+                {COMPETITIONS.map((comp) => (
+                  <option key={comp.id} value={comp.id}>
+                    {comp.title}
+                  </option>
+                ))}
+              </select>
+            </div>
             
             {/* Wrapper untuk Scroll Horizontal */}
             <div className="w-full overflow-x-auto pb-10 no-scrollbar"> 
