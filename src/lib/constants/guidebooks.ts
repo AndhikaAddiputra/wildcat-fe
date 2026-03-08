@@ -13,6 +13,20 @@ const GUIDEBOOK_IDS = {
 
 export type GuidebookCompetitionId = keyof typeof GUIDEBOOK_IDS;
 
+/** Map UUID (dari backend/DB) ke id frontend. */
+const UUID_TO_COMPETITION_ID: Record<string, GuidebookCompetitionId> = {
+  [GUIDEBOOK_IDS["paper-poster"]]: "paper-poster",
+  [GUIDEBOOK_IDS["business-case"]]: "business-case",
+  [GUIDEBOOK_IDS["gng-case"]]: "gng-case",
+  [GUIDEBOOK_IDS["high-school-essay"]]: "high-school-essay",
+};
+
+export function competitionUuidToId(uuid: string | null | undefined): GuidebookCompetitionId | null {
+  if (!uuid) return null;
+  const normalized = uuid.trim().toLowerCase();
+  return UUID_TO_COMPETITION_ID[normalized] ?? null;
+}
+
 export const GUIDEBOOK_URLS: Record<GuidebookCompetitionId, string> = {
   "paper-poster": `${GUIDEBOOK_BASE}/${GUIDEBOOK_IDS["paper-poster"]}.pdf`,
   "business-case": `${GUIDEBOOK_BASE}/${GUIDEBOOK_IDS["business-case"]}.pdf`,

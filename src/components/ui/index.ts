@@ -31,3 +31,6 @@ export type { CompetitionCardProps } from "./competition-card";
 
 export { TimelineItem } from "./timeline-item";
 export type { TimelineItemProps } from "./timeline-item";
+
+export { Spinner, PageLoader, LoadingOverlay, InlineLoader } from "./loading";
+export type { SpinnerProps, PageLoaderProps, LoadingOverlayProps, InlineLoaderProps } from "./loading";

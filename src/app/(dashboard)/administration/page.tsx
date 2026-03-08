@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "sonner";
+import { CheckCircle2, XCircle } from "lucide-react";
 import {
   Button,
   CardLarge,
@@ -13,14 +15,57 @@ import {
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
 import { useAuth } from "@/hooks/useAuth";
-import { uploadFiles } from "@/services/upload.service";
+import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
+import { useTeamProfile } from "@/hooks/useTeamProfile";
+import { useUploadedDocuments } from "@/hooks/useUploadedDocuments";
+import { uploadFiles, UploadResult } from "@/services/upload.service";
+import { Spinner } from "@/components/ui";
+import { createPaymentLink } from "@/services/mayar/payment.service";
 import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
+import { TEAM_STATUS } from "@/lib/constants/team-status";
+import { cn } from "@/lib/utils";
+
+function UploadStatusBadge({
+  status,
+  error,
+}: {
+  status?: "idle" | "uploading" | "done" | "error";
+  error?: string;
+}) {
+  if (!status || status === "idle") return null;
+    if (status === "uploading")
+    return (
+      <span className="flex items-center gap-1 text-xs text-navy/70 font-medium">
+        <Spinner size="xs" />
+        Uploading…
+      </span>
+    );
+  if (status === "done")
+    return (
+      <span className="flex items-center gap-1 text-xs text-green-700 font-medium">
+        <CheckCircle2 className="h-3.5 w-3.5" />
+        Uploaded
+      </span>
+    );
+  return (
+    <span className="flex items-center gap-1 text-xs text-red-700 font-medium" title={error}>
+      <XCircle className="h-3.5 w-3.5" />
+      Gagal
+    </span>
+  );
+}
 
 export default function Home() {
   const { user } = useAuth();
-  const teamId = user?.teamId;
+  const { data: dashboardData, loading: statusLoading } = useParticipantDashboard();
+  const { data: teamProfile } = useTeamProfile();
+  const teamId = user?.teamId ?? teamProfile?.teamId;
+  const { save: saveDoc, clear: clearDoc, get: getDoc } = useUploadedDocuments(teamId);
   const [submitting, setSubmitting] = useState(false);
-  // 1. Upload Documents
+  // Per-file upload status: "idle" | "uploading" | "done" | "error"
+  const [uploadStatus, setUploadStatus] = useState<Record<string, "idle" | "uploading" | "done" | "error">>({});
+  const [uploadErrors, setUploadErrors] = useState<Record<string, string>>({});
+  // 1. Upload Documents — File state hanya untuk file baru yang belum diupload
   const [ktmLeader, setKtmLeader] = useState<File | null>(null);
   const [ktmMember1, setKtmMember1] = useState<File | null>(null);
   const [ktmMember2, setKtmMember2] = useState<File | null>(null);
@@ -29,9 +74,36 @@ export default function Home() {
   // 2. Payment
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
 
+  // Map documentType → fungsi clear File state (untuk reset setelah upload sukses)
+  const fileClearMap: Record<string, () => void> = {
+    [DOCUMENT_TYPES.LEAD_KTM]: () => setKtmLeader(null),
+    [DOCUMENT_TYPES.MEMBER_KTM_1]: () => setKtmMember1(null),
+    [DOCUMENT_TYPES.MEMBER_KTM_2]: () => setKtmMember2(null),
+    [DOCUMENT_TYPES.PROOF_TWIBBON]: () => setTwibbonProof(null),
+    [DOCUMENT_TYPES.PROOF_POSTER_IG]: () => setPosterIgProof(null),
+    [DOCUMENT_TYPES.PAYMENT_PROOF]: () => setPaymentProof(null),
+  };
+
+  const status = dashboardData?.status ?? TEAM_STATUS.REGISTERED;
+  const canUsePayment =
+    status === TEAM_STATUS.DOCUMENT_VERIFIED || status === TEAM_STATUS.PAID;
+
+  /** Buat callback fetchSignedUrl lazy untuk dokumen administrasi (GET /upload/:teamId/:documentType). */
+  const makeDocFetcher = (documentType: string) => async (): Promise<string> => {
+    if (!teamId) throw new Error("Data tim belum dimuat");
+    const res = await fetch(`/api/upload/${encodeURIComponent(teamId)}/${encodeURIComponent(documentType)}`, {
+      credentials: "include",
+    });
+    const data = await res.json();
+    if (!res.ok || !data?.data?.signedUrl) {
+      throw new Error(data?.error ?? "Gagal mendapatkan URL preview");
+    }
+    return data.data.signedUrl as string;
+  };
+
   const handleSubmitDocuments = async () => {
     if (!teamId) {
-      alert("Please log in to submit documents.");
+      toast.error("Data tim belum dimuat atau Anda belum login. Silakan muat ulang halaman.");
       return;
     }
     const items: { documentType: string; file: File }[] = [];
@@ -41,37 +113,107 @@ export default function Home() {
     if (twibbonProof) items.push({ documentType: DOCUMENT_TYPES.PROOF_TWIBBON, file: twibbonProof });
     if (posterIgProof) items.push({ documentType: DOCUMENT_TYPES.PROOF_POSTER_IG, file: posterIgProof });
     if (items.length === 0) {
-      alert("At least one document is required.");
+      toast.error("Minimal satu dokumen wajib diunggah.");
       return;
     }
     setSubmitting(true);
+    // Reset status semua file yang akan diupload
+    setUploadErrors({});
+    setUploadStatus(
+      Object.fromEntries(items.map(({ documentType }) => [documentType, "idle"]))
+    );
     try {
-      await uploadFiles(teamId, items);
-      alert("Documents submitted successfully.");
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
+      const results = await uploadFiles(
+        teamId,
+        items,
+        (documentType, status, error) => {
+          setUploadStatus((prev) => ({ ...prev, [documentType]: status }));
+          if (error) {
+            setUploadErrors((prev) => ({ ...prev, [documentType]: error }));
+          }
+        }
+      );
+      const failed = results.filter((r: UploadResult) => !r.success);
+      const succeeded = results.filter((r: UploadResult) => r.success);
+      // Simpan ke localStorage dan bersihkan File state untuk file yang berhasil
+      for (const r of succeeded) {
+        if (r.filePath) saveDoc(r.documentType, r.fileName, r.filePath);
+        fileClearMap[r.documentType]?.();
+      }
+      if (failed.length === 0) {
+        toast.success(`${succeeded.length} dokumen berhasil dikirim.`);
+      } else if (succeeded.length > 0) {
+        toast.warning(
+          `${succeeded.length} dokumen berhasil, ${failed.length} gagal: ${failed.map((r) => r.documentType).join(", ")}`
+        );
+      } else {
+        toast.error(`Semua dokumen gagal diunggah. Silakan coba lagi.`);
+      }
     } finally {
       setSubmitting(false);
     }
   };
 
+  const [payWithMayarLoading, setPayWithMayarLoading] = useState(false);
+  const handlePayWithMayar = async () => {
+    if (!canUsePayment || !teamId) return;
+    const name = dashboardData?.leaderName ?? teamProfile?.leadName ?? "";
+    const email = user?.email ?? "";
+    if (!email) {
+      toast.error("Email tidak tersedia. Pastikan Anda login dengan akun yang terdaftar.");
+      return;
+    }
+    if (!name) {
+      toast.error("Nama leader tidak ditemukan. Lengkapi data tim terlebih dahulu.");
+      return;
+    }
+    setPayWithMayarLoading(true);
+    try {
+      const { link } = await createPaymentLink({
+        teamId,
+        name,
+        email,
+        mobile: teamProfile?.phoneNumber ?? undefined,
+      });
+      window.location.href = link;
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Gagal membuat link pembayaran. Coba lagi.");
+      setPayWithMayarLoading(false);
+    }
+  };
+
   const handleVerifyPayment = async () => {
+    if (!canUsePayment) return;
     if (!paymentProof) {
-      alert("Please upload payment proof first.");
+      toast.error("Silakan unggah bukti pembayaran terlebih dahulu.");
       return;
     }
     if (!teamId) {
-      alert("Please log in to submit payment proof.");
+      toast.error("Data tim belum dimuat atau Anda belum login. Silakan muat ulang halaman.");
       return;
     }
     setSubmitting(true);
+    setUploadErrors({});
+    setUploadStatus({ [DOCUMENT_TYPES.PAYMENT_PROOF]: "idle" });
     try {
-      await uploadFiles(teamId, [
-        { documentType: DOCUMENT_TYPES.PAYMENT_PROOF, file: paymentProof },
-      ]);
-      alert("Payment proof submitted for verification.");
-    } catch (e) {
-      alert(e instanceof Error ? e.message : "Failed to submit. Please try again.");
+      const results = await uploadFiles(
+        teamId,
+        [{ documentType: DOCUMENT_TYPES.PAYMENT_PROOF, file: paymentProof }],
+        (documentType, status, error) => {
+          setUploadStatus((prev) => ({ ...prev, [documentType]: status }));
+          if (error) {
+            setUploadErrors((prev) => ({ ...prev, [documentType]: error }));
+          }
+        }
+      );
+      const r = results[0];
+      if (r?.success) {
+        if (r.filePath) saveDoc(r.documentType, r.fileName, r.filePath);
+        fileClearMap[r.documentType]?.();
+        toast.success("Bukti pembayaran berhasil dikirim dan akan diverifikasi.");
+      } else {
+        toast.error(r?.error ?? "Gagal mengunggah bukti pembayaran. Silakan coba lagi.");
+      }
     } finally {
       setSubmitting(false);
     }
@@ -102,7 +244,7 @@ export default function Home() {
       <main className="flex justify-center mx-auto px-4 sm:px-6 py-8 sm:py-12 min-h-0">
         <section className="w-full max-w-6xl flex flex-col gap-8 sm:gap-10">
             <CardLarge className="w-full max-w-full min-h-0">
-              <CardHeader className="p-4 sm:p-6 md:p-8">
+              <CardHeader className="p-2 sm:p-4 md:p-8">
                 <CardTitle className="w-full max-w-[95%] mx-auto my-6 sm:my-8 text-2xl sm:text-[32px] font-semibold !text-[#F1E1B4]">
                   1. Upload Documents
                 </CardTitle>
@@ -110,44 +252,114 @@ export default function Home() {
                   <span className="ml-2 sm:ml-8 my-3 sm:my-4 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Student ID Card</span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-3 w-full">
                     <div className="flex flex-col gap-1">
-                      <span className="!text-md !font-semibold sm:text-base font-medium">Team&apos;s Leader*</span>
-                      <FileUploadZone value={ktmLeader} onChange={setKtmLeader} />
+                      <div className="flex items-center gap-2">
+                        <span className="!text-md !font-semibold sm:text-base font-medium">Team&apos;s Leader*</span>
+                        <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.LEAD_KTM]} error={uploadErrors[DOCUMENT_TYPES.LEAD_KTM]} />
+                      </div>
+                      <FileUploadZone
+                        value={ktmLeader} onChange={setKtmLeader} disabled={submitting}
+                        uploadedUrl={getDoc(DOCUMENT_TYPES.LEAD_KTM)?.url}
+                        uploadedFileName={getDoc(DOCUMENT_TYPES.LEAD_KTM)?.fileName}
+                        onClearUploaded={() => clearDoc(DOCUMENT_TYPES.LEAD_KTM)}
+                        fetchSignedUrl={getDoc(DOCUMENT_TYPES.LEAD_KTM) ? makeDocFetcher(DOCUMENT_TYPES.LEAD_KTM) : undefined}
+                      />
                     </div>
                     <div className="flex flex-col gap-2">
-                      <span className="text-md font-semibold sm:text-base font-medium">Member 1 (Optional)</span>
-                      <FileUploadZone value={ktmMember1} onChange={setKtmMember1} />
+                      <div className="flex items-center gap-2">
+                        <span className="text-md font-semibold sm:text-base font-medium">Member 1 (Optional)</span>
+                        <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.MEMBER_KTM_1]} error={uploadErrors[DOCUMENT_TYPES.MEMBER_KTM_1]} />
+                      </div>
+                      <FileUploadZone
+                        value={ktmMember1} onChange={setKtmMember1} disabled={submitting}
+                        uploadedUrl={getDoc(DOCUMENT_TYPES.MEMBER_KTM_1)?.url}
+                        uploadedFileName={getDoc(DOCUMENT_TYPES.MEMBER_KTM_1)?.fileName}
+                        onClearUploaded={() => clearDoc(DOCUMENT_TYPES.MEMBER_KTM_1)}
+                        fetchSignedUrl={getDoc(DOCUMENT_TYPES.MEMBER_KTM_1) ? makeDocFetcher(DOCUMENT_TYPES.MEMBER_KTM_1) : undefined}
+                      />
                     </div>
                     <div className="flex flex-col gap-2 sm:col-span-2 lg:col-span-1">
-                      <span className="text-md font-semibold sm:text-base font-medium">Member 2 (Optional)</span>
-                      <FileUploadZone value={ktmMember2} onChange={setKtmMember2} />
+                      <div className="flex items-center gap-2">
+                        <span className="text-md font-semibold sm:text-base font-medium">Member 2 (Optional)</span>
+                        <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.MEMBER_KTM_2]} error={uploadErrors[DOCUMENT_TYPES.MEMBER_KTM_2]} />
+                      </div>
+                      <FileUploadZone
+                        value={ktmMember2} onChange={setKtmMember2} disabled={submitting}
+                        uploadedUrl={getDoc(DOCUMENT_TYPES.MEMBER_KTM_2)?.url}
+                        uploadedFileName={getDoc(DOCUMENT_TYPES.MEMBER_KTM_2)?.fileName}
+                        onClearUploaded={() => clearDoc(DOCUMENT_TYPES.MEMBER_KTM_2)}
+                        fetchSignedUrl={getDoc(DOCUMENT_TYPES.MEMBER_KTM_2) ? makeDocFetcher(DOCUMENT_TYPES.MEMBER_KTM_2) : undefined}
+                      />
                     </div>
                   </div>
                 </div>
-                <div className="w-full max-w-[95%] mx-auto flex flex-col md:flex-row md:justify-between gap-4 my-4">
+                <div className="w-full max-w-[95%] mx-auto flex flex-col md:flex-row md:justify-between gap-4 my-4 mb-2">
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Twibbon*</span>
-                    <FileUploadZone value={twibbonProof} onChange={setTwibbonProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
+                    <div className="ml-2 sm:ml-8 my-3 flex items-center gap-3">
+                      <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Twibbon*</span>
+                      <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_TWIBBON]} error={uploadErrors[DOCUMENT_TYPES.PROOF_TWIBBON]} />
+                    </div>
+                    <FileUploadZone
+                      value={twibbonProof} onChange={setTwibbonProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" disabled={submitting}
+                      uploadedUrl={getDoc(DOCUMENT_TYPES.PROOF_TWIBBON)?.url}
+                      uploadedFileName={getDoc(DOCUMENT_TYPES.PROOF_TWIBBON)?.fileName}
+                      onClearUploaded={() => clearDoc(DOCUMENT_TYPES.PROOF_TWIBBON)}
+                      fetchSignedUrl={getDoc(DOCUMENT_TYPES.PROOF_TWIBBON) ? makeDocFetcher(DOCUMENT_TYPES.PROOF_TWIBBON) : undefined}
+                    />
                   </div>
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <span className="ml-2 sm:ml-8 my-3 text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Poster on IG Status*</span>
-                    <FileUploadZone value={posterIgProof} onChange={setPosterIgProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" />
+                    <div className="ml-2 sm:ml-8 my-3 flex items-center gap-3">
+                      <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Poster on IG Status*</span>
+                      <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_POSTER_IG]} error={uploadErrors[DOCUMENT_TYPES.PROOF_POSTER_IG]} />
+                    </div>
+                    <FileUploadZone
+                      value={posterIgProof} onChange={setPosterIgProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" disabled={submitting}
+                      uploadedUrl={getDoc(DOCUMENT_TYPES.PROOF_POSTER_IG)?.url}
+                      uploadedFileName={getDoc(DOCUMENT_TYPES.PROOF_POSTER_IG)?.fileName}
+                      onClearUploaded={() => clearDoc(DOCUMENT_TYPES.PROOF_POSTER_IG)}
+                      fetchSignedUrl={getDoc(DOCUMENT_TYPES.PROOF_POSTER_IG) ? makeDocFetcher(DOCUMENT_TYPES.PROOF_POSTER_IG) : undefined}
+                    />
+                    
                   </div>
+                  
                 </div>
+                <p className="w-full max-w-[95%] mx-auto text-[#F1E1B4] text-sm sm:text-base mt-1 mb-1">
+                  *Documents must be uploaded
+                </p>
               </CardHeader>
-              <CardFooter className="flex w-full max-w-[95%] mx-auto p-4 sm:p-6">
+              <CardFooter className="flex w-full max-w-[95%] mx-auto pt-2 pb-4 sm:pb-6 px-4 sm:px-6">
                 <Button variant="primary" size="lg" className="w-full mx-auto" onClick={handleSubmitDocuments} disabled={submitting}>
-                  {submitting ? "Submitting…" : "Submit"}
+                  {submitting ? <><Spinner size="xs" /> Submitting…</> : "Submit"}
                 </Button>
               </CardFooter>
             </CardLarge>
 
-            <CardLarge className="w-full max-w-full min-h-0">
-              <CardHeader className="p-4 sm:p-6 md:p-8">
+            <CardLarge
+              className={cn(
+                "w-full max-w-full min-h-0 transition-opacity",
+                !canUsePayment && "opacity-75"
+              )}
+            >
+              <CardHeader className="p-4 sm:p-6 md:p-8 relative">
+                {!canUsePayment && (
+                  <div className="absolute inset-0 z-10 rounded-[20px] bg-[#0A2D6E]/80 flex items-center justify-center">
+                    <p className="text-[#F1E1B4] font-semibold text-center px-4 max-w-md">
+                      {statusLoading
+                        ? "Memuat status..."
+                        : "Verify the documents above first. The payment section will open once your team's documents are verified."}
+                    </p>
+                  </div>
+                )}
                 <CardTitle className="w-full max-w-[95%] mx-auto my-4 sm:my-6 text-2xl sm:text-[32px] font-semibold !text-cream">
                   2. Payment Information
                 </CardTitle>
-                <Button variant="primary" size="lg" className="w-full max-w-[95%] mx-auto">
-                  Pay Faster With Mayar.id
+                <Button
+                  variant="primary"
+                  size="lg"
+                  className="w-full max-w-[95%] mx-auto"
+                  disabled={!canUsePayment || payWithMayarLoading}
+                  onClick={handlePayWithMayar}
+                >
+                  {payWithMayarLoading ? "Membuka Mayar..." : "Pay Faster With Mayar.id"}
                 </Button>
 
                 <span className="w-full max-w-[95%] my-6 sm:my-8 mx-auto text-center text-cream text-sm sm:text-base">
@@ -162,12 +374,26 @@ export default function Home() {
                 </span>
 
                 <div className="w-full max-w-[95%] min-h-[240px] sm:min-h-[300px] mx-auto flex flex-col rounded-[20px] border-4 border-dashed border-navy bg-[#9aa0d6] text-navy p-4">
-                    <FileUploadZone value={paymentProof} onChange={setPaymentProof} zoneClassName="min-h-[200px] flex-1" />
+                    <FileUploadZone
+                      value={paymentProof}
+                      onChange={setPaymentProof}
+                      zoneClassName="min-h-[200px] flex-1"
+                      disabled={!canUsePayment}
+                      uploadedUrl={getDoc(DOCUMENT_TYPES.PAYMENT_PROOF)?.url}
+                      uploadedFileName={getDoc(DOCUMENT_TYPES.PAYMENT_PROOF)?.fileName}
+                      onClearUploaded={() => clearDoc(DOCUMENT_TYPES.PAYMENT_PROOF)}
+                    />
                 </div>
               </CardHeader>
               <CardFooter className="w-full max-w-[95%] mx-auto my-auto p-4 sm:p-6">
-                <Button variant="outline" size="lg" className="w-full border-2 border-orange text-orange" onClick={handleVerifyPayment} disabled={submitting}>
-                  {submitting ? "Submitting…" : "Verify"}
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full border-2 border-orange text-orange"
+                  onClick={handleVerifyPayment}
+                  disabled={submitting || !canUsePayment}
+                >
+                  {submitting ? <><Spinner size="xs" /> Submitting…</> : "Verify"}
                 </Button>
               </CardFooter>
             </CardLarge>
