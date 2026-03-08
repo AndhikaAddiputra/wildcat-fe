@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import {
   Button,
   Navbar,
@@ -9,65 +9,60 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { ExternalLink } from "lucide-react";
+import { useEvents } from "@/hooks/useEvents";
 
 /** Status event: available (hijau), not_started (kuning), ended (merah) */
 type EventStatus = "available" | "not_started" | "ended";
 
-const EVENTS = [
-  {
-    id: "wiact",
-    title: "WiACT (Community Service)",
-    description:
-      "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.",
-    status: "not_started" as EventStatus,
-    eventDate: "11 April 2026",
-    eventPlace: "TBA",
-    eventSpeaker: "Soon to be announced",
-  },
-  {
-    id: "wishare",
-    title: "WISHARE (Charity Program)",
-    description:
-      "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.",
-    status: "not_started" as EventStatus,
-    eventDate: "21 June 2026",
-    eventPlace: "TBA",
-    eventSpeaker: "Soon to be announced",
-  },
-  {
-    id: "field-trip",
-    title: "Field Trip",
-    description:
-      "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.",
-    status: "not_started" as EventStatus,
-    eventDate: "22 June 2026",
-    eventPlace: "TBA",
-    eventSpeaker: "Soon to be announced",
-  },
-  {
-    id: "webinar",
-    title: "Webinar",
-    description:
-      "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.",
-    status: "not_started" as EventStatus,
-    eventDate: "14 March 2026",
-    eventPlace: "Online via Zoom Meeting",
-    eventSpeaker: "Soon to be announced",
-  },
-  {
-    id: "grand-seminar",
-    title: "Grand Seminar",
-    description:
-      "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.",
-    status: "not_started" as EventStatus,
-    eventDate: "21 June 2026",
-    eventPlace: "TBA",
-    eventSpeaker: "Soon to be announced",
-  },
+interface EventDisplay {
+  id: string;
+  title: string;
+  description: string;
+  status: EventStatus;
+  eventDate: string;
+  eventPlace: string;
+  eventSpeaker: string;
+}
+
+const STATIC_EVENTS: EventDisplay[] = [
+  { id: "wiact", title: "WiACT (Community Service)", description: "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.", status: "not_started", eventDate: "11 April 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+  { id: "wishare", title: "WISHARE (Charity Program)", description: "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.", status: "not_started", eventDate: "21 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+  { id: "field-trip", title: "Field Trip", description: "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.", status: "not_started", eventDate: "22 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+  { id: "webinar", title: "Webinar", description: "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.", status: "not_started", eventDate: "14 March 2026", eventPlace: "Online via Zoom Meeting", eventSpeaker: "Soon to be announced" },
+  { id: "grand-seminar", title: "Grand Seminar", description: "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.", status: "not_started", eventDate: "21 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
 ];
 
+function toEventDisplay(item: { id: string; name?: string; title?: string; description?: string; datetime?: string; location?: string; speaker?: string; status?: string }): EventDisplay {
+  const status = (item.status as EventStatus) ?? "not_started";
+  return {
+    id: item.id,
+    title: item.name ?? item.title ?? "Event",
+    description: item.description ?? "",
+    status,
+    eventDate: item.datetime ?? "TBA",
+    eventPlace: item.location ?? "TBA",
+    eventSpeaker: item.speaker ?? "Soon to be announced",
+  };
+}
+
 export default function Event() {
+  const { data: apiEvents, loading, error } = useEvents();
   const [openEventId, setOpenEventId] = useState<string | null>(null);
+
+  const events = useMemo(() => {
+    if (apiEvents.length > 0) {
+      return apiEvents.map((e) => toEventDisplay({
+        id: e.id,
+        name: e.name,
+        description: e.description,
+        datetime: e.datetime,
+        location: e.location,
+        speaker: e.speaker,
+        status: e.status,
+      }));
+    }
+    return STATIC_EVENTS;
+  }, [apiEvents]);
 
   return (
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white">
@@ -93,7 +88,9 @@ export default function Event() {
 
       <main className="flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
         <section className="flex flex-col gap-6">
-          {EVENTS.map((ev) => (
+          {error && <p className="text-center text-red-300">{error}</p>}
+          {loading && <p className="text-center text-[#F1E1B4]">Memuat events...</p>}
+          {events.map((ev) => (
             <div
               key={ev.id}
               className="w-[80vw] rounded-[20px] border border-[#F6911E] bg-[#0A2D6E] p-8 font-sans !shadow-[0_0_15px_rgba(246,145,30,0.4)] !shadow-[0_0_10px_4px_rgba(246,145,60,1)]"
@@ -143,7 +140,7 @@ export default function Event() {
 
       {/* Modal event */}
       {openEventId && (() => {
-        const ev = EVENTS.find((e) => e.id === openEventId);
+        const ev = events.find((e) => e.id === openEventId);
         if (!ev) return null;
         return (
           <Modal

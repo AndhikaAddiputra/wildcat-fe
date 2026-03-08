@@ -14,14 +14,21 @@ import { COMPETITIONS } from "@/lib/constants/competitions";
 import { getGuidebookUrl } from "@/lib/constants/guidebooks";
 import type { GuidebookCompetitionId } from "@/lib/constants/guidebooks";
 import { Download } from "lucide-react";
-
-// Tipe untuk status pendaftaran
-type RegistrationStatus = "Registered" | "Document Verified" | "Paid";
+import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
+import { useTeamProfile } from "@/hooks/useTeamProfile";
+import { useAnnouncements } from "@/hooks/useAnnouncements";
+import type { TeamStatus } from "@/lib/constants/team-status";
 
 export default function ParticipantHomePage() {
-  // Mode simulasi status: Ganti nilai awal ini untuk testing mode berbeda
-  const [regStatus, setRegStatus] = useState<RegistrationStatus>("Document Verified");
-  // Kompetisi yang dipilih untuk menampilkan timeline & guidebook
+  const { data: dashboardData, loading: dashboardLoading, error: dashboardError } = useParticipantDashboard();
+  const { data: teamProfile, loading: teamProfileLoading } = useTeamProfile();
+  const { data: announcements, loading: announcementsLoading, error, refetch: refetchAnnouncements } = useAnnouncements();
+
+  const leadName = dashboardData?.leaderName ?? teamProfile?.leadName ?? null;
+  const teamName = dashboardData?.teamName ?? teamProfile?.teamName ?? null;
+  const namesLoading = dashboardLoading || teamProfileLoading;
+
+  const regStatus: TeamStatus = dashboardData?.status ?? "Registered";
   const [selectedCompetitionId, setSelectedCompetitionId] = useState<GuidebookCompetitionId>("paper-poster");
 
   const selectedCompetition = COMPETITIONS.find((c) => c.id === selectedCompetitionId) ?? COMPETITIONS[0];
@@ -54,7 +61,7 @@ export default function ParticipantHomePage() {
     },
   };
 
-  const currentReg = regConfig[regStatus];
+  const currentReg = regConfig[regStatus] ?? regConfig["Registered"];
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
@@ -79,8 +86,8 @@ export default function ParticipantHomePage() {
       <main className="relative z-10 mx-auto max-w-6xl px-6 pt-32 pb-20 font-['Poppins']">
         {/* Welcome Section */}
         <section className="mb-10">
-          <h1 className="text-4xl font-bold text-[#F6911E] sm:text-5xl">
-            Hello, [Leader's Name]!
+            <h1 className="text-4xl font-bold text-[#F6911E] sm:text-5xl">
+            Hello, {namesLoading && !leadName ? "..." : (leadName || "Participant")}!
           </h1>
           <p className="text-2xl font-semibold text-[#F1E1B4]">
             Welcome to your personal dashboard
@@ -175,9 +182,11 @@ export default function ParticipantHomePage() {
           {/* Team Status Card */}
           <CardLarge className="p-10 bg-[#0A2D6E]/95 border-none shadow-[0_0_15px_rgba(246,145,30,0.3)]">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-[#f1e1b4] tracking-wider">[Team_Name]</h2>
+              <h2 className="text-xl font-bold text-[#f1e1b4] tracking-wider">
+                {namesLoading && !teamName ? "..." : (teamName || "Team")}
+              </h2>
               <Badge variant={currentReg.badge}>
-                {regStatus === "Document Verified" ? "Verified" :regStatus}
+                {regStatus === "Document Verified" ? "Verified" : regStatus}
               </Badge>
             </div>
             
@@ -213,21 +222,65 @@ export default function ParticipantHomePage() {
               {currentReg.message}
             </p>
 
-            {/* Selector untuk Testing Mode (Opsional) */}
-            <div className="flex justify-center gap-2 mt-4 opacity-10 hover:opacity-100 transition-opacity">
-              <button onClick={() => setRegStatus("Registered")} className="text-[10px] text-white">Mode 1</button>
-              <button onClick={() => setRegStatus("Document Verified")} className="text-[10px] text-white">Mode 2</button>
-              <button onClick={() => setRegStatus("Paid")} className="text-[10px] text-white">Mode 3</button>
-            </div>
+            {dashboardError && (
+              <p className="text-center text-sm text-red-300 mt-2">{dashboardError}</p>
+            )}
           </CardLarge>
 
           {/* Announcement Card */}
-          <CardLarge className="min-h-0 h-[150px] bg-[#96a0d2]/90 overflow-hidden border-none">
+          <CardLarge className="min-h-[150px] bg-[#96a0d2]/90 overflow-hidden border-none">
             <div className="bg-[#0A2D6E] px-6 py-4 border-b border-white/10">
               <h3 className="text-xl font-bold text-[#f1e1b4] tracking-wide">Announcement</h3>
             </div>
-            <div className="flex flex-col justify-center items-center h-full pb-15">
-              <p className="text-[#0A2D6E] font-semibold italic">No announcements at this time.</p>
+            <div className="flex flex-col justify-center items-stretch min-h-[100px] pb-15 px-6">
+              {announcementsLoading ? (
+                <p className="text-[#0A2D6E] font-semibold">Memuat pengumuman...</p>
+              ) : error ? (
+                <div className="flex flex-col items-center gap-2">
+                  <p className="text-[#0A2D6E] font-semibold text-red-700">
+                    {error.includes("Internal Server Error") || error.startsWith("{")
+                      ? "Pengumuman sementara tidak dapat dimuat. Silakan coba lagi."
+                      : error}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => refetchAnnouncements()}
+                    className="text-sm font-medium text-[#0A2D6E] underline hover:no-underline"
+                  >
+                    Coba lagi
+                  </button>
+                </div>
+              ) : announcements.length === 0 ? (
+                <p className="text-[#0A2D6E] font-semibold italic">No announcements at this time.</p>
+              ) : (
+                <ul className="w-full space-y-4 text-[#0A2D6E] font-medium">
+                  {announcements.map((a) => (
+                    <li key={a.id} className="border-b border-[#0A2D6E]/20 pb-3 last:border-0 last:pb-0">
+                      <span className="font-bold block">{a.title}</span>
+                      {a.content && <span className="block text-sm mt-1 text-[#0A2D6E]/90">{a.content}</span>}
+                      {a.attachmentUrl && (
+                        <a
+                          href={a.attachmentUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-block text-sm mt-2 text-[#F6911E] hover:underline"
+                        >
+                          Lihat lampiran →
+                        </a>
+                      )}
+                      {a.createdAt && (
+                        <span className="block text-xs mt-1 text-[#0A2D6E]/70">
+                          {new Date(a.createdAt).toLocaleDateString("id-ID", {
+                            day: "numeric",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </CardLarge>
         </div>
