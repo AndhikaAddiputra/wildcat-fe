@@ -20,7 +20,6 @@ const LoginPage = () => {
         <ArrowLeft className="w-[37px] h-[37px]" /> Back
       </button>
 
-      {/* Main Container */}
       <div className="max-w-[1250px] w-full flex flex-col md:flex-row items-center justify-center gap-10 md:gap-[80px]">
         
         <div className="relative shrink-0 w-full max-w-[387px] h-[286px]">
@@ -33,7 +32,6 @@ const LoginPage = () => {
           />
         </div>
 
-        {/* Google Login */}
         <div className="w-full max-w-[592px] h-[613px] bg-[#0A2D6E] rounded-[20px] p-[40px] shadow-[0_0_40px_10px_rgba(246,145,30,0.5)] flex flex-col items-center relative">
           <h2 
             className="text-[36px] font-semibold text-[#F6911E]"
