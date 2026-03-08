@@ -98,7 +98,7 @@ export function useTeamProfile() {
         !lineId
       ) {
         throw new Error(
-          "teamName, leadName, institution, leadMajor, phoneNumber, lineId wajib diisi."
+          "Team Name, Leader Name, Institution, Leader Major, Phone Number, and Line ID must be filled"
         );
       }
 

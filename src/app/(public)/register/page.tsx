@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
@@ -86,7 +87,7 @@ const RegisterPage = () => {
       const accessToken = authData.session?.access_token;
 
       if (!accessToken) {
-        alert("Sesi kamu telah habis. Silakan login ulang.");
+        toast.error("Sesi kamu telah habis. Silakan login ulang.");
         setStep(1);
         return;
       }
@@ -128,7 +129,7 @@ const RegisterPage = () => {
       window.location.href = "/home";
     } catch (error: any) {
       console.error("Submission error:", error);
-      alert(error?.message || "Terjadi kesalahan. Silakan coba lagi.");
+      toast.error(error?.message || "Terjadi kesalahan. Silakan coba lagi.");
     } finally {
       setIsLoading(false);
     }
