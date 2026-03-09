@@ -2,38 +2,72 @@ import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
+  console.log("===================================================");
+  console.log("🚀 [API PROXY] /api/admin/attendance DIPANGGIL");
+  console.log("===================================================");
+
   const supabase = await getSupabaseServer();
   const { data: { session } } = await supabase.auth.getSession();
 
   if (!session) {
+    console.log("❌ [ERROR] Tidak ada session (Unauthorized)");
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
   try {
-    // Tangkap data dari body request frontend
+    // 1. Cek Body Request dari Frontend
     const body = await request.json();
+    console.log("📦 [PAYLOAD DARI FRONTEND]:", body);
+
+    const { eventId, attendedCount } = body;
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3030";
 
-    // Kirim ke backend Hono
-    // Sesuaikan URL ini dengan endpoint POST yang dibuat teman BE kamu
-    const response = await fetch(`${backendUrl}/api/admin/events/attendance`, {
-      method: "POST", // atau PUT/PATCH sesuai BE
+    // 2. Cek URL Endpoint Hono
+    const endpointUrl = `${backendUrl}/api/admin/events/${eventId}/attendance`;
+    console.log("🔗 [MENEMBAK BACKEND HONO]:", endpointUrl);
+
+    // 3. Tembak API
+    const response = await fetch(endpointUrl, {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${session.access_token}`,
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ attendedCount }), 
     });
 
-    const data = await response.json();
+    console.log(`📡 [STATUS DARI HONO]: ${response.status} ${response.statusText}`);
+
+    // 4. BACA RAW TEXT DARI BE (Ini kunci untuk mencegah JSON.parse error)
+    const textResponse = await response.text();
+    console.log(`📝 [RAW RESPONSE DARI HONO]:`, textResponse);
+
+    let data = {};
     
-    if (!response.ok) {
-      throw new Error(data.message || "Failed to update attendance");
+    // 5. Coba jadikan JSON, tapi buat super aman
+    if (textResponse) {
+      try {
+        data = JSON.parse(textResponse);
+        console.log(`✅ [BERHASIL PARSE JSON]:`, data);
+      } catch (parseError) {
+        console.log(`⚠️ [GAGAL PARSE JSON] Balasan BE bukan JSON!`);
+        data = { message: textResponse }; // Simpan sebagai teks saja
+      }
     }
 
-    return NextResponse.json(data);
+    if (!response.ok) {
+      console.log(`❌ [RESPONSE NOT OK] Melempar error ke frontend...`);
+      return NextResponse.json(
+        { success: false, error: data.message || textResponse || "Unknown Error" }, 
+        { status: response.status }
+      );
+    }
+
+    console.log("🎉 [SUKSES] Data berhasil diupdate!");
+    return NextResponse.json({ success: true, data });
+
   } catch (error: any) {
-    console.error("Error updating attendance:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("🔥 [FATAL ERROR DI NEXT.JS]:", error.message);
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }
