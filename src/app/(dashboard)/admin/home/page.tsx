@@ -291,7 +291,7 @@ export default function AdminStatisticsPage() {
               {safeEvents.length > 0 ? safeEvents.map((event, idx) => (
                 <div key={idx} className="bg-[#3c3c93] p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between border border-white/5">
                   <div className="w-full md:w-auto mb-4 md:mb-0">
-                    <p className="text-[#F6911E] font-bold text-md">{getShortEventName(event.name)}</p>
+                    <p className="text-[#F6911E] font-bold text-md">{event.name}</p>
                     <p className="text-[#F6911E] text-sm">Event</p>
                   </div>
 
@@ -310,7 +310,7 @@ export default function AdminStatisticsPage() {
                       
                       {/* 🌟 TOMBOL UNTUK MEMBUKA MODAL */}
                       <Button 
-                        onClick={() => openEditModal(event.id, getShortEventName(event.name), event.attendedCount || 0)}
+                        onClick={() => openEditModal(event.id, event.name, event.attendedCount || 0)}
                         variant="outline" 
                         className="ml-6 border-2 !border-[#F6911E] !text-[#F6911E] min-w-[100px] hover:bg-[#F6911E] hover:!text-white transition-colors"
                       >
