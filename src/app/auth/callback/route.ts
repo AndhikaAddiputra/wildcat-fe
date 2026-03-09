@@ -45,6 +45,42 @@ export async function GET(request: Request) {
 
     try {
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3030';
+      
+      // ====================================================================
+      // 2. CEK ROLE ADMIN / COMMITTEE TERLEBIH DAHULU
+      // ====================================================================
+      try {
+        const adminCheckRes = await fetch(`${backendUrl}/api/admin/me`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json'
+          },
+        });
+
+        if (adminCheckRes.ok) {
+          const adminData = await adminCheckRes.json();
+          if (adminData.success && adminData.committee) {
+            const role = adminData.committee.role.toLowerCase();
+            console.log("User role from backend:", role);
+            
+            // Jika dia adalah admin atau committee, langsung arahkan ke dashboard mereka
+            if (role === "admin") {
+              return NextResponse.redirect(`${origin}/admin/home`);
+            } else if (role === "committee") {
+              return NextResponse.redirect(`${origin}/committee/home`);
+            }
+          }
+        }
+        // Jika response 403 atau bukan admin/committee, kode akan lanjut ke bawah (pengecekan peserta)
+      } catch (adminErr) {
+        console.error("Gagal mengecek role admin saat callback:", adminErr);
+        // Lanjutkan saja ke pengecekan peserta jika terjadi error jaringan ke admin/me
+      }
+
+
+      // ====================================================================
+      // 3. CEK STATUS PENDAFTARAN PESERTA (JIKA BUKAN ADMIN/COMMITTEE)
+      // ====================================================================
       const checkStatusUrl = `${backendUrl}/api/landing/check-registration`;
 
       const fetchWithTimeout = (url: string, options: RequestInit, timeoutMs = 20_000) => {
@@ -84,10 +120,10 @@ export async function GET(request: Request) {
       const isRegistered = statusData?.registered === true;
       const isCompleted = statusData?.isCompleted === true;
 
-      // 3. Logika Pengalihan (Redirect)
+      // Logika Pengalihan (Redirect) untuk Peserta
       if (isRegistered && isCompleted) {
         // Sudah melengkapi Step 1 dan Step 2
-        return NextResponse.redirect(`${origin}/home`); // atau ke /dashboard
+        return NextResponse.redirect(`${origin}/home`); 
       } else if (isRegistered && !isCompleted) {
         // Baru melengkapi Step 1, lanjut ke Step 2
         return NextResponse.redirect(`${origin}/home`);
