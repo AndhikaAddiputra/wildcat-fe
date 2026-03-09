@@ -11,7 +11,7 @@ export const ROLES = {
 export type Role = (typeof ROLES)[keyof typeof ROLES];
 
 /** Routes that require no auth (public) */
-export const PUBLIC_PATHS = ["/", "/landing", "/login", "/register"] as const;
+export const PUBLIC_PATHS = ["/", "/landing", "/login", "/register", "/auth/callback"] as const;
 
 /** Path prefixes per role (dashboard routes) */
 export const PARTICIPANT_PREFIXES = ["/home", "/teams", "/administration", "/events", "/submission"];
