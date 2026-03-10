@@ -11,16 +11,28 @@ export default function AccessControlPage() {
   const [committee, setCommittee] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // 🌟 STATE UNTUK MODAL COMMITTEE (Create/Edit)
+  // 🌟 STATE UNTUK MODAL COMMITTEE
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
-    role: "Committee",
-    division: "",
-    isActive: true
+    id: "", name: "", email: "", role: "Committee", division: "", isActive: true 
   });
+
+  const [selectedDivision, setSelectedDivision] = useState<string>("All");
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string>("All");
+  const [isParticipantFilterOpen, setIsParticipantFilterOpen] = useState(false);
+
+  // 🌟 STATE UNTUK PAGINATION (PEMBATAS HALAMAN)
+  const [committeePage, setCommitteePage] = useState(1);
+  const [committeePerPage, setCommitteePerPage] = useState(10);
+  
+  const [teamsPage, setTeamsPage] = useState(1);
+  const [teamsPerPage, setTeamsPerPage] = useState(10);
+
+  // Reset ke halaman 1 jika filter diganti
+  useEffect(() => { setCommitteePage(1); }, [selectedDivision]);
+  useEffect(() => { setTeamsPage(1); }, [selectedPaymentStatus]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -49,61 +61,51 @@ export default function AccessControlPage() {
   const formatDate = (dateString?: string) => {
     if (!dateString) return "-";
     const date = new Date(dateString);
-    return isNaN(date.getTime()) 
-      ? dateString 
-      : date.toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }).replace(/\./g, ':');
+    return isNaN(date.getTime()) ? dateString : date.toLocaleString('id-ID', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute:'2-digit' }).replace(/\./g, ':');
   };
 
-  // 🌟 FUNGSI: Buka Modal (New / Edit)
   const handleOpenModal = (member?: any) => {
     if (member) {
       setFormData({
-        id: member.id,
-        name: member.name,
-        role: member.role,
-        division: member.division || "",
-        isActive: member.isActive
+        id: member.id, name: member.name, email: member.email || "", 
+        role: member.role, division: member.division || "", isActive: member.isActive !== false
       });
     } else {
-      setFormData({ id: "", name: "", role: "Committee", division: "", isActive: true });
+      setFormData({ id: "", name: "", email: "", role: "Committee", division: "", isActive: true });
     }
     setIsModalOpen(true);
   };
 
-  // 🌟 FUNGSI: Submit Form (Upsert POST)
   const handleSubmitCommittee = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Jika ID kosong, jangan kirim properti ID (biar backend bikin UUID baru)
-    const payload: any = { ...formData };
-    if (!payload.id) delete payload.id;
+    const payload = {
+      email: formData.email, name: formData.name, role: formData.role, division: formData.division
+    };
 
     try {
       const res = await fetchWithAuth("/api/admin/committee", {
-        method: "POST",
-        body: JSON.stringify(payload)
+        method: "POST", body: JSON.stringify(payload)
       });
-
       if (res.ok) {
-        alert("Data panitia berhasil disimpan!");
+        alert("Akun panitia berhasil dibuat dan dihubungkan ke Supabase!");
         setIsModalOpen(false);
         loadData();
       } else {
         const errData = await res.json();
-        alert(`Gagal: ${errData.error || "Terjadi kesalahan"}`);
+        const detailMsg = errData.details?.fieldErrors ? JSON.stringify(errData.details.fieldErrors) : errData.error;
+        alert(`Gagal menyimpan: ${detailMsg || "Terjadi kesalahan"}`);
       }
     } catch (error) {
-      alert("Terjadi kesalahan jaringan.");
+      alert("Terjadi kesalahan jaringan saat menyimpan data.");
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  // 🌟 FUNGSI: Delete Committee
   const handleDeleteCommittee = async (id: string, name: string) => {
     if (!window.confirm(`Yakin ingin menghapus panitia "${name}" secara permanen?`)) return;
-
     try {
       const res = await fetchWithAuth(`/api/admin/committee?id=${id}`, { method: "DELETE" });
       if (res.ok) {
@@ -117,6 +119,19 @@ export default function AccessControlPage() {
       alert("Terjadi kesalahan jaringan.");
     }
   };
+
+  // 🌟 LOGIKA FILTER & PAGINATION: COMMITTEE
+  const uniqueDivisions = Array.from(new Set(committee.map((m) => m.division).filter((d) => d && d.trim() !== ""))).sort();
+  const filteredCommittee = selectedDivision === "All" ? committee : committee.filter((m) => m.division === selectedDivision);
+  
+  const totalCommitteePages = Math.max(1, Math.ceil(filteredCommittee.length / committeePerPage));
+  const paginatedCommittee = filteredCommittee.slice((committeePage - 1) * committeePerPage, committeePage * committeePerPage);
+
+  // 🌟 LOGIKA FILTER & PAGINATION: PARTICIPANT
+  const filteredTeams = selectedPaymentStatus === "All" ? teams : teams.filter((t) => (t.status?.paymentStatus || "Pending") === selectedPaymentStatus);
+  
+  const totalTeamsPages = Math.max(1, Math.ceil(filteredTeams.length / teamsPerPage));
+  const paginatedTeams = filteredTeams.slice((teamsPage - 1) * teamsPerPage, teamsPage * teamsPerPage);
 
   return (
     <div className="min-h-screen flex flex-col text-white font-['Poppins']">
@@ -137,24 +152,35 @@ export default function AccessControlPage() {
         <main className="flex flex-1 justify-center mx-auto py-12 min-h-[55vw]">
           <section className="w-[80%]">
             
-            {/* ==================================================================================== */}
-            {/* COMMITTEE ACCOUNTS TABLE */}
-            {/* ==================================================================================== */}
+            {/* ==================== COMMITTEE TABLE ==================== */}
             <div className="flex flex-col justify-center bg-navy rounded-[20px] p-12">
-              <div className="flex justify-between items-center w-full">
+              <div className="flex justify-between items-center w-full relative">
                 <h4 className="font-semibold text-[36px] text-cream">Committee's Accounts</h4>
-                <div className="flex justify-between w-[560px]">
-                  <Button variant="primary" size="lg" className="min-w-[180px]" onClick={() => handleOpenModal()}>
+                
+                <div className="flex justify-between w-[560px] gap-2">
+                  <Button variant="primary" size="lg" className="flex-1" onClick={() => handleOpenModal()}>
                     <Plus size={16} strokeWidth={3} /> New
                   </Button>
-                  <Button variant="primary" size="lg" className="min-w-[180px]" onClick={loadData}>
+                  <Button variant="primary" size="lg" className="flex-1" onClick={loadData}>
                     <RotateCw size={16} className={isLoading ? "animate-spin" : ""} /> Refresh
                   </Button>
-                  <Button variant="primary" size="lg" className="min-w-[180px]">
-                    <Funnel fill="#0b2e6f" size={16} /> Filter
-                  </Button>
+                  
+                  <div className="relative flex-1">
+                    <Button variant="primary" size="lg" className="w-full h-full" onClick={() => setIsFilterOpen(!isFilterOpen)}>
+                      <Funnel fill="#0b2e6f" size={16} /> {selectedDivision === "All" ? "Filter" : selectedDivision}
+                    </Button>
+                    {isFilterOpen && (
+                      <div className="absolute top-full mt-2 right-0 w-48 bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl shadow-xl z-50 overflow-hidden">
+                        <button className={`w-full text-left px-4 py-3 hover:bg-white/10 ${selectedDivision === "All" ? "text-[#F6911E] font-bold bg-white/5" : "text-white"}`} onClick={() => { setSelectedDivision("All"); setIsFilterOpen(false); }}>All Divisions</button>
+                        {uniqueDivisions.map((div) => (
+                          <button key={div as string} className={`w-full text-left px-4 py-3 hover:bg-white/10 ${selectedDivision === div ? "text-[#F6911E] font-bold bg-white/5" : "text-white"}`} onClick={() => { setSelectedDivision(div as string); setIsFilterOpen(false); }}>{div as string}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
@@ -168,10 +194,10 @@ export default function AccessControlPage() {
                   <tbody>
                     {isLoading ? (
                       <tr><td colSpan={5} className="text-center py-10 text-orange-400 animate-pulse font-bold">Loading Data...</td></tr>
-                    ) : committee.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Belum ada akun panitia.</td></tr>
+                    ) : paginatedCommittee.length === 0 ? (
+                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Tidak ada data panitia yang cocok dengan filter.</td></tr>
                     ) : (
-                      committee.map((member) => (
+                      paginatedCommittee.map((member) => (
                         <tr key={member.id} className="border-t">
                           <td>{formatDate(member.createdAt)}</td>
                           <td>
@@ -183,97 +209,86 @@ export default function AccessControlPage() {
                               {member.role} {member.isActive ? "" : "(Inactive)"}
                             </Badge>
                           </td>
-                          <td className="action">
-                            <Button variant="secondary" onClick={() => handleOpenModal(member)}>
-                              Edit <Pencil size={16} />
-                            </Button>
-                          </td>
-                          <td className="action">
-                            <Button variant="secondary" className="bg-red" onClick={() => handleDeleteCommittee(member.id, member.name)}>
-                              Delete
-                            </Button>
-                          </td>
+                          <td className="action"><Button variant="secondary" onClick={() => handleOpenModal(member)}>Edit <Pencil size={16} /></Button></td>
+                          <td className="action"><Button variant="secondary" className="bg-red" onClick={() => handleDeleteCommittee(member.id, member.name)}>Delete</Button></td>
                         </tr>
                       ))
                     )}
                   </tbody>
                 </table>
+                
+                {/* 🌟 CONTROLS PAGINATION COMMITTEE */}
                 <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
                   <div className="flex items-center gap-4">
                     <span className="text-cream font-semibold">Show data per page: </span>
-                    <input type="number" min={1} defaultValue={10} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                    <input type="number" min={1} value={committeePerPage} onChange={(e) => { setCommitteePerPage(Math.max(1, Number(e.target.value))); setCommitteePage(1); }} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
                   </div>
                   <div className="w-[400px] min-w-fit flex justify-between items-center">
-                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit"><ChevronLeft /> Previous</Button>
-                    <input type="number" min={1} defaultValue={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
-                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit">Next <ChevronRight /></Button>
+                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit" onClick={() => setCommitteePage(p => Math.max(1, p - 1))} disabled={committeePage === 1}>
+                      <ChevronLeft /> Previous
+                    </Button>
+                    <div className="flex items-center gap-2">
+                      <input type="number" min={1} max={totalCommitteePages} value={committeePage} onChange={(e) => setCommitteePage(Math.min(totalCommitteePages, Math.max(1, Number(e.target.value))))} className="w-[70px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                      <span className="text-cream font-semibold">/ {totalCommitteePages}</span>
+                    </div>
+                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit" onClick={() => setCommitteePage(p => Math.min(totalCommitteePages, p + 1))} disabled={committeePage === totalCommitteePages}>
+                      Next <ChevronRight />
+                    </Button>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* ==================================================================================== */}
-            {/* PARTICIPANT ACCOUNTS TABLE */}
-            {/* ==================================================================================== */}
+            {/* ==================== PARTICIPANTS TABLE ==================== */}
             <div className="flex flex-col justify-center bg-navy rounded-[20px] p-12 mt-8">
-              <div className="flex justify-between items-center w-full">
-                <div className="">
-                  <h4 className="font-semibold text-[36px] text-cream">
-                    Participant's Accounts
-                  </h4>
-                </div>
-                <div className="flex justify-between w-[560px]">
-                  <Button variant="primary" size="lg" className="min-w-[180px]">
-                    <Plus size={16} strokeWidth={3} />
-                    New
+              <div className="flex justify-between items-center w-full relative">
+                <h4 className="font-semibold text-[36px] text-cream">Participant's Accounts</h4>
+                
+                <div className="flex justify-end w-[360px] gap-2">
+                  <Button variant="primary" size="lg" className="flex-1" onClick={loadData}>
+                    <RotateCw size={16} className={isLoading ? "animate-spin" : ""} /> Refresh
                   </Button>
-                  <Button variant="primary" size="lg" className="min-w-[180px]" onClick={loadData}>
-                    <RotateCw size={16} className={isLoading ? "animate-spin" : ""} />
-                    Refresh
-                  </Button>
-                  <Button variant="primary" size="lg" className="min-w-[180px]">
-                    <Funnel fill="#0b2e6f" size={16} />
-                    Filter
-                  </Button>
+                  
+                  <div className="relative flex-1">
+                    <Button variant="primary" size="lg" className="w-full h-full" onClick={() => setIsParticipantFilterOpen(!isParticipantFilterOpen)}>
+                      <Funnel fill="#0b2e6f" size={16} /> {selectedPaymentStatus === "All" ? "Filter" : selectedPaymentStatus}
+                    </Button>
+                    {isParticipantFilterOpen && (
+                      <div className="absolute top-full mt-2 right-0 w-48 bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl shadow-xl z-50 overflow-hidden">
+                        <button className={`w-full text-left px-4 py-3 hover:bg-white/10 ${selectedPaymentStatus === "All" ? "text-[#F6911E] font-bold bg-white/5" : "text-white"}`} onClick={() => { setSelectedPaymentStatus("All"); setIsParticipantFilterOpen(false); }}>All Status</button>
+                        {["Verified", "Pending", "Rejected"].map((status) => (
+                          <button key={status} className={`w-full text-left px-4 py-3 hover:bg-white/10 ${selectedPaymentStatus === status ? "text-[#F6911E] font-bold bg-white/5" : "text-white"}`} onClick={() => { setSelectedPaymentStatus(status); setIsParticipantFilterOpen(false); }}>{status}</button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
+
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
-                    <col style={{ width: "20%" }} />
-                    <col style={{ width: "28%" }} />
-                    <col style={{ width: "18%" }} />
-                    <col style={{ width: "17%" }} />
-                    <col style={{ width: "17%" }} />
+                    <col style={{ width: "20%" }} /><col style={{ width: "28%" }} /><col style={{ width: "18%" }} /><col style={{ width: "17%" }} /><col style={{ width: "17%" }} />
                   </colgroup>
                   <thead>
                     <tr className="text-white">
-                      <th>Account Created</th>
-                      <th>Team Name</th>
-                      <th>Payment Status</th>
-                      <th>Phone Number</th>
-                      <th>Line ID</th>
+                      <th>Account Created</th><th>Team Name</th><th>Payment Status</th><th>Phone Number</th><th>Line ID</th>
                     </tr>
                   </thead>
-
                   <tbody>
                     {isLoading ? (
                       <tr><td colSpan={5} className="text-center py-10 text-orange-400 animate-pulse font-bold">Loading Data...</td></tr>
-                    ) : teams.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Belum ada akun peserta.</td></tr>
+                    ) : paginatedTeams.length === 0 ? (
+                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Tidak ada data peserta yang cocok dengan filter.</td></tr>
                     ) : (
-                      teams.map((team) => (
+                      paginatedTeams.map((team) => (
                         <tr key={team.id} className="border-t">
                           <td>{formatDate(team.createdAt)}</td>
                           <td className="font-semibold">{team.teamName}</td>
                           <td className="action">
-                            {team.status?.paymentStatus === 'Verified' ? (
-                               <Badge variant="complete">Verified</Badge>
-                            ) : team.status?.paymentStatus === 'Rejected' ? (
-                               <Badge variant="destructive" className="bg-red-500">Rejected</Badge>
-                            ) : (
-                               <Badge variant="outline" className="text-yellow-400 border-yellow-400">Pending</Badge>
-                            )}
+                            {team.status?.paymentStatus === 'Verified' ? <Badge variant="complete">Verified</Badge> 
+                             : team.status?.paymentStatus === 'Rejected' ? <Badge variant="destructive" className="bg-red-500">Rejected</Badge> 
+                             : <Badge variant="outline" className="text-yellow-400 border-yellow-400">Pending</Badge>}
                           </td>
                           <td className="action">{team.phoneNumber || "-"}</td>
                           <td className="action">{team.lineId || "-"}</td>
@@ -282,17 +297,22 @@ export default function AccessControlPage() {
                     )}
                   </tbody>
                 </table>
+                
+                {/* 🌟 CONTROLS PAGINATION PARTICIPANT */}
                 <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
                   <div className="flex items-center gap-4">
                     <span className="text-cream font-semibold">Show data per page: </span>
-                    <input type="number" min={1} defaultValue={10} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                    <input type="number" min={1} value={teamsPerPage} onChange={(e) => { setTeamsPerPage(Math.max(1, Number(e.target.value))); setTeamsPage(1); }} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
                   </div>
                   <div className="w-[400px] min-w-fit flex justify-between items-center">
-                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit" onClick={() => setTeamsPage(p => Math.max(1, p - 1))} disabled={teamsPage === 1}>
                       <ChevronLeft /> Previous
                     </Button>
-                    <input type="number" min={1} defaultValue={1} className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
-                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit">
+                    <div className="flex items-center gap-2">
+                      <input type="number" min={1} max={totalTeamsPages} value={teamsPage} onChange={(e) => setTeamsPage(Math.min(totalTeamsPages, Math.max(1, Number(e.target.value))))} className="w-[70px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none" />
+                      <span className="text-cream font-semibold">/ {totalTeamsPages}</span>
+                    </div>
+                    <Button variant="secondary" size="md" className="w-[125px] min-w-fit" onClick={() => setTeamsPage(p => Math.min(totalTeamsPages, p + 1))} disabled={teamsPage === totalTeamsPages}>
                       Next <ChevronRight />
                     </Button>
                   </div>
@@ -309,25 +329,23 @@ export default function AccessControlPage() {
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-[#0A2D6E] border-2 border-[#F6911E] rounded-2xl w-full max-w-lg p-8 shadow-2xl relative">
-            <button onClick={() => !isSubmitting && setIsModalOpen(false)} className="absolute top-6 right-6 text-[#F1E1B4] hover:text-[#F6911E]">
-              <X className="w-6 h-6" />
-            </button>
-            <h3 className="text-[#F6911E] text-2xl font-bold mb-6">
-              {formData.id ? "Edit Committee" : "New Committee"}
-            </h3>
-            
+            <button onClick={() => !isSubmitting && setIsModalOpen(false)} className="absolute top-6 right-6 text-[#F1E1B4] hover:text-[#F6911E]"><X className="w-6 h-6" /></button>
+            <h3 className="text-[#F6911E] text-2xl font-bold mb-6">{formData.id ? "Edit Committee" : "New Committee"}</h3>
             <form onSubmit={handleSubmitCommittee} className="space-y-4">
               <div>
                 <label className="block text-[#F1E1B4] text-sm font-semibold mb-2">Name</label>
                 <input required type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F6911E]" placeholder="Nama panitia" />
               </div>
-              
+              <div>
+                <label className="block text-[#F1E1B4] text-sm font-semibold mb-2">Email</label>
+                <input required type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="w-full bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F6911E]" placeholder="email@contoh.com" disabled={!!formData.id} />
+                {formData.id && <p className="text-xs text-[#F1E1B4]/70 mt-1">*Email tidak dapat diubah setelah akun dibuat.</p>}
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[#F1E1B4] text-sm font-semibold mb-2">Role</label>
                   <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="w-full bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F6911E]">
-                    <option value="Committee">Committee</option>
-                    <option value="Admin">Admin</option>
+                    <option value="Committee">Committee</option><option value="Admin">Admin</option>
                   </select>
                 </div>
                 <div>
@@ -335,17 +353,15 @@ export default function AccessControlPage() {
                   <input required type="text" value={formData.division} onChange={(e) => setFormData({...formData, division: e.target.value})} className="w-full bg-[#1E3A8A] border border-[#F6911E]/40 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#F6911E]" placeholder="Contoh: IT" />
                 </div>
               </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <input type="checkbox" id="isActive" checked={formData.isActive} onChange={(e) => setFormData({...formData, isActive: e.target.checked})} className="w-5 h-5 accent-[#F6911E]" />
-                <label htmlFor="isActive" className="text-white font-semibold cursor-pointer">Account is Active</label>
-              </div>
-
+              {formData.id && (
+                <div className="flex items-center gap-3 pt-2">
+                  <input type="checkbox" id="isActive" checked={formData.isActive} onChange={(e) => setFormData({...formData, isActive: e.target.checked})} className="w-5 h-5 accent-[#F6911E]" />
+                  <label htmlFor="isActive" className="text-white font-semibold cursor-pointer">Account is Active</label>
+                </div>
+              )}
               <div className="flex gap-4 justify-end pt-6">
                 <Button type="button" onClick={() => setIsModalOpen(false)} variant="outline" className="border-[#F1E1B4] text-[#F1E1B4] hover:bg-[#F1E1B4] hover:text-[#0A2D6E] px-8" disabled={isSubmitting}>Cancel</Button>
-                <Button type="submit" className="bg-[#F6911E] text-[#0A2D6E] hover:bg-orange-500 font-bold px-8" disabled={isSubmitting}>
-                  {isSubmitting ? "Menyimpan..." : "Save"}
-                </Button>
+                <Button type="submit" className="bg-[#F6911E] text-[#0A2D6E] hover:bg-orange-500 font-bold px-8" disabled={isSubmitting}>{isSubmitting ? "Menyimpan..." : "Save"}</Button>
               </div>
             </form>
           </div>
