@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle2, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, ExternalLink, XCircle } from "lucide-react";
 import {
   Button,
   CardLarge,
@@ -18,12 +18,61 @@ import { useAuth } from "@/hooks/useAuth";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useUploadedDocuments } from "@/hooks/useUploadedDocuments";
+import { useTransaction } from "@/hooks/useTransaction";
 import { uploadFiles, UploadResult } from "@/services/upload.service";
+import { submitPaymentProof } from "@/services/transaction.service";
 import { Spinner } from "@/components/ui";
 import { createPaymentLink } from "@/services/mayar/payment.service";
 import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 import { deriveTeamStatusFromVerification, TEAM_STATUS } from "@/lib/constants/team-status";
 import { cn } from "@/lib/utils";
+
+const PAYMENT_METHODS = [
+  { value: "Bank Transfer", label: "Bank Transfer" },
+] as const;
+
+function PaymentProofPreviewButton() {
+  const [loading, setLoading] = useState(false);
+
+  async function handlePreview() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/transactions", { credentials: "include" });
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      const inner = (data?.data ?? data) as Record<string, unknown>;
+      const signedUrl =
+        (inner?.signedUrl as string) ??
+        (inner?.signed_url as string) ??
+        (inner?.downloadUrl as string) ??
+        (inner?.download_url as string) ??
+        (inner?.url as string) ??
+        (inner?.paymentProofUrl as string) ??
+        (inner?.payment_proof_url as string);
+      if (signedUrl && typeof signedUrl === "string") {
+        window.open(signedUrl, "_blank", "noopener,noreferrer");
+      } else {
+        toast.error("Could not load preview. Please try again.");
+      }
+    } catch {
+      toast.error("Could not load preview. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      className="border-2 border-navy text-navy hover:bg-navy/10"
+      onClick={handlePreview}
+      disabled={loading}
+    >
+      {loading ? <Spinner size="xs" /> : <ExternalLink className="h-4 w-4" />}
+      {loading ? "Loading…" : "Preview payment proof"}
+    </Button>
+  );
+}
 
 function UploadStatusBadge({
   status,
@@ -71,8 +120,13 @@ export default function Home() {
   const [ktmMember2, setKtmMember2] = useState<File | null>(null);
   const [twibbonProof, setTwibbonProof] = useState<File | null>(null);
   const [posterIgProof, setPosterIgProof] = useState<File | null>(null);
-  // 2. Payment
+  // 2. Payment (manual transaction flow)
   const [paymentProof, setPaymentProof] = useState<File | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<string>(PAYMENT_METHODS[0].value);
+  const [paymentSubmitStatus, setPaymentSubmitStatus] = useState<"idle" | "requesting" | "uploading" | "submitting" | "done" | "error">("idle");
+  const [paymentSubmitError, setPaymentSubmitError] = useState<string>("");
+
+  const { data: transaction, loading: transactionLoading, refetch: refetchTransaction } = useTransaction();
 
   // Map documentType → fungsi clear File state (untuk reset setelah upload sukses)
   const fileClearMap: Record<string, () => void> = {
@@ -81,7 +135,6 @@ export default function Home() {
     [DOCUMENT_TYPES.MEMBER_KTM_2]: () => setKtmMember2(null),
     [DOCUMENT_TYPES.PROOF_TWIBBON]: () => setTwibbonProof(null),
     [DOCUMENT_TYPES.PROOF_POSTER_IG]: () => setPosterIgProof(null),
-    [DOCUMENT_TYPES.PAYMENT_PROOF]: () => setPaymentProof(null),
   };
 
   const status =
@@ -211,34 +264,20 @@ export default function Home() {
       toast.error("Please upload payment proof first.");
       return;
     }
-    if (!teamId) {
-      toast.error("Team data has not loaded or you are not logged in. Please reload the page.");
-      return;
-    }
-    setSubmitting(true);
-    setUploadErrors({});
-    setUploadStatus({ [DOCUMENT_TYPES.PAYMENT_PROOF]: "idle" });
+    setPaymentSubmitError("");
+    setPaymentSubmitStatus("requesting");
     try {
-      const results = await uploadFiles(
-        teamId,
-        [{ documentType: DOCUMENT_TYPES.PAYMENT_PROOF, file: paymentProof }],
-        (documentType, status, error) => {
-          setUploadStatus((prev) => ({ ...prev, [documentType]: status }));
-          if (error) {
-            setUploadErrors((prev) => ({ ...prev, [documentType]: error }));
-          }
-        }
-      );
-      const r = results[0];
-      if (r?.success) {
-        if (r.filePath) saveDoc(r.documentType, r.fileName, r.filePath);
-        fileClearMap[r.documentType]?.();
-        toast.success("Payment proof has been sent and will be verified.");
-      } else {
-        toast.error(r?.error ?? "Failed to upload payment proof. Please try again.");
-      }
-    } finally {
-      setSubmitting(false);
+      await submitPaymentProof(paymentProof, paymentMethod, (status) => {
+        setPaymentSubmitStatus(status === "requesting" ? "requesting" : status === "uploading" ? "uploading" : "submitting");
+      });
+      setPaymentSubmitStatus("done");
+      setPaymentProof(null);
+      await refetchTransaction();
+      toast.success("Payment proof has been sent and will be verified.");
+    } catch (e) {
+      setPaymentSubmitStatus("error");
+      setPaymentSubmitError(e instanceof Error ? e.message : "Failed to upload payment proof.");
+      toast.error(e instanceof Error ? e.message : "Failed to upload payment proof. Please try again.");
     }
   };
 
@@ -416,29 +455,105 @@ export default function Home() {
                    0015 3032 3351 (BLU BCA DIGITAL - ALMA ZIKRA SYAFIA)
                 </span>
 
-                <div className="w-full max-w-[95%] min-h-[240px] sm:min-h-[300px] mx-auto flex flex-col rounded-[20px] border-4 border-dashed border-navy bg-[#9aa0d6] text-navy p-4">
-                    <FileUploadZone
-                      value={paymentProof}
-                      onChange={setPaymentProof}
-                      zoneClassName="min-h-[200px] flex-1"
-                      disabled={!canUsePayment}
-                      uploadedUrl={getDoc(DOCUMENT_TYPES.PAYMENT_PROOF)?.url}
-                      uploadedFileName={getDoc(DOCUMENT_TYPES.PAYMENT_PROOF)?.fileName}
-                      onClearUploaded={() => clearDoc(DOCUMENT_TYPES.PAYMENT_PROOF)}
-                    />
-                </div>
+                {/* Manual payment: show transaction status or upload zone */}
+                {transactionLoading ? (
+                  <div className="w-full max-w-[95%] min-h-[240px] mx-auto flex items-center justify-center rounded-[20px] bg-[#9aa0d6] text-navy">
+                    <Spinner size="md" />
+                  </div>
+                ) : transaction && (transaction.verificationStatus === "Pending" || transaction.verificationStatus === "Verified") ? (
+                  <div className="w-full max-w-[95%] mx-auto flex flex-col gap-3 rounded-[20px] border-4 border-blue-500 bg-[#9aa0d6] text-navy p-4">
+                    <div className="flex items-center justify-between gap-2 flex-wrap">
+                      <span className="font-semibold">Payment proof submitted</span>
+                      <span className={cn(
+                        "inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
+                        transaction.verificationStatus === "Verified" && "text-green-700 bg-green-100",
+                        transaction.verificationStatus === "Pending" && "text-amber-700 bg-amber-100"
+                      )}>
+                        {transaction.verificationStatus === "Verified" && <CheckCircle2 className="h-4 w-4" />}
+                        {transaction.verificationStatus === "Pending" && <Clock className="h-4 w-4" />}
+                        {transaction.verificationStatus}
+                      </span>
+                    </div>
+                    {transaction.paymentType && (
+                      <p className="text-sm text-navy/80">Method: {transaction.paymentType}</p>
+                    )}
+                    {transaction.verificationStatus === "Verified" && (
+                      <p className="text-sm text-green-700 font-medium">Your payment has been verified.</p>
+                    )}
+                    <PaymentProofPreviewButton />
+                  </div>
+                ) : (
+                  <>
+                    {transaction?.verificationStatus === "Rejected" && transaction?.rejectionNotes && (
+                      <div className="flex items-start gap-3 rounded-xl border-2 border-red-400/80 bg-red-950/40 p-4 text-red-100 mb-4">
+                        <AlertCircle className="h-6 w-6 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-semibold">Payment proof rejected</p>
+                          <p className="text-sm">{transaction.rejectionNotes}</p>
+                          <p className="text-sm mt-1">Please upload a new payment proof.</p>
+                        </div>
+                      </div>
+                    )}
+                    <div className="w-full max-w-[95%] mx-auto flex flex-col gap-2 mb-2">
+                      <label className="text-cream text-sm font-medium">Payment method</label>
+                      <select
+                        value={paymentMethod}
+                        onChange={(e) => setPaymentMethod(e.target.value)}
+                        className="h-10 px-4 rounded-xl bg-white/10 text-white border border-white/20 outline-none"
+                        disabled={!canUsePayment}
+                      >
+                        {PAYMENT_METHODS.map((pm) => (
+                          <option key={pm.value} value={pm.value} className="text-navy">{pm.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="w-full max-w-[95%] min-h-[240px] sm:min-h-[300px] mx-auto flex flex-col rounded-[20px] border-4 border-dashed border-navy bg-[#9aa0d6] text-navy p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <UploadStatusBadge
+                          status={
+                            paymentSubmitStatus === "requesting" || paymentSubmitStatus === "uploading" || paymentSubmitStatus === "submitting"
+                              ? "uploading"
+                              : paymentSubmitStatus === "done"
+                                ? "done"
+                                : paymentSubmitStatus === "error"
+                                  ? "error"
+                                  : undefined
+                          }
+                          error={paymentSubmitError}
+                        />
+                      </div>
+                      <FileUploadZone
+                        value={paymentProof}
+                        onChange={setPaymentProof}
+                        zoneClassName="min-h-[200px] flex-1"
+                        disabled={!canUsePayment || transaction?.verificationStatus === "Verified"}
+                      />
+                    </div>
+                  </>
+                )}
               </CardHeader>
-              <CardFooter className="w-full max-w-[95%] mx-auto my-auto p-4 sm:p-6">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full border-2 border-orange text-orange"
-                  onClick={handleVerifyPayment}
-                  disabled={submitting || !canUsePayment}
-                >
-                  {submitting ? <><Spinner size="xs" /> Submitting…</> : "Verify"}
-                </Button>
-              </CardFooter>
+              {(!transaction || transaction.verificationStatus === "Rejected") && (
+                <CardFooter className="w-full max-w-[95%] mx-auto my-auto p-4 sm:p-6">
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full border-2 border-orange text-orange"
+                    onClick={handleVerifyPayment}
+                    disabled={
+                      !canUsePayment ||
+                      !paymentProof ||
+                      paymentSubmitStatus === "requesting" ||
+                      paymentSubmitStatus === "uploading" ||
+                      paymentSubmitStatus === "submitting" ||
+                      transaction?.verificationStatus === "Verified"
+                    }
+                  >
+                    {(paymentSubmitStatus === "requesting" || paymentSubmitStatus === "uploading" || paymentSubmitStatus === "submitting")
+                      ? <><Spinner size="xs" /> Submitting…</>
+                      : "Submit Payment Proof"}
+                  </Button>
+                </CardFooter>
+              )}
             </CardLarge>
         </section>
       </main>
