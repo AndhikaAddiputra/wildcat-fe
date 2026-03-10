@@ -29,13 +29,19 @@ function Navbar({
 }: NavbarProps) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     const onScroll = () => setScrolled(window.scrollY > 50);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [mounted]);
 
   useEffect(() => {
     if (mobileOpen) document.body.style.overflow = "hidden";
@@ -50,7 +56,7 @@ function Navbar({
       <nav
         className={cn(
           "fixed top-0 left-0 z-50 w-full transition-all duration-300",
-          scrolled ? "bg-[#0A2D6E] md:shadow-md" : "bg-[#0A2D6E] md:bg-transparent",
+          mounted && scrolled ? "bg-[#0A2D6E] md:shadow-md" : "bg-[#0A2D6E] md:bg-transparent",
           className
         )}
       >
@@ -103,7 +109,7 @@ function Navbar({
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center text-[#384288]"
+            className="absolute right-6 top-6 flex h-10 w-10 items-center justify-center text-[#F6911E] hover:opacity-90"
             aria-label="Close menu"
           >
             <X className="h-6 w-6" />
@@ -119,7 +125,7 @@ function Navbar({
                 className={cn(
                   "text-lg font-medium transition-colors",
                   activeLink === link.href
-                    ? "text-primary"
+                    ? "text-[#F6911E]"
                     : "text-[#384288] hover:opacity-80"
                 )}
               >
@@ -129,7 +135,7 @@ function Navbar({
           </nav>
 
           {/* Login / Action area */}
-          <div className="mt-auto px-6">
+          <div className="mt-auto w-full px-6 [&_a]:block [&_a]:w-full [&_button]:w-full">
             {mobileAction ?? (
               <a
                 href="#"

@@ -157,8 +157,8 @@ export default function AnnouncementPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-white font-['Poppins']">
-      <div className="relative min-h-screen flex-1 bg-[#0A2D6E] bg-[url(/background-hero-still.svg)] bg-cover bg-center">
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
         <Navbar
           logo={LOGO}
           links={ADMIN_NAV_LINKS}

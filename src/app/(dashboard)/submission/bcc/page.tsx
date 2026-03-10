@@ -37,7 +37,7 @@ export default function BCCSubmissionPage() {
     });
     const data = await res.json();
     if (!res.ok || !data?.data?.signedUrl) {
-      throw new Error(data?.error ?? "Gagal mendapatkan URL preview");
+      throw new Error(data?.error ?? "Failed to get preview URL");
     }
     return data.data.signedUrl as string;
   };
@@ -48,7 +48,7 @@ export default function BCCSubmissionPage() {
 
   const submitPreliminary = async () => {
     if (!businessProposal) {
-      toast.error("Silakan pilih file Business Proposal.");
+      toast.error("Please select Business Proposal file.");
       return;
     }
     setSubmitting(true);
@@ -56,9 +56,9 @@ export default function BCCSubmissionPage() {
       const { filePath } = await submitFile(teamId, SUBMISSION_REQUIREMENTS.BUSINESS_PROPOSAL, businessProposal);
       saveFile(SUBMISSION_REQUIREMENTS.BUSINESS_PROPOSAL, businessProposal.name, filePath);
       setBusinessProposal(null);
-      toast.success("Preliminary stage berhasil dikirim.");
+      toast.success("Preliminary stage sent successfully.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +66,7 @@ export default function BCCSubmissionPage() {
 
   const submitFinal = async () => {
     if (!pitchDeck) {
-      toast.error("Silakan pilih file Pitch Deck.");
+      toast.error("Please select Pitch Deck file.");
       return;
     }
     setSubmitting(true);
@@ -74,9 +74,9 @@ export default function BCCSubmissionPage() {
       const { filePath } = await submitFile(teamId, SUBMISSION_REQUIREMENTS.PITCH_DECK, pitchDeck);
       saveFile(SUBMISSION_REQUIREMENTS.PITCH_DECK, pitchDeck.name, filePath);
       setPitchDeck(null);
-      toast.success("Final stage berhasil dikirim.");
+      toast.success("Final stage sent successfully.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
