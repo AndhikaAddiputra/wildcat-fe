@@ -54,10 +54,10 @@ export default function Event() {
       return apiEvents.map((e) => toEventDisplay({
         id: e.id,
         name: e.name,
-        description: e.description,
+        description: e.description ?? undefined,
         datetime: e.datetime,
         location: e.location,
-        speaker: e.speaker,
+        speaker: e.speaker ?? undefined,
         status: e.status,
       }));
     }
