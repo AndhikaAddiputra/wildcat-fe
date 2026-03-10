@@ -8,7 +8,7 @@ import type { AnnouncementItem } from "@/lib/api/types";
 
 const RETRY_DELAY_MS = 500;
 const MAX_ATTEMPTS = 3;
-const FRIENDLY_ERROR = "Pengumuman sementara tidak dapat dimuat. Silakan coba lagi.";
+const FRIENDLY_ERROR = "Announcements temporarily unavailable. Please try again.";
 
 /**
  * Cek apakah response body adalah error payload (bukan array pengumuman).

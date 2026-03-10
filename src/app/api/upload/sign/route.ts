@@ -121,7 +121,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("POST /api/upload/sign proxy error:", err);
     return NextResponse.json(
-      { error: "Gagal mendapatkan URL upload" },
+      { error: "Failed to get upload URL" },
       { status: 500 }
     );
   }

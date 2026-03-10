@@ -51,7 +51,7 @@ export async function POST(request: Request) {
       return NextResponse.json(
         {
           error:
-            "competitionId, teamName, leadName, institution, leadMajor, phoneNumber, lineId wajib diisi.",
+            "Team Name, Leader Name, Institution, Leader Major, Phone Number, and Line ID must be filled",
         },
         { status: 400 }
       );
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("POST /api/landing/register/complete proxy error:", err);
     return NextResponse.json(
-      { error: "Gagal menyimpan data tim" },
+      { error: "Failed to save team data" },
       { status: 500 }
     );
   }

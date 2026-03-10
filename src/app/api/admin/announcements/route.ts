@@ -75,10 +75,21 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: data.error || "Gagal mengedit pengumuman" }, { status: res.status });
     }
 
-    return NextResponse.json({ success: true, data });
-  } catch (err: any) {
-    console.error("PUT /api/admin/announcements proxy error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    console.log("[api/admin/announcements] response", JSON.stringify({
+      method,
+      url,
+      requestBody: { title, content, targetAudience, attachmentUrl, id },
+      responseStatus: res.status,
+      responseData: data,
+    }, null, 2));
+
+    return NextResponse.json(data, { status: res.status });
+  } catch (err) {
+    console.error("POST /api/admin/announcements proxy error:", err);
+    return NextResponse.json(
+      { error: "Failed to save announcement" },
+      { status: 500 }
+    );
   }
 }
 
@@ -125,6 +136,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ success: true, message: data.message || "Pengumuman dihapus" });
   } catch (err) {
     console.error("DELETE /api/admin/announcements proxy error:", err);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete announcement" }, { status: 500 });
   }
 }

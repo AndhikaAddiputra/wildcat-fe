@@ -7,9 +7,8 @@ import {
   Button,
   CardLarge,
 } from "@/components/ui";
-// 🌟 PASTIKAN KAMU MENGIMPORT NAV_LINKS MILIK COMMITTEE (Sesuaikan jika namanya berbeda)
 import { LOGO, COMMITTEE_NAV_LINKS, COMMITTEE_NAV_ACTION } from "@/config/navbar-config";
-import { Users, Download } from "lucide-react"; // Ikon Pencil dan X dihapus karena tidak perlu modal
+import { Users, Download, Pencil } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
 
 // --- FUNGSI MAPPER ---
@@ -72,7 +71,33 @@ export default function CommitteeStatisticsPage() {
   const totalCompParticipants = competitionsData.grandTotal || 0;
   const totalEventParticipants = eventsData.grandTotals?.registeredCount || 0;
 
-  // Fungsi Export Data ke Excel (Sama persis)
+  const handleEditAttendance = async (eventId: string, currentPresent: number) => {
+    const newVal = window.prompt("Masukkan jumlah peserta hadir (Present) yang baru:", currentPresent.toString());
+    if (newVal === null || newVal.trim() === "") return;
+
+    const attendedCount = parseInt(newVal, 10);
+    if (isNaN(attendedCount) || attendedCount < 0) {
+      alert("Masukkan angka yang valid!");
+      return;
+    }
+
+    try {
+      const res = await fetchWithAuth("/api/admin/attendance", {
+        method: "POST",
+        body: JSON.stringify({ eventId, attendedCount }),
+      });
+      if (res.ok) {
+        alert("Attendance data updated successfully!");
+        loadData();
+      } else {
+        alert("Failed to update attendance data.");
+      }
+    } catch (error) {
+      console.error("Error updating attendance:", error);
+      alert("Terjadi kesalahan sistem.");
+    }
+  };
+
   const handleExportData = async () => {
     try {
       const res = await fetchWithAuth("/api/admin/export/metrics-recap");
@@ -88,7 +113,7 @@ export default function CommitteeStatisticsPage() {
       a.remove();
     } catch (error) {
       console.error("Export error:", error);
-      alert("Gagal mengexport data. Pastikan API tersedia.");
+      alert("Failed to export data. Ensure API is available.");
     }
   };
 
@@ -145,15 +170,7 @@ export default function CommitteeStatisticsPage() {
     <div className="min-h-screen w-full font-['Poppins']">
       <div className="relative min-h-screen bg-[#0A2D6E]">
         <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: "url('/background-home.svg')", backgroundSize: "cover", backgroundPosition: "center" }} />
-        
-        {/* GUNAKAN NAVBAR KHUSUS COMMITTEE */}
-        <Navbar 
-          logo={LOGO} 
-          links={COMMITTEE_NAV_LINKS} 
-          activeLink="/committee/home" 
-          action={COMMITTEE_NAV_ACTION} 
-          mobileAction={COMMITTEE_NAV_ACTION} 
-        />
+        <Navbar logo={LOGO} links={COMMITTEE_NAV_LINKS} activeLink="/committee/home" action={COMMITTEE_NAV_ACTION} mobileAction={COMMITTEE_NAV_ACTION} />
 
         <main className="relative z-10 mx-auto max-w-6xl px-6 pt-32 pb-20">
           <section className="mb-10">
@@ -237,7 +254,7 @@ export default function CommitteeStatisticsPage() {
                   <p className="text-[#F6911e] text-sm">Team Registered</p>
                 </div>
               )) : (
-                <p className="text-white col-span-4 text-center py-4">Tidak ada data kompetisi.</p>
+                <p className="text-white col-span-4 text-center py-4">No competition data.</p>
               )}
             </div>
 
@@ -267,7 +284,7 @@ export default function CommitteeStatisticsPage() {
                   </div>
                 </div>
               )) : (
-                 <p className="text-white text-center py-4">Tidak ada data event.</p>
+                 <p className="text-white text-center py-4">No event data.</p>
               )}
             </div>
 

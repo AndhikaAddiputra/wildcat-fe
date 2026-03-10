@@ -134,9 +134,15 @@ export default function AccessControlPage() {
   const paginatedTeams = filteredTeams.slice((teamsPage - 1) * teamsPerPage, teamsPage * teamsPerPage);
 
   return (
-    <div className="min-h-screen flex flex-col text-white font-['Poppins']">
-      <div className="relative min-h-screen flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
-        <Navbar logo={LOGO} links={ADMIN_NAV_LINKS} activeLink="/admin/access" action={ADMIN_NAV_ACTION} mobileAction={ADMIN_NAV_ACTION} />
+    <div className="min-h-screen flex flex-col text-white">
+      <div className="relative flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
+        <Navbar
+        logo={LOGO}
+        links={ADMIN_NAV_LINKS}
+        activeLink="/admin/access"
+        action={ADMIN_NAV_ACTION}
+        mobileAction={ADMIN_NAV_ACTION}
+      />
 
         <section className="relative flex pt-32 mx-auto w-[80%] items-center">
           <div className="text-left">
