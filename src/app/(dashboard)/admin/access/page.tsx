@@ -293,8 +293,8 @@ export default function AccessControlPage() {
                           <td className="font-semibold">{team.teamName}</td>
                           <td className="action">
                             {team.status?.paymentStatus === 'Verified' ? <Badge variant="complete">Verified</Badge> 
-                             : team.status?.paymentStatus === 'Rejected' ? <Badge variant="destructive" className="bg-red-500">Rejected</Badge> 
-                             : <Badge variant="outline" className="text-yellow-400 border-yellow-400">Pending</Badge>}
+                             : team.status?.paymentStatus === 'Rejected' ? <Badge variant="end">Rejected</Badge> 
+                             : <Badge variant="pending">Pending</Badge>}
                           </td>
                           <td className="action">{team.phoneNumber || "-"}</td>
                           <td className="action">{team.lineId || "-"}</td>
