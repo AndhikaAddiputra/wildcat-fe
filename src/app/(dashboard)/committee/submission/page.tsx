@@ -17,6 +17,10 @@ import {
   Download,
 } from "lucide-react";
 import { useAdminSubmissions, type AdminSubmissionCompetition, type AdminSubmissionTeam, type AdminSubmissionItem } from "@/hooks/useAdminSubmissions";
+import {
+  COMPETITION_DOCUMENT_COLUMNS,
+  getCompetitionSlugFromName,
+} from "@/lib/constants/submission-requirements";
 
 const PAGE_SIZES = [5, 10, 20, 50];
 
@@ -63,6 +67,10 @@ function CompetitionTable({
   const [page, setPage] = useState(1);
   const [downloading, setDownloading] = useState<string | null>(null);
   const documentColumns = useMemo(() => {
+    const slug = getCompetitionSlugFromName(competition.competitionName);
+    if (slug && COMPETITION_DOCUMENT_COLUMNS[slug]) {
+      return COMPETITION_DOCUMENT_COLUMNS[slug];
+    }
     const seen = new Map<string, string>();
     for (const team of competition.teams) {
       for (const s of team.submissions) {
@@ -75,7 +83,7 @@ function CompetitionTable({
       requirementId,
       documentName,
     }));
-  }, [competition.teams]);
+  }, [competition.teams, competition.competitionName]);
 
   const totalPages = Math.max(1, Math.ceil(competition.teams.length / pageSize));
   const pagedTeams = competition.teams.slice((page - 1) * pageSize, page * pageSize);
@@ -117,7 +125,17 @@ function CompetitionTable({
             </tr>
           </thead>
           <tbody>
-            {pagedTeams.map((team) => (
+            {pagedTeams.length === 0 ? (
+              <tr className="border-t">
+                <td
+                  colSpan={4 + documentColumns.length}
+                  className="text-center py-8 text-white/60 italic"
+                >
+                  Belum ada submisi
+                </td>
+              </tr>
+            ) : (
+              pagedTeams.map((team) => (
               <tr key={team.teamId} className="border-t">
                 <td className="text-xs">{formatSubmissionDate(team.submissions)}</td>
                 <td>{team.teamName}</td>
@@ -176,7 +194,8 @@ function CompetitionTable({
                   );
                 })}
               </tr>
-            ))}
+              ))
+            )}
           </tbody>
         </table>
         <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">

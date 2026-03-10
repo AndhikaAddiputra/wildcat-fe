@@ -19,6 +19,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useAdminTeams, AdminTeam, TeamDocument } from "@/hooks/useAdminTeams";
+import { useAdminTransactions, AdminTransaction } from "@/hooks/useAdminTransactions";
 import { toast } from "sonner";
 
 // ─── Konstanta Label ──────────────────────────────────────────────────────────
@@ -67,6 +68,74 @@ function DocLink({ doc, label }: { doc: TeamDocument | undefined; label: string 
       {label}
       <ExternalLink className="h-3 w-3" />
     </a>
+  );
+}
+
+function PaymentProofLink({ transaction }: { transaction: AdminTransaction }) {
+  const [loading, setLoading] = useState(false);
+  const url = transaction.proofSignedUrl ?? transaction.paymentProofUrl ?? null;
+
+  if (!url) {
+    return <span className="text-white/30 text-xs italic">–</span>;
+  }
+
+  if (url.startsWith("http")) {
+    return (
+      <a
+        href={url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-blue-100 underline underline-offset-2 transition-colors"
+      >
+        Check
+        <ExternalLink className="h-3 w-3" />
+      </a>
+    );
+  }
+
+  async function handleFetchAndOpen() {
+    setLoading(true);
+    try {
+      const res = await fetch(
+        `/api/admin/transactions/${encodeURIComponent(transaction.id)}`,
+        { credentials: "include" }
+      );
+      const data = (await res.json().catch(() => ({}))) as {
+        success?: boolean;
+        data?: { paymentProofUrl?: string; signedUrl?: string; url?: string };
+        paymentProofUrl?: string;
+        signedUrl?: string;
+        url?: string;
+      };
+      const signedUrl =
+        data?.data?.paymentProofUrl ??
+        data?.data?.signedUrl ??
+        data?.data?.url ??
+        data?.paymentProofUrl ??
+        data?.signedUrl ??
+        data?.url;
+      if (signedUrl) {
+        window.open(signedUrl, "_blank");
+      } else {
+        toast.error("Could not load preview");
+      }
+    } catch {
+      toast.error("Could not load preview");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleFetchAndOpen}
+      disabled={loading}
+      className="inline-flex items-center gap-1 text-xs text-blue-300 hover:text-blue-100 underline underline-offset-2 transition-colors disabled:opacity-50"
+    >
+      {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : "Check"}
+      <ExternalLink className="h-3 w-3" />
+    </button>
   );
 }
 
@@ -119,6 +188,88 @@ function KtmDropdown({ documents }: { documents: AdminTeam["documents"] }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function PaymentActionCell({
+  transaction,
+  onVerify,
+}: {
+  transaction: AdminTransaction;
+  onVerify: (transactionId: string, teamId: string, action: "Verified" | "Rejected", notes?: string) => Promise<void>;
+}) {
+  const [rejectMode, setRejectMode] = useState(false);
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleAction(action: "Verified" | "Rejected") {
+    setLoading(true);
+    await onVerify(transaction.id, transaction.teamId, action, action === "Rejected" ? notes : undefined);
+    setLoading(false);
+    setRejectMode(false);
+    setNotes("");
+  }
+
+  if (rejectMode) {
+    return (
+      <div className="flex flex-col gap-2 min-w-[180px]">
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+          placeholder="Rejection notes..."
+          className="w-full rounded-lg bg-white/10 text-white text-xs p-2 outline-none resize-none h-16 border border-white/20"
+        />
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1 text-xs !bg-red-600 !text-white hover:!bg-red-500"
+            onClick={() => handleAction("Rejected")}
+            disabled={loading}
+          >
+            {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <XCircle className="h-3 w-3" />}
+            Reject
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="flex-1 text-xs opacity-60"
+            onClick={() => { setRejectMode(false); setNotes(""); }}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-2 min-w-[150px]">
+      <StatusBadge status={transaction.verificationStatus} />
+      <div className="flex gap-2">
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex-1 text-xs !bg-green-600 !text-white hover:!bg-green-500"
+          onClick={() => handleAction("Verified")}
+          disabled={loading}
+        >
+          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <CheckCircle2 className="h-3 w-3" />}
+          Admit
+        </Button>
+        <Button
+          variant="secondary"
+          size="sm"
+          className="flex-1 text-xs !bg-red-600 !text-white hover:!bg-red-500"
+          onClick={() => setRejectMode(true)}
+          disabled={loading}
+        >
+          <XCircle className="h-3 w-3" />
+          Reject
+        </Button>
+      </div>
     </div>
   );
 }
@@ -211,6 +362,7 @@ const PAGE_SIZES = [10, 20, 50];
 
 export default function VerificationPage() {
   const { teams, loading, error, refetch, verifyTeam } = useAdminTeams();
+  const { transactions, loading: txLoading, error: txError, refetch: refetchTx, verifyTransaction } = useAdminTransactions();
 
   // Filter & pagination untuk Tabel Registration Documents
   const [docPage, setDocPage] = useState(1);
@@ -237,6 +389,34 @@ export default function VerificationPage() {
   const docTotalPages = Math.max(1, Math.ceil(filteredTeams.length / docPageSize));
   const docPagedTeams = filteredTeams.slice((docPage - 1) * docPageSize, docPage * docPageSize);
 
+  // Filter & pagination untuk Tabel Manual Payment
+  const [paymentPage, setPaymentPage] = useState(1);
+  const [paymentPageSize, setPaymentPageSize] = useState(10);
+  const [paymentSearch, setPaymentSearch] = useState("");
+  const [paymentCompFilter, setPaymentCompFilter] = useState("");
+
+  const paymentCompetitions = useMemo(
+    () => Array.from(new Set(transactions.map((t) => t.competition))).sort(),
+    [transactions]
+  );
+
+  const filteredTransactions = useMemo(() => {
+    return transactions.filter((t) => {
+      const matchSearch =
+        !paymentSearch ||
+        t.teamName.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+        (t.institution ?? "").toLowerCase().includes(paymentSearch.toLowerCase());
+      const matchComp = !paymentCompFilter || t.competition === paymentCompFilter;
+      return matchSearch && matchComp;
+    });
+  }, [transactions, paymentSearch, paymentCompFilter]);
+
+  const paymentTotalPages = Math.max(1, Math.ceil(filteredTransactions.length / paymentPageSize));
+  const paymentPagedTransactions = filteredTransactions.slice(
+    (paymentPage - 1) * paymentPageSize,
+    paymentPage * paymentPageSize
+  );
+
   async function handleVerify(teamId: string, action: "Verified" | "Rejected", notes?: string) {
     const result = await verifyTeam(teamId, action, notes);
     if ("error" in result) {
@@ -244,6 +424,22 @@ export default function VerificationPage() {
     } else {
       toast.success(
         `Team successfully ${result.actualAction === "Verified" ? "verified" : "rejected"}`
+      );
+    }
+  }
+
+  async function handleVerifyPayment(
+    transactionId: string,
+    teamId: string,
+    action: "Verified" | "Rejected",
+    notes?: string
+  ) {
+    const result = await verifyTransaction(transactionId, teamId, action, notes);
+    if ("error" in result) {
+      toast.error(result.error);
+    } else {
+      toast.success(
+        `Payment ${result.actualAction === "Verified" ? "verified" : "rejected"}`
       );
     }
   }
@@ -414,13 +610,40 @@ export default function VerificationPage() {
             </div>
 
             {/* ── Tabel Manual Payment ── */}
-            {/* API untuk data manual payment akan tersedia terpisah */}
             <div className="flex flex-col justify-center bg-navy rounded-[20px] p-12">
-              <div className="flex justify-between items-center w-full">
+              <div className="flex flex-wrap justify-between items-center w-full gap-4">
                 <h4 className="font-semibold text-[36px] text-cream">
                   Manual Payment
                 </h4>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <input
+                    type="text"
+                    value={paymentSearch}
+                    onChange={(e) => { setPaymentSearch(e.target.value); setPaymentPage(1); }}
+                    placeholder="Search team / institution..."
+                    className="h-[42px] px-4 rounded-xl bg-white/10 text-white text-sm outline-none border border-white/20 placeholder:text-white/40"
+                  />
+                  <select
+                    value={paymentCompFilter}
+                    onChange={(e) => { setPaymentCompFilter(e.target.value); setPaymentPage(1); }}
+                    className="h-[42px] px-4 rounded-xl bg-white/10 text-white text-sm outline-none border border-white/20"
+                  >
+                    <option value="">All Competitions</option>
+                    {paymentCompetitions.map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                  <Button variant="primary" size="lg" onClick={() => { refetch(); refetchTx(); }} disabled={txLoading}>
+                    <RotateCw size={16} className={txLoading ? "animate-spin" : ""} />
+                    Refresh
+                  </Button>
+                </div>
               </div>
+
+              {txError && (
+                <p className="mt-4 text-red-400 text-sm">{txError}</p>
+              )}
+
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
@@ -438,13 +661,72 @@ export default function VerificationPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td colSpan={4} className="text-center py-12 text-white/60">
-                        API for manual payment data will be available separately.
-                      </td>
-                    </tr>
+                    {txLoading && (
+                      <tr>
+                        <td colSpan={4} className="text-center py-8 text-white/50">
+                          <Loader2 className="h-6 w-6 animate-spin inline-block mr-2" />
+                          Loading data...
+                        </td>
+                      </tr>
+                    )}
+                    {!txLoading && paymentPagedTransactions.length === 0 && (
+                      <tr>
+                        <td colSpan={4} className="text-center py-8 text-white/50">
+                          No manual payment submissions found.
+                        </td>
+                      </tr>
+                    )}
+                    {!txLoading && paymentPagedTransactions.map((tx) => (
+                      <tr key={tx.id} className="border-t">
+                        <td className="text-xs">{tx.competition}</td>
+                        <td>{tx.teamName}</td>
+                        <td className="action">
+                          <PaymentProofLink transaction={tx} />
+                        </td>
+                        <td className="action">
+                          <PaymentActionCell transaction={tx} onVerify={handleVerifyPayment} />
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
+
+                {/* Pagination bar */}
+                <div className="flex justify-between items-center p-6 mt-[-10px] rounded-t-xl w-full bg-[#3c3f9e]">
+                  <div className="flex items-center gap-4">
+                    <span className="text-cream font-semibold">Show per page:</span>
+                    <select
+                      value={paymentPageSize}
+                      onChange={(e) => { setPaymentPageSize(Number(e.target.value)); setPaymentPage(1); }}
+                      className="w-[95px] h-[51px] bg-navy text-white text-center font-bold rounded-[20px] outline-none"
+                    >
+                      {PAGE_SIZES.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      className="w-[125px] min-w-fit"
+                      onClick={() => setPaymentPage((p) => Math.max(1, p - 1))}
+                      disabled={paymentPage <= 1}
+                    >
+                      <ChevronLeft /> Previous
+                    </Button>
+                    <span className="text-white font-bold text-sm">
+                      {paymentPage} / {paymentTotalPages}
+                    </span>
+                    <Button
+                      variant="secondary"
+                      size="md"
+                      className="w-[125px] min-w-fit"
+                      onClick={() => setPaymentPage((p) => Math.min(paymentTotalPages, p + 1))}
+                      disabled={paymentPage >= paymentTotalPages}
+                    >
+                      Next <ChevronRight />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
 
