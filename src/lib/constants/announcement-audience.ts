@@ -4,11 +4,11 @@
  *     Hanya ubah string di bagian kanan (value), bukan key-nya.
  */
 export const ANNOUNCEMENT_AUDIENCE = {
-  ALL: "All",
-  PAPOS: "PaPos",
+  All: "All",
+  Paper_Poster: "Paper_Poster",
   BCC: "BCC",
-  GNG: "GnG",
-  ESSAY: "Essay",
+  GnG: "GnG",
+  HighSchool: "HighSchool",
 } as const;
 
 export type AnnouncementAudience =
@@ -16,11 +16,11 @@ export type AnnouncementAudience =
 
 /** Label yang ditampilkan di UI untuk tiap nilai audience */
 export const ANNOUNCEMENT_AUDIENCE_LABEL: Record<AnnouncementAudience, string> = {
-  [ANNOUNCEMENT_AUDIENCE.ALL]: "All Participants",
-  [ANNOUNCEMENT_AUDIENCE.PAPOS]: "Paper & Poster",
+  [ANNOUNCEMENT_AUDIENCE.All]: "All Participants",
+  [ANNOUNCEMENT_AUDIENCE.Paper_Poster]: "Paper & Poster",
   [ANNOUNCEMENT_AUDIENCE.BCC]: "Business Case",
-  [ANNOUNCEMENT_AUDIENCE.GNG]: "GnG Case Study",
-  [ANNOUNCEMENT_AUDIENCE.ESSAY]: "High School Essay",
+  [ANNOUNCEMENT_AUDIENCE.GnG]: "GnG Case Study",
+  [ANNOUNCEMENT_AUDIENCE.HighSchool]: "High School Essay",
 };
 
 export const ANNOUNCEMENT_AUDIENCE_OPTIONS = Object.entries(
