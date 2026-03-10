@@ -87,7 +87,7 @@ const RegisterPage = () => {
       const accessToken = authData.session?.access_token;
 
       if (!accessToken) {
-        toast.error("Sesi kamu telah habis. Silakan login ulang.");
+        toast.error("Your session has expired. Please log in again.");
         setStep(1);
         return;
       }
@@ -121,15 +121,15 @@ const RegisterPage = () => {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        const msg = errorData?.error || errorData?.message || "Gagal mendaftar";
+        const msg = errorData?.error || errorData?.message || "Registration failed";
         const isDbError = typeof msg === 'string' && (msg.includes('competitions') || msg.includes('Failed query') || msg.includes('select '));
-        throw new Error(isDbError ? "Koneksi database sibuk. Silakan klik Submit sekali lagi." : msg);
+        throw new Error(isDbError ? "Database connection busy. Please click Submit again." : msg);
       }
 
       window.location.href = "/home";
     } catch (error: any) {
       console.error("Submission error:", error);
-      toast.error(error?.message || "Terjadi kesalahan. Silakan coba lagi.");
+      toast.error(error?.message || "An error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }

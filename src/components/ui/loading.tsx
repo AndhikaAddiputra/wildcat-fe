@@ -108,7 +108,7 @@ export interface LoadingOverlayProps {
  * @example
  * <div className="relative">
  *   <CardLarge>...</CardLarge>
- *   <LoadingOverlay visible={loading} text="Memuat data..." />
+ *   <LoadingOverlay visible={loading} text="Loading..." />
  * </div>
  */
 export function LoadingOverlay({
@@ -149,7 +149,7 @@ export interface InlineLoaderProps {
  * Spinner + teks dalam satu baris. Cocok untuk state loading di dalam card,
  * section, atau tepat di bawah header.
  */
-export function InlineLoader({ text = "Memuat...", size = "sm", className }: InlineLoaderProps) {
+export function InlineLoader({ text = "Loading...", size = "sm", className }: InlineLoaderProps) {
   return (
     <div className={cn("flex items-center gap-2 text-[#f1e1b4]/80", className)}>
       <Spinner size={size} />

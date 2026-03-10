@@ -37,7 +37,7 @@ export default function GnGSubmissionPage() {
     });
     const data = await res.json();
     if (!res.ok || !data?.data?.signedUrl) {
-      throw new Error(data?.error ?? "Gagal mendapatkan URL preview");
+      throw new Error(data?.error ?? "Failed to get preview URL");
     }
     return data.data.signedUrl as string;
   };
@@ -48,7 +48,7 @@ export default function GnGSubmissionPage() {
 
   const submitPreliminary = async () => {
     if (!technicalEssay) {
-      toast.error("Silakan pilih file Technical Essay.");
+      toast.error("Please select Technical Essay file.");
       return;
     }
     setSubmitting(true);
@@ -56,9 +56,9 @@ export default function GnGSubmissionPage() {
       const { filePath } = await submitFile(teamId, SUBMISSION_REQUIREMENTS.TECHNICAL_ESSAY, technicalEssay);
       saveFile(SUBMISSION_REQUIREMENTS.TECHNICAL_ESSAY, technicalEssay.name, filePath);
       setTechnicalEssay(null);
-      toast.success("Preliminary stage berhasil dikirim.");
+      toast.success("Preliminary stage sent successfully.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -66,7 +66,7 @@ export default function GnGSubmissionPage() {
 
   const submitFinal = async () => {
     if (!technicalReport) {
-      toast.error("Silakan pilih file Technical Report.");
+      toast.error("Please select Technical Report file.");
       return;
     }
     setSubmitting(true);
@@ -74,9 +74,9 @@ export default function GnGSubmissionPage() {
       const { filePath } = await submitFile(teamId, SUBMISSION_REQUIREMENTS.TECHNICAL_REPORT, technicalReport);
       saveFile(SUBMISSION_REQUIREMENTS.TECHNICAL_REPORT, technicalReport.name, filePath);
       setTechnicalReport(null);
-      toast.success("Final stage berhasil dikirim.");
+      toast.success("Final stage sent successfully.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

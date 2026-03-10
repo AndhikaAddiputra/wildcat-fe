@@ -89,7 +89,7 @@ export default function Event() {
       <main className="flex justify-center mx-auto px-6 py-12 min-h-[55vw]">
         <section className="flex flex-col gap-6">
           {error && <p className="text-center text-red-300">{error}</p>}
-          {loading && <p className="text-center text-[#F1E1B4]">Memuat events...</p>}
+          {loading && <p className="text-center text-[#F1E1B4]">Loading events...</p>}
           {events.map((ev) => (
             <div
               key={ev.id}

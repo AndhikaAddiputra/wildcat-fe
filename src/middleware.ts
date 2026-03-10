@@ -13,6 +13,10 @@ export async function middleware(request: NextRequest) {
   const isPublic = PUBLIC_PATHS.some((p) => p === pathname || pathname.startsWith(p + "/"));
   if (isPublic) return response;
 
+  // Lewati role-check untuk Next.js API routes (/api/*).
+  // API route handlers bertanggung jawab atas autorisasi masing-masing.
+  if (pathname.startsWith("/api/")) return response;
+
   // 2. Inisialisasi Supabase client untuk Middleware
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

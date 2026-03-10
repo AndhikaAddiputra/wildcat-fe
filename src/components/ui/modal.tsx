@@ -199,8 +199,11 @@ function Modal({
                   </div>
                 </div >
                 <div className="flex flex-col gap-3 mt-8">
-                <Button variant="primary">
-                    Register Now 
+                <Button
+                    variant="primary"
+                    onClick={() => window.open("https://r.aapgitb.com/FeedbackTesting", "_blank")}
+                  >
+                    Register Now
                   </Button>
                   </div>
               </div>
@@ -251,7 +254,10 @@ function Modal({
                       <Download className="h-4 w-4" />
                       Download Guidebook
                     </Button>
-                    <Button variant="primary">
+                    <Button
+                      variant="primary"
+                      onClick={() => window.open("https://r.aapgitb.com/FeedbackTesting", "_blank")}
+                    >
                       Register Now
                     </Button>
                   </div>
