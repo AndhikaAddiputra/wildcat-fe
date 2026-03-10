@@ -56,7 +56,7 @@ export default function Event() {
         name: e.name,
         description: e.description ?? undefined,
         datetime: e.datetime,
-        location: e.location,
+        location: e.location ?? undefined,
         speaker: e.speaker ?? undefined,
         status: e.status,
       }));
