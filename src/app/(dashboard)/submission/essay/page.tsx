@@ -33,7 +33,7 @@ export default function EssaySubmissionPage() {
     });
     const data = await res.json();
     if (!res.ok || !data?.data?.signedUrl) {
-      throw new Error(data?.error ?? "Gagal mendapatkan URL preview");
+      throw new Error(data?.error ?? "Failed to get preview URL");
     }
     return data.data.signedUrl as string;
   };
@@ -44,7 +44,7 @@ export default function EssaySubmissionPage() {
 
   const handleSubmit = async () => {
     if (!abstract || !fullEssay) {
-      toast.error("Silakan pilih file Abstract dan Full Essay.");
+      toast.error("Please select Abstract and Full Essay files.");
       return;
     }
     setSubmitting(true);
@@ -61,12 +61,12 @@ export default function EssaySubmissionPage() {
       if (succeeded.find((r) => r.requirementId === SUBMISSION_REQUIREMENTS.ESSAY_ABSTRACT)) setAbstract(null);
       if (succeeded.find((r) => r.requirementId === SUBMISSION_REQUIREMENTS.FULL_ESSAY)) setFullEssay(null);
       if (failed.length === 0) {
-        toast.success("Submission berhasil dikirim.");
+        toast.success("Submission sent successfully.");
       } else {
-        failed.forEach((r) => toast.error(`${r.fileName}: ${r.error ?? "Gagal diupload"}`));
+        failed.forEach((r) => toast.error(`${r.fileName}: ${r.error ?? "Upload failed"}`));
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }

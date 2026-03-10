@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
     if (!teamId || !name || !email) {
       return NextResponse.json(
-        { error: "teamId, name, dan email wajib diisi." },
+        { error: "teamId, name, and email are required." },
         { status: 400 }
       );
     }
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
       expiredAt: data.expiredAt,
     });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Gagal membuat invoice";
+    const message = e instanceof Error ? e.message : "Failed to create invoice";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

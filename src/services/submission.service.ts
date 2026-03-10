@@ -1,3 +1,5 @@
+import { normalizeSubmissionErrorMessage } from "@/lib/api/errorMessage";
+
 /**
  * Submission upload — 3 langkah sesuai panduan backend:
  *
@@ -67,7 +69,7 @@ export async function submitFile(
 
   if (!signRes.ok) {
     const err = await signRes.text();
-    throw new Error(err || `Sign failed: ${signRes.status}`);
+    throw new Error(normalizeSubmissionErrorMessage(err || `Sign failed: ${signRes.status}`));
   }
 
   const signData = (await signRes.json()) as SignResponse;
@@ -153,7 +155,7 @@ export async function submitFile(
 
   if (!confirmRes.ok) {
     const err = await confirmRes.text();
-    throw new Error(err || `Confirm failed: ${confirmRes.status}`);
+    throw new Error(normalizeSubmissionErrorMessage(err || `Confirm failed: ${confirmRes.status}`));
   }
 
   return { filePath: confirmedFilePath };

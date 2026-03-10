@@ -78,7 +78,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("POST /api/admin/announcements proxy error:", err);
     return NextResponse.json(
-      { error: "Gagal menyimpan announcement" },
+      { error: "Failed to save announcement" },
       { status: 500 }
     );
   }
@@ -118,6 +118,6 @@ export async function DELETE(request: Request) {
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
     console.error("DELETE /api/admin/announcements proxy error:", err);
-    return NextResponse.json({ error: "Gagal menghapus announcement" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to delete announcement" }, { status: 500 });
   }
 }

@@ -86,7 +86,7 @@ export function FileUploadZone({
         return;
       }
       if (file.size > maxBytes) {
-        toast.error(`Ukuran file maksimal ${maxSizeMb} MB.`);
+        toast.error(`Maximum file size is ${maxSizeMb} MB.`);
         return;
       }
       onChange(file);
@@ -129,6 +129,7 @@ export function FileUploadZone({
         type="file"
         accept={accept}
         onChange={handleInputChange}
+        disabled={disabled}
         className="hidden"
         aria-hidden
       />
@@ -145,7 +146,9 @@ export function FileUploadZone({
           }
         }}
         className={cn(
-          "min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] w-full border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center cursor-pointer transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2",
+          "min-h-[240px] sm:min-h-[280px] lg:min-h-[300px] w-full border-4 border-dashed border-navy rounded-[20px] flex flex-col gap-2 sm:gap-3 justify-center items-center transition-colors focus:outline-none focus:ring-2 focus:ring-navy focus:ring-offset-2",
+          !disabled && "cursor-pointer hover:bg-white/10",
+          disabled && "cursor-not-allowed opacity-75",
           value && "border-green-600 bg-green-50/50",
           isUploadedMode && "border-blue-500 bg-blue-50/30",
           zoneClassName
@@ -186,7 +189,7 @@ export function FileUploadZone({
               {uploadedFileName ?? "Uploaded"}
             </span>
             <span className="text-xs text-blue-700 font-medium bg-blue-100 px-2 py-0.5 rounded-full">
-              ✓ Sudah diupload
+              ✓ Uploaded
             </span>
             <div className="flex flex-wrap gap-2 justify-center mt-1">
               <Button
@@ -203,7 +206,7 @@ export function FileUploadZone({
                       const url = await fetchSignedUrl();
                       window.open(url, "_blank", "noopener,noreferrer");
                     } catch {
-                      toast.error("Gagal membuka preview. Coba lagi.");
+                      toast.error("Failed to open preview. Please try again.");
                     } finally {
                       setFetchingPreview(false);
                     }
@@ -219,19 +222,21 @@ export function FileUploadZone({
                 )}
                 Preview
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                size="md"
-                className="!border-2 !border-blue-600 !bg-blue-50 !text-blue-800 hover:!bg-blue-100 focus-visible:!ring-blue-500"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  inputRef.current?.click();
-                }}
-              >
-                Ganti
-              </Button>
-              {onClearUploaded && (
+              {!disabled && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="md"
+                  className="!border-2 !border-blue-600 !bg-blue-50 !text-blue-800 hover:!bg-blue-100 focus-visible:!ring-blue-500"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    inputRef.current?.click();
+                  }}
+                >
+                  Replace
+                </Button>
+              )}
+              {onClearUploaded && !disabled && (
                 <Button
                   type="button"
                   variant="outline"
@@ -242,7 +247,7 @@ export function FileUploadZone({
                     onClearUploaded();
                   }}
                 >
-                  Hapus
+                  Remove
                 </Button>
               )}
             </div>

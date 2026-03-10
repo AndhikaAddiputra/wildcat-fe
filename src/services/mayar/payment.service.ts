@@ -32,10 +32,10 @@ export async function createPaymentLink(params: CreatePaymentLinkParams): Promis
   });
   const data = await res.json().catch(() => ({})) as { link?: string; invoiceId?: string; transactionId?: string; expiredAt?: number; error?: string };
   if (!res.ok) {
-    throw new Error(data.error ?? "Gagal membuat link pembayaran");
+    throw new Error(data.error ?? "Failed to create payment link");
   }
   if (!data.link) {
-    throw new Error("Response tidak berisi link pembayaran");
+    throw new Error("Response does not contain payment link");
   }
   return {
     link: data.link,

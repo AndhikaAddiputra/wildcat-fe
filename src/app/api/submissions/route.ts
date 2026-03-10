@@ -106,6 +106,6 @@ export async function POST(request: Request) {
     return NextResponse.json(normalized, { status: res.status });
   } catch (err) {
     console.error("POST /api/submissions proxy error:", err);
-    return NextResponse.json({ error: "Gagal menghubungi server" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to reach server" }, { status: 500 });
   }
 }
