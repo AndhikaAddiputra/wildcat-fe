@@ -26,7 +26,7 @@ interface MayarWebhookPayload {
   "event.received"?: string;
   data?: {
     id?: string;
-    status?: boolean;
+    status?: boolean | string;
     amount?: number;
     extraData?: { teamId?: string };
     teamId?: string;

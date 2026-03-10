@@ -274,9 +274,9 @@ export default function AdminStatisticsPage() {
 
             {/* List Kompetisi */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {safeCompetitions.length > 0 ? safeCompetitions.map((comp: any, idx: number) => (
+              {safeCompetitions.length > 0 ? safeCompetitions.map((comp: { competitionName?: string; teamCount?: number }, idx: number) => (
                 <div key={idx} className="bg-[#3c3c9c] p-6 rounded-2xl border border-white/10 text-center">
-                  <p className="text-[#F6911E] text-md font-bold mb-3 uppercase">{getShortCompetitionName(comp.competitionName)}</p>
+                  <p className="text-[#F6911E] text-md font-bold mb-3 uppercase">{getShortCompetitionName(comp.competitionName ?? "")}</p>
                   <p className="text-6xl font-black text-[#F6911E] mb-3">{comp.teamCount || 0}</p>
                   <p className="text-[#F6911e] text-sm">Team Registered</p>
                 </div>
@@ -287,7 +287,7 @@ export default function AdminStatisticsPage() {
 
             {/* List Events */}
             <div className="space-y-4 mb-10">
-              {safeEvents.length > 0 ? safeEvents.map((event: any, idx: number) => (
+              {safeEvents.length > 0 ? safeEvents.map((event: { name?: string; registeredCount?: number; attendedCount?: number; id?: string }, idx: number) => (
                 <div key={idx} className="bg-[#3c3c93] p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between border border-white/5">
                   <div className="w-full md:w-auto mb-4 md:mb-0">
                     <p className="text-[#F6911E] font-bold text-md">{event.name}</p>
@@ -309,7 +309,7 @@ export default function AdminStatisticsPage() {
                       
                       {/* 🌟 TOMBOL UNTUK MEMBUKA MODAL */}
                       <Button 
-                        onClick={() => openEditModal(event.id, event.name, event.attendedCount || 0)}
+                        onClick={() => openEditModal(event.id ?? "", event.name ?? "", event.attendedCount || 0)}
                         variant="outline" 
                         className="ml-6 border-2 !border-[#F6911E] !text-[#F6911E] min-w-[100px] hover:bg-[#F6911E] hover:!text-white transition-colors"
                       >

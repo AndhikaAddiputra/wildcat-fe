@@ -58,7 +58,7 @@ export async function POST(request: Request) {
     if (!response.ok) {
       console.log(`❌ [RESPONSE NOT OK] Melempar error ke frontend...`);
       return NextResponse.json(
-        { success: false, error: data.message || textResponse || "Unknown Error" }, 
+        { success: false, error: (data as { message?: string }).message || textResponse || "Unknown Error" }, 
         { status: response.status }
       );
     }
