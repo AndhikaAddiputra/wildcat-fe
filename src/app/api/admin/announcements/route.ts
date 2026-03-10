@@ -76,7 +76,7 @@ export async function PUT(request: Request) {
     }
 
     console.log("[api/admin/announcements] response", JSON.stringify({
-      method,
+      method: "PUT",
       url,
       requestBody: { title, content, targetAudience, attachmentUrl, id },
       responseStatus: res.status,
