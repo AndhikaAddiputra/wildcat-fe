@@ -274,7 +274,7 @@ export default function AdminStatisticsPage() {
 
             {/* List Kompetisi */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {safeCompetitions.length > 0 ? safeCompetitions.map((comp, idx) => (
+              {safeCompetitions.length > 0 ? safeCompetitions.map((comp: any, idx: number) => (
                 <div key={idx} className="bg-[#3c3c9c] p-6 rounded-2xl border border-white/10 text-center">
                   <p className="text-[#F6911E] text-md font-bold mb-3 uppercase">{getShortCompetitionName(comp.competitionName)}</p>
                   <p className="text-6xl font-black text-[#F6911E] mb-3">{comp.teamCount || 0}</p>
