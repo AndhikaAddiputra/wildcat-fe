@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     const file = formData.get("file");
     const presignedUrl = formData.get("presignedUrl");
     const contentType = (formData.get("contentType") as string) || "application/octet-stream";
+    const source = formData.get("source") as string | null;
 
     if (!file || typeof file === "string") {
       return NextResponse.json(
@@ -34,6 +35,11 @@ export async function POST(request: Request) {
       );
     }
 
+    if (source === "payment_proof") {
+      const fileInfo = file instanceof File ? { name: file.name, size: file.size, type: file.type } : "blob";
+      console.log("[api/upload/put][payment-proof] request — uploading payment proof", fileInfo);
+    }
+
     const blob = file instanceof Blob ? file : await (file as File).arrayBuffer();
     const body = blob instanceof ArrayBuffer ? new Uint8Array(blob) : blob;
 
@@ -45,15 +51,17 @@ export async function POST(request: Request) {
     });
 
     const storageHost = new URL(presignedUrl).host;
-    console.log("[api/upload/put] response", {
+    const logPrefix = source === "payment_proof" ? "[api/upload/put][payment-proof]" : "[api/upload/put]";
+    console.log(`${logPrefix} response`, {
       status: putRes.status,
       ok: putRes.ok,
       storageHost,
+      ...(source === "payment_proof" && { source: "payment_proof" }),
     });
 
     if (!putRes.ok) {
       const text = await putRes.text();
-      console.error("[api/upload/put] storage error", putRes.status, text);
+      console.error(`${logPrefix} storage error`, putRes.status, text);
 
       // Parse S3/R2 XML error (NoSuchBucket, AccessDenied, dll.)
       let message = `Upload to storage failed: ${putRes.status}`;
