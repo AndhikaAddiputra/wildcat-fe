@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { toast } from "sonner";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -342,4 +342,10 @@ const RegisterPage = () => {
   );
 };
 
-export default RegisterPage;
+export default function RegisterPageWrapper() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gradient-to-b from-[#3C3C9C] to-[#96A0D2] flex items-center justify-center"><div className="text-[#F1E1B4]">Loading...</div></div>}>
+      <RegisterPage />
+    </Suspense>
+  );
+}
