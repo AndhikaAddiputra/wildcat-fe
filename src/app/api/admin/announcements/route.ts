@@ -1,123 +1,130 @@
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+// 🌟 TAMBAHKAN DUA BARIS IMPORT INI:
 import { NextResponse } from "next/server";
 import { getSupabaseServer } from "@/lib/supabase/server";
-import { getBackendUrl } from "@/lib/api/backend";
-import { ANNOUNCEMENT_AUDIENCE } from "@/lib/constants/announcement-audience";
-import type { AnnouncementUpsertBody } from "@/lib/api/types";
 
-const VALID_AUDIENCES = new Set(Object.values(ANNOUNCEMENT_AUDIENCE));
-
-/**
- * POST /api/admin/announcements
- * Proxy ke backend: POST $API_URL/api/admin/announcements
- * Body: { title, content, targetAudience, attachmentUrl? }
- * targetAudience harus salah satu dari ANNOUNCEMENT_AUDIENCE enum.
- */
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
     const supabase = await getSupabaseServer();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const token = session?.access_token;
-
-    if (!token) {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const body = (await request.json()) as Partial<AnnouncementUpsertBody>;
-    const { title, content, targetAudience, attachmentUrl, id } = body;
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3030";
+    // 🌟 SEKARANG KITA TEMBAK ENDPOINT KHUSUS ADMIN
+    const url = `${backendUrl}/api/admin/announcements`;
 
-    if (!title || !content || !targetAudience) {
-      return NextResponse.json(
-        { error: "title, content, targetAudience are required" },
-        { status: 400 }
-      );
-    }
-
-    if (!VALID_AUDIENCES.has(targetAudience as (typeof ANNOUNCEMENT_AUDIENCE)[keyof typeof ANNOUNCEMENT_AUDIENCE])) {
-      return NextResponse.json(
-        {
-          error: `targetAudience must be one of: ${[...VALID_AUDIENCES].join(", ")}`,
-        },
-        { status: 400 }
-      );
-    }
-
-    const base = getBackendUrl();
-    // PUT jika ada id (update), POST jika baru (create)
-    const method = id ? "PUT" : "POST";
-    const url = id
-      ? `${base}/api/admin/announcements/${id}`
-      : `${base}/api/admin/announcements`;
-
-    const res = await fetch(url, {
-      method,
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        title,
-        content,
-        targetAudience,
-        ...(attachmentUrl ? { attachmentUrl } : {}),
-      }),
+    const res = await fetch(url, { 
+      headers: { Authorization: `Bearer ${session.access_token}` } 
     });
-
-    const data = await res.json().catch(() => ({}));
-
-    console.log("[api/admin/announcements] response", JSON.stringify({
-      method,
-      url,
-      requestBody: { title, content, targetAudience, attachmentUrl, id },
-      responseStatus: res.status,
-      responseData: data,
-    }, null, 2));
-
+    
+    const data = await res.json();
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
-    console.error("POST /api/admin/announcements proxy error:", err);
+    console.error("GET /api/admin/announcements proxy error:", err);
     return NextResponse.json(
-      { error: "Gagal menyimpan announcement" },
+      { error: "Gagal mengambil data pengumuman" },
       { status: 500 }
     );
   }
 }
 
 /**
- * DELETE /api/admin/announcements?id=<uuid>
- * Proxy ke backend: DELETE $API_URL/api/admin/announcements/:id
+ * PUT /api/admin/announcements
+ * Proxy ke backend: PUT $API_URL/api/admin/announcements/:id
+ */
+export async function PUT(request: Request) {
+  try {
+    const supabase = await getSupabaseServer();
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { id, title, content, targetAudience, attachmentUrl, scheduledFor } = body;
+
+    // Pastikan ID ada sebelum mengedit
+    if (!id) {
+      return NextResponse.json({ error: "ID pengumuman tidak ditemukan" }, { status: 400 });
+    }
+
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3030";
+    // 🌟 TEMBAK KE URL SPESIFIK BESERTA ID-NYA
+    const url = `${backendUrl}/api/admin/announcements/${id}`;
+
+    const res = await fetch(url, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${session.access_token}`,
+      },
+      // Kirim datanya tanpa menyertakan id lagi di body (karena sudah ada di URL)
+      body: JSON.stringify({ title, content, targetAudience, attachmentUrl, scheduledFor }),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    
+    if (!res.ok) {
+      console.error("[Proxy PUT Error] Backend membalas:", data);
+      return NextResponse.json({ error: data.error || "Gagal mengedit pengumuman" }, { status: res.status });
+    }
+
+    return NextResponse.json({ success: true, data });
+  } catch (err: any) {
+    console.error("PUT /api/admin/announcements proxy error:", err);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
+
+/**
+ * DELETE /api/admin/announcements
+ * Proxy ke backend: DELETE $API_URL/api/admin/announcements/:announcementId
  */
 export async function DELETE(request: Request) {
   try {
     const supabase = await getSupabaseServer();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const token = session?.access_token;
-
-    if (!token) {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    // 🌟 Tangkap ID dari URL (misal: /api/admin/announcements?id=123-abc)
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
+
     if (!id) {
-      return NextResponse.json({ error: "id query parameter required" }, { status: 400 });
+      return NextResponse.json({ error: "ID pengumuman tidak ditemukan" }, { status: 400 });
     }
 
-    const base = getBackendUrl();
-    const url = `${base}/api/admin/announcements/${id}`;
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3030";
+    
+    // 🌟 Tembak backend Hono dengan ID di ujung URL
+    const url = `${backendUrl}/api/admin/announcements/${id}`;
 
     const res = await fetch(url, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${session.access_token}`,
+      },
     });
 
     const data = await res.json().catch(() => ({}));
-    return NextResponse.json(data, { status: res.status });
+    
+    if (!res.ok) {
+      console.error("[Proxy DELETE Error] Backend membalas:", data);
+      return NextResponse.json({ error: data.error || "Gagal menghapus pengumuman" }, { status: res.status });
+    }
+
+    return NextResponse.json({ success: true, message: data.message || "Pengumuman dihapus" });
   } catch (err) {
     console.error("DELETE /api/admin/announcements proxy error:", err);
-    return NextResponse.json({ error: "Gagal menghapus announcement" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
