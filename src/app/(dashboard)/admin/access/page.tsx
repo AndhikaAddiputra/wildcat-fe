@@ -292,7 +292,7 @@ export default function AccessControlPage() {
                           <td>{formatDate(team.createdAt)}</td>
                           <td className="font-semibold">{team.teamName}</td>
                           <td className="action">
-                            {team.status?.paymentStatus === 'Verified' ? <Badge variant="complete">Verified</Badge> 
+                            {team.status?.paymentStatus === 'Verified' ? <Badge variant="verified">Verified</Badge> 
                              : team.status?.paymentStatus === 'Rejected' ? <Badge variant="end">Rejected</Badge> 
                              : <Badge variant="pending">Pending</Badge>}
                           </td>
