@@ -287,7 +287,7 @@ export default function AdminStatisticsPage() {
 
             {/* List Events */}
             <div className="space-y-4 mb-10">
-              {safeEvents.length > 0 ? safeEvents.map((event, idx) => (
+              {safeEvents.length > 0 ? safeEvents.map((event: any, idx: number) => (
                 <div key={idx} className="bg-[#3c3c93] p-5 rounded-2xl flex flex-col md:flex-row items-center justify-between border border-white/5">
                   <div className="w-full md:w-auto mb-4 md:mb-0">
                     <p className="text-[#F6911E] font-bold text-md">{event.name}</p>
