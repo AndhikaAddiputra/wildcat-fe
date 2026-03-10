@@ -41,11 +41,12 @@ export async function GET() {
     }
 
     const data = await res.json().catch(() => ({}));
+    console.log("[GET /api/landing/team]", JSON.stringify(data, null, 2));
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
     console.error("GET /api/landing/team proxy error:", err);
     return NextResponse.json(
-      { error: "Gagal memuat data tim" },
+      { error: "Failed to load team data" },
       { status: 500 }
     );
   }

@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       typeof competitionId !== "string"
     ) {
       return NextResponse.json(
-        { error: "teamName, leaderFullName, university, major, dan competitionId wajib diisi." },
+        { error: "teamName, leaderFullName, university, major, and competitionId are required." },
         { status: 400 }
       );
     }
@@ -29,11 +29,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Registrasi berhasil diterima.",
+      message: "Registration received successfully.",
     });
   } catch {
     return NextResponse.json(
-      { error: "Registrasi gagal. Silakan coba lagi." },
+      { error: "Registration failed. Please try again." },
       { status: 500 }
     );
   }

@@ -13,6 +13,10 @@ export function normalizeTeamProfile(raw: Raw): TeamProfileResponse {
     const v = (raw[camel] as string | undefined) ?? (raw[snake] as string | undefined);
     return v === undefined || v === null ? undefined : v;
   };
+  const docStatus = getOpt("documentVerificationStatus", "document_verification_status");
+  const payStatus = getOpt("paymentVerificationStatus", "payment_verification_status");
+  const docRejectNotes = getOpt("documentRejectionNotes", "document_rejection_notes") ?? (getOpt("rejectionNotes", "rejection_notes") as string | undefined);
+
   return {
     teamId: get("teamId", "team_id") || (raw.id as string) || "unknown",
     teamName: get("teamName", "team_name") || "",
@@ -28,6 +32,9 @@ export function normalizeTeamProfile(raw: Raw): TeamProfileResponse {
     competitionId: getOpt("competitionId", "competition_id"),
     currentStageId: getOpt("currentStageId", "current_stage_id") ?? undefined,
     createdAt: getOpt("createdAt", "created_at"),
+    documentVerificationStatus: docStatus ?? undefined,
+    paymentVerificationStatus: payStatus ?? undefined,
+    documentRejectionNotes: docRejectNotes ?? undefined,
   };
 }
 

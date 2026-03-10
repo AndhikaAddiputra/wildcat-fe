@@ -7,7 +7,7 @@ import {
   Button,
   CardLarge,
 } from "@/components/ui";
-import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
+import { LOGO, COMMITTEE_NAV_LINKS, COMMITTEE_NAV_ACTION } from "@/config/navbar-config";
 import { Users, Download, Pencil } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
 
@@ -90,10 +90,10 @@ export default function AdminStatisticsPage() {
         body: JSON.stringify({ eventId, attendedCount }),
       });
       if (res.ok) {
-        alert("Data presensi berhasil diperbarui!");
+        alert("Attendance data updated successfully!");
         loadData();
       } else {
-        alert("Gagal memperbarui data presensiaa.");
+        alert("Failed to update attendance data.");
       }
     } catch (error) {
       console.error("Error updating attendance:", error);
@@ -116,7 +116,7 @@ export default function AdminStatisticsPage() {
       a.remove();
     } catch (error) {
       console.error("Export error:", error);
-      alert("Gagal mengexport data. Pastikan API tersedia.");
+      alert("Failed to export data. Ensure API is available.");
     }
   };
 
@@ -184,7 +184,7 @@ export default function AdminStatisticsPage() {
     <div className="min-h-screen w-full font-['Poppins']">
       <div className="relative min-h-screen bg-[#0A2D6E]">
         <div className="absolute inset-0 z-0 opacity-40" style={{ backgroundImage: "url('/background-home.svg')", backgroundSize: "cover", backgroundPosition: "center" }} />
-        <Navbar logo={LOGO} links={ADMIN_NAV_LINKS} activeLink="/admin/home" action={ADMIN_NAV_ACTION} mobileAction={ADMIN_NAV_ACTION} />
+        <Navbar logo={LOGO} links={COMMITTEE_NAV_LINKS} activeLink="/committee/home" action={COMMITTEE_NAV_ACTION} mobileAction={COMMITTEE_NAV_ACTION} />
 
         <main className="relative z-10 mx-auto max-w-6xl px-6 pt-32 pb-20">
           <section className="mb-10">
@@ -296,7 +296,7 @@ export default function AdminStatisticsPage() {
                   <p className="text-[#F6911e] text-sm">Team Registered</p>
                 </div>
               )) : (
-                <p className="text-white col-span-4 text-center py-4">Tidak ada data kompetisi.</p>
+                <p className="text-white col-span-4 text-center py-4">No competition data.</p>
               )}
             </div>
 
@@ -332,7 +332,7 @@ export default function AdminStatisticsPage() {
                   </div>
                 </div>
               )) : (
-                 <p className="text-white text-center py-4">Tidak ada data event.</p>
+                 <p className="text-white text-center py-4">No event data.</p>
               )}
             </div>
 

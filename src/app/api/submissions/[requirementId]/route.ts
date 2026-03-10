@@ -45,6 +45,6 @@ export async function GET(
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
     console.error("GET /api/submissions/[requirementId] proxy error:", err);
-    return NextResponse.json({ error: "Gagal menghubungi server" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to reach server" }, { status: 500 });
   }
 }

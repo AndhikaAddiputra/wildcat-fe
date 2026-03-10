@@ -6,7 +6,7 @@ import { normalizeTeamProfile } from "@/lib/api/normalize";
 import type { TeamProfileResponse, RegisterCompleteBody } from "@/lib/api/types";
 
 const DB_ERROR_MESSAGE =
-  "Koneksi database sibuk. Silakan muat ulang halaman atau coba lagi.";
+  "Database connection busy. Please reload the page or try again.";
 
 function isDbQueryError(message: string): boolean {
   return /Failed query|ECONNREFUSED|connection|timeout/i.test(message);
@@ -38,7 +38,7 @@ export function useTeamProfile() {
         }
         if (!res.ok) {
           const text = await res.text();
-          let errMsg = text || "Gagal memuat data tim";
+          let errMsg = text || "Failed to load team data";
           try {
             const parsed = JSON.parse(text) as { error?: string };
             if (parsed?.error) errMsg = parsed.error;
@@ -60,7 +60,7 @@ export function useTeamProfile() {
         setLoading(false);
         return;
       } catch (e) {
-        lastError = e instanceof Error ? e : new Error("Gagal memuat data tim");
+        lastError = e instanceof Error ? e : new Error("Failed to load team data");
         if (attempt < maxAttempts && isDbQueryError(lastError.message)) {
           await new Promise((r) => setTimeout(r, 500));
           continue;
@@ -126,7 +126,7 @@ export function useTeamProfile() {
         });
 
         const errData = await res.json().catch(() => ({}));
-        const errMsg = (errData as { error?: string }).error || "Gagal menyimpan";
+        const errMsg = (errData as { error?: string }).error || "Failed to save";
 
         if (res.ok) {
           const result = errData as { teamId: string; created: boolean };
@@ -142,7 +142,7 @@ export function useTeamProfile() {
         throw lastError;
       }
 
-      throw lastError ?? new Error("Gagal menyimpan");
+      throw lastError ?? new Error("Failed to save");
     },
     [data, refetch]
   );

@@ -57,7 +57,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col text-white">
-      <div className="relative min-h-screen flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
+      <div className="relative flex-1 bg-[url(/background-hero-still.svg)] bg-cover">
         <Navbar
         logo={LOGO}
         links={ADMIN_NAV_LINKS}

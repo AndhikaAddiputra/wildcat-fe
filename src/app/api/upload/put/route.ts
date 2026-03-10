@@ -75,7 +75,7 @@ export async function POST(request: Request) {
   } catch (err) {
     console.error("POST /api/upload/put error:", err);
     return NextResponse.json(
-      { error: "Gagal mengunggah file ke storage" },
+      { error: "Failed to upload file to storage" },
       { status: 500 }
     );
   }

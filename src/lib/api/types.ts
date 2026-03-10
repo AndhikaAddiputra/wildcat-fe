@@ -21,6 +21,9 @@ export interface CheckRegistrationResponse {
   leader_name?: string;
   lead_name?: string;
   leadName?: string;
+  /** Catatan penolakan dokumen dari committee */
+  documentRejectionNotes?: string | null;
+  document_rejection_notes?: string | null;
 }
 
 // ==========================================
@@ -43,6 +46,12 @@ export interface TeamProfileResponse {
   competitionId?: string;
   currentStageId?: string | null;
   createdAt?: string;
+  /** "Pending" | "Verified" | "Rejected" — untuk progress bar */
+  documentVerificationStatus?: string;
+  /** "Pending" | "Verified" | "Rejected" — untuk progress bar */
+  paymentVerificationStatus?: string;
+  /** Catatan penolakan dokumen dari committee (saat documentVerificationStatus = Rejected) */
+  documentRejectionNotes?: string | null;
 }
 
 /** Body untuk POST /api/landing/register/complete */

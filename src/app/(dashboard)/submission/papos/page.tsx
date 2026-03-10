@@ -37,7 +37,7 @@ export default function PaposSubmissionPage() {
     });
     const data = await res.json();
     if (!res.ok || !data?.data?.signedUrl) {
-      throw new Error(data?.error ?? "Gagal mendapatkan URL preview");
+      throw new Error(data?.error ?? "Failed to get preview URL");
     }
     return data.data.signedUrl as string;
   };
@@ -49,7 +49,7 @@ export default function PaposSubmissionPage() {
 
   const submitPreliminary = async () => {
     if (!extendedAbstract) {
-      toast.error("Silakan pilih file Extended Abstract.");
+      toast.error("Please select Extended Abstract file.");
       return;
     }
     setSubmitting(true);
@@ -57,9 +57,9 @@ export default function PaposSubmissionPage() {
       const { filePath } = await submitFile(teamId, SUBMISSION_REQUIREMENTS.EXTENDED_ABSTRACT, extendedAbstract);
       saveFile(SUBMISSION_REQUIREMENTS.EXTENDED_ABSTRACT, extendedAbstract.name, filePath);
       setExtendedAbstract(null);
-      toast.success("Preliminary stage berhasil dikirim.");
+      toast.success("Preliminary stage sent successfully.");
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
@@ -67,7 +67,7 @@ export default function PaposSubmissionPage() {
 
   const submitFinal = async () => {
     if (!fullPaper || !poster) {
-      toast.error("Silakan pilih file Full Paper dan Poster.");
+      toast.error("Please select Full Paper and Poster files.");
       return;
     }
     setSubmitting(true);
@@ -84,12 +84,12 @@ export default function PaposSubmissionPage() {
       if (succeeded.find((r) => r.requirementId === SUBMISSION_REQUIREMENTS.FULL_PAPER)) setFullPaper(null);
       if (succeeded.find((r) => r.requirementId === SUBMISSION_REQUIREMENTS.POSTER)) setPoster(null);
       if (failed.length === 0) {
-        toast.success("Final stage berhasil dikirim.");
+        toast.success("Final stage sent successfully.");
       } else {
-        failed.forEach((r) => toast.error(`${r.fileName}: ${r.error ?? "Gagal diupload"}`));
+        failed.forEach((r) => toast.error(`${r.fileName}: ${r.error ?? "Upload failed"}`));
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Gagal mengirim. Silakan coba lagi.");
+      toast.error(e instanceof Error ? e.message : "Failed to submit. Please try again.");
     } finally {
       setSubmitting(false);
     }
