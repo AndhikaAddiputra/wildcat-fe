@@ -44,10 +44,10 @@ export default function SubmissionIndexPage() {
     <div className="min-h-screen bg-[url(/background-hero-still.svg)] bg-cover text-white flex items-center justify-center">
       <div className="text-center space-y-3">
         <p className="text-xl font-semibold text-[#F1E1B4]">
-          Kompetisi kamu belum terdeteksi.
+          Your competition has not been detected.
         </p>
         <p className="text-white/70 text-sm">
-          Pastikan kamu sudah melengkapi data tim di halaman Teams.
+          Make sure you have completed your team data on the Teams page.
         </p>
       </div>
     </div>

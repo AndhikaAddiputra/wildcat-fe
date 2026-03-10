@@ -99,8 +99,8 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         error: isTimeout
-          ? "Backend tidak merespons dalam waktu yang ditentukan. Cek koneksi ke backend atau BACKEND_URL."
-          : "Gagal mengonfirmasi upload",
+          ? "Backend did not respond in time. Check connection to backend or BACKEND_URL."
+          : "Failed to confirm upload",
       },
       { status: 500 }
     );

@@ -25,14 +25,14 @@ export function useEvents() {
         return;
       }
       if (!res.ok) {
-        throw new Error("Gagal memuat events");
+        throw new Error("Failed to load events");
       }
       const json = await res.json();
       const list = Array.isArray(json) ? json : (json.events ?? json.data ?? []);
       setData(list.map((raw: Record<string, unknown>) => normalizeEvent(raw)));
     } catch {
       setData([]);
-      setError("Gagal memuat events");
+      setError("Failed to load events");
     } finally {
       setLoading(false);
     }

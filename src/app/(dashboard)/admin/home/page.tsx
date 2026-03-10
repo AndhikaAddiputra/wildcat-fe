@@ -90,10 +90,10 @@ export default function AdminStatisticsPage() {
         body: JSON.stringify({ eventId, attendedCount }),
       });
       if (res.ok) {
-        alert("Data presensi berhasil diperbarui!");
+        alert("Attendance data updated successfully!");
         loadData();
       } else {
-        alert("Gagal memperbarui data presensi.");
+        alert("Failed to update attendance data.");
       }
     } catch (error) {
       console.error("Error updating attendance:", error);
@@ -116,7 +116,7 @@ export default function AdminStatisticsPage() {
       a.remove();
     } catch (error) {
       console.error("Export error:", error);
-      alert("Gagal mengexport data. Pastikan API tersedia.");
+      alert("Failed to export data. Ensure API is available.");
     }
   };
 
@@ -296,7 +296,7 @@ export default function AdminStatisticsPage() {
                   <p className="text-[#F6911e] text-sm">Team Registered</p>
                 </div>
               )) : (
-                <p className="text-white col-span-4 text-center py-4">Tidak ada data kompetisi.</p>
+                <p className="text-white col-span-4 text-center py-4">No competition data.</p>
               )}
             </div>
 
@@ -332,7 +332,7 @@ export default function AdminStatisticsPage() {
                   </div>
                 </div>
               )) : (
-                 <p className="text-white text-center py-4">Tidak ada data event.</p>
+                 <p className="text-white text-center py-4">No event data.</p>
               )}
             </div>
 

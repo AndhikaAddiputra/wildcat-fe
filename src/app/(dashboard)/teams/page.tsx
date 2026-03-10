@@ -56,9 +56,9 @@ export default function Teams() {
         m2Name: form.m2Name,
         m2Major: form.m2Major,
       });
-      toast.success("Data tim berhasil disimpan.");
+      toast.success("Team data saved successfully.");
     } catch (e) {
-      const msg = e instanceof Error ? e.message : "Gagal menyimpan";
+      const msg = e instanceof Error ? e.message : "Failed to save";
       setSaveError(msg);
       toast.error(msg);
     } finally {
@@ -101,7 +101,7 @@ export default function Teams() {
           )}
           {loading ? (
             <CardLarge className="w-full max-w-full p-10 flex items-center justify-center">
-              <InlineLoader text="Memuat data tim..." size="md" />
+              <InlineLoader text="Loading team data..." size="md" />
             </CardLarge>
           ) : (
           <CardLarge className="w-full max-w-full">
@@ -223,7 +223,7 @@ export default function Teams() {
                 onClick={handleSave}
                 disabled={saving}
               >
-                {saving ? <><Spinner size="xs" /> Menyimpan...</> : "Save Changes"}
+                {saving ? <><Spinner size="xs" /> Saving...</> : "Save Changes"}
               </Button>
             </CardFooter>
           </CardLarge>

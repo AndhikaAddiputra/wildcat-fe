@@ -18,6 +18,7 @@ import { Download } from "lucide-react";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useAnnouncements } from "@/hooks/useAnnouncements";
+import { deriveTeamStatusFromVerification } from "@/lib/constants/team-status";
 import type { TeamStatus } from "@/lib/constants/team-status";
 
 export default function ParticipantHomePage() {
@@ -29,7 +30,13 @@ export default function ParticipantHomePage() {
   const teamName = dashboardData?.teamName ?? teamProfile?.teamName ?? null;
   const namesLoading = dashboardLoading || teamProfileLoading;
 
-  const regStatus: TeamStatus = dashboardData?.status ?? "Registered";
+  const regStatus: TeamStatus =
+    dashboardData?.status ??
+    deriveTeamStatusFromVerification(
+      teamProfile?.documentVerificationStatus,
+      teamProfile?.paymentVerificationStatus
+    ) ??
+    "Registered";
 
   const myCompetitionId: GuidebookCompetitionId =
     competitionUuidToId(teamProfile?.competitionId) ?? "paper-poster";
@@ -227,12 +234,12 @@ export default function ParticipantHomePage() {
             </div>
             <div className="flex flex-col min-h-[100px] px-6 py-5">
               {announcementsLoading ? (
-                <InlineLoader text="Memuat pengumuman..." className="text-[#0A2D6E] py-4" />
+                <InlineLoader text="Loading announcements..." className="text-[#0A2D6E] py-4" />
               ) : error ? (
                 <div className="flex flex-col items-center gap-2 py-4">
                   <p className="text-[#0A2D6E] font-semibold text-red-700">
                     {error.includes("Internal Server Error") || error.startsWith("{")
-                      ? "Pengumuman sementara tidak dapat dimuat. Silakan coba lagi."
+                      ? "Announcements temporarily unavailable. Please try again."
                       : error}
                   </p>
                   <button
@@ -240,7 +247,7 @@ export default function ParticipantHomePage() {
                     onClick={() => refetchAnnouncements()}
                     className="text-sm font-medium text-[#0A2D6E] underline hover:no-underline"
                   >
-                    Coba lagi
+                    Try again
                   </button>
                 </div>
               ) : announcements.length === 0 ? (
@@ -259,7 +266,10 @@ export default function ParticipantHomePage() {
                       )}
                       <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
                         {a.createdAt && (
-                          <span className="text-xs font-medium text-[#0A2D6E]/70">
+                          <span
+                            className="text-xs font-medium text-[#0A2D6E]/70"
+                            suppressHydrationWarning
+                          >
                             {new Date(a.createdAt).toLocaleDateString("en-GB", {
                               day: "numeric",
                               month: "short",
@@ -274,7 +284,7 @@ export default function ParticipantHomePage() {
                             rel="noopener noreferrer"
                             className="text-xs font-semibold text-[#F6911E] hover:underline"
                           >
-                            Lihat lampiran →
+                            View attachment →
                           </a>
                         )}
                       </div>

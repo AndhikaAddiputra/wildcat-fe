@@ -40,11 +40,12 @@ export async function GET() {
     }
 
     const data = await res.json().catch(() => ({ registered: false }));
+    console.log("[GET /api/landing/check-registration]", JSON.stringify(data, null, 2));
     return NextResponse.json(data, { status: res.status });
   } catch (err) {
     console.error("GET /api/landing/check-registration proxy error:", err);
     return NextResponse.json(
-      { registered: false, error: "Gagal mengecek registrasi" },
+      { registered: false, error: "Failed to check registration" },
       { status: 200 }
     );
   }
