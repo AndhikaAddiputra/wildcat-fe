@@ -1,0 +1,74 @@
+/**
+ * Contact person config untuk FAB di halaman dashboard.
+ * LINE ID format: tanpa @ untuk URL (line.me/ti/p/~{id})
+ */
+
+export interface ContactPerson {
+  id: string;
+  name: string;
+  lineId: string;
+  /** URL LINE (line.me/ti/p/~{lineId}) */
+  lineUrl?: string;
+}
+
+export interface ContactGroup {
+  label: string;
+  contacts: ContactPerson[];
+}
+
+export const CONTACT_GROUPS: Record<string, ContactGroup> = {
+  "admin-it": {
+    label: "Admin IT",
+    contacts: [
+      { id: "kuewaffle", name: "Andhika", lineId: "kuewaffle" },
+      { id: "atharizza535", name: "Atharizza", lineId: "atharizza535" },
+    ],
+  },
+  "admin-papos": {
+    label: "Admin Competition Paper & Poster",
+    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+  },
+  "admin-gng": {
+    label: "Admin Competition GnG Case Study",
+    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+  },
+  "admin-bcc": {
+    label: "Admin Competition BCC",
+    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+  },
+  "admin-essay": {
+    label: "Admin Competition Essay",
+    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+  },
+  "admin-event": {
+    label: "Admin Event",
+    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+  },
+};
+
+/** Path prefix → contact group key (lebih spesifik didahulukan) */
+export const PATH_TO_CONTACT: Record<string, string> = {
+  "/submission/papos": "admin-papos",
+  "/submission/gng": "admin-gng",
+  "/submission/bcc": "admin-bcc",
+  "/submission/essay": "admin-essay",
+  "/events": "admin-event",
+  "/home": "admin-it",
+  "/teams": "admin-it",
+  "/administration": "admin-it",
+  "/submission": "admin-it",
+};
+
+export function getContactGroupForPath(pathname: string): ContactGroup | null {
+  for (const [prefix, key] of Object.entries(PATH_TO_CONTACT)) {
+    if (pathname === prefix || pathname.startsWith(prefix + "/")) {
+      return CONTACT_GROUPS[key] ?? null;
+    }
+  }
+  return null;
+}
+
+export function buildLineUrl(lineId: string): string {
+  if (!lineId || lineId === "tba") return "#";
+  return `https://line.me/ti/p/~${lineId}`;
+}
