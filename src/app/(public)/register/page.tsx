@@ -158,8 +158,7 @@ const RegisterPage = () => {
         </div>
 
         {/* Kolom Kanan: Form Box */}
-        <div className="w-full max-w-[592px] h-[613px] bg-[#0A2D6E] rounded-[20px] p-[40px] shadow-[0_0_40px_10px_rgba(246,145,30,0.5)] flex flex-col items-center relative overflow-y-auto">
-          <h2 
+        <div className="w-full max-w-[592px] h-auto min-h-[450px] md:h-[613px] bg-[#0A2D6E] rounded-[20px] p-8 sm:p-[40px] shadow-[0_0_40px_10px_rgba(246,145,30,0.5)] flex flex-col items-center relative overflow-y-auto"><h2 
             className="text-[36px] font-semibold text-[#F6911E]"
             style={{ fontFamily: "'Poppins', sans-serif" }}
           >
@@ -270,8 +269,8 @@ const RegisterPage = () => {
           
           {/* === STEP 3: CHOOSE COMPETITION === */}
           {step === 3 && (
-            <div className="w-full max-w-[484px] flex-1 flex flex-col pt-[15px] pb-0 items-center">
-              <div className="grid grid-cols-2 gap-x-[25px] gap-y-[16px] mb-4 mx-auto w-fit">
+            <div className="w-full max-w-[420px] flex-1 flex flex-col pt-[10px] items-center px-2">
+              <div className="grid grid-cols-2 gap-3 sm:gap-x-[0px] sm:gap-y-[16px] mb-4 mx-auto w-full justify-items-center">
                 {[
                   { 
                     name: "Paper & Poster", 
@@ -286,6 +285,7 @@ const RegisterPage = () => {
                   { 
                     name: "GnG Case Study", 
                     id: "a1baa39c-5806-42c5-8762-23613344f6fe", // ID Real dari DB
+                    // TIPS: Lebih aman jika nama file di folder public diubah menjadi tanpa spasi, misal "GnG_Case_Study.png"
                     imageUrl: "/GnG%20Case%20Study.png" 
                   },
                   { 
@@ -297,19 +297,18 @@ const RegisterPage = () => {
                   <div 
                     key={id} 
                     onClick={() => setSelectedComp(id)}
-                    className={`w-[179px] h-[179px] bg-white/10 backdrop-blur-md border-[3px] border-[#F6911E] rounded-[20px] flex flex-col items-center justify-center gap-3 cursor-pointer transition-all overflow-hidden
+                    className={`w-full max-w-[145px] sm:max-w-none sm:w-[179px] aspect-square sm:aspect-auto sm:h-[179px] bg-white/10 backdrop-blur-md border-[3px] border-[#F6911E] rounded-[20px] flex flex-col items-center justify-center gap-2 sm:gap-3 cursor-pointer transition-all overflow-hidden
                       ${selectedComp === id ? '!bg-[#F6911E] scale-[1.02] shadow-[0_0_15px_rgba(246,145,30,0.3)]' : 'hover:bg-white/20'}`}
                   >
-                    <div className="relative w-[80px] h-[80px] shrink-0">
-                      <Image
+                    <div className="relative w-[50px] sm:w-[80px] h-[50px] sm:h-[80px] shrink-0 flex items-center justify-center">
+                      <img
                         src={imageUrl}
                         alt={name}
-                        fill
-                        className="object-contain"
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
                     <span 
-                      className={`text-[16px] font-medium text-center px-2 leading-tight ${selectedComp === id ? 'text-[#0A2D6E]' : 'text-[#F1E1B4]'}`}
+                      className={`text-[13px] sm:text-[16px] font-medium text-center px-2 leading-tight ${selectedComp === id ? 'text-[#0A2D6E]' : 'text-[#F1E1B4]'}`}
                       style={{ fontFamily: "'Poppins', sans-serif" }}
                     >
                       {name}
@@ -326,7 +325,7 @@ const RegisterPage = () => {
               <button
                 onClick={handleSubmitRegistration}
                 disabled={!selectedComp || isLoading}
-                className={`w-full max-w-[484px] h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[20px] rounded-[15px] mt-auto transition-all 
+                className={`w-full max-w-[484px] h-[60px] sm:h-[70px] bg-[#F6911E] text-[#0A2D6E] font-bold text-[18px] sm:text-[20px] rounded-[15px] mt-4 sm:mt-auto transition-all 
                   ${selectedComp && !isLoading
                     ? 'shadow-[0px_4px_10px_rgba(0,0,0,0.25)] hover:opacity-90' 
                     : 'opacity-50 cursor-not-allowed shadow-none'}`}
