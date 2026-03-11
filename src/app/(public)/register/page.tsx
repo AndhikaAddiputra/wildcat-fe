@@ -100,15 +100,16 @@ const RegisterPage = () => {
         leadMajor
       };
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8787';
+      // Gunakan proxy same-origin untuk menghindari CORS dan "Load failed"
       const doRequest = () =>
-        fetch(`${backendUrl}/api/landing/register/step1`, {
+        fetch('/api/landing/register/step1', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
           },
-          body: JSON.stringify(payload)
+          body: JSON.stringify(payload),
+          credentials: 'include'
         });
 
       let response = await doRequest();
