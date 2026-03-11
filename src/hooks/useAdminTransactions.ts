@@ -27,40 +27,71 @@ function pick(obj: Record<string, unknown> | null | undefined, ...keys: string[]
 }
 
 function normalizeTransaction(raw: Record<string, unknown>): AdminTransaction {
+  // Extract objek utama (berjaga-jaga jika di-wrap dengan 'data', 'transaction', atau 'payment')
   const d = raw?.data ?? raw;
   const inner = (typeof d === "object" && d !== null ? d : raw) as Record<string, unknown>;
-  const team = (inner?.team ?? raw?.team) as Record<string, unknown> | null | undefined;
+  const tx = (inner?.transaction ?? inner?.payment ?? inner) as Record<string, unknown>;
+
+  // Extract relasi team (mengenali 'team' maupun 'teams')
+  const team = (tx?.team ?? tx?.teams ?? tx?.Team ?? inner?.team ?? inner?.teams) as Record<string, unknown> | null | undefined;
+  
+  // Extract relasi kompetisi (mengenali 'competition' maupun 'competitions')
+  const comp = (team?.competition ?? team?.competitions ?? tx?.competition ?? inner?.competition) as Record<string, unknown> | null | undefined;
 
   const teamName =
-    (pick(inner, "teamName", "team_name", "name") as string) ??
-    (pick(raw, "teamName", "team_name") as string) ??
+    (pick(inner, "teamName", "team_name") as string) ??
+    (pick(tx, "teamName", "team_name") as string) ??
     (pick(team, "name", "teamName", "team_name") as string) ??
-    "";
+    "Unknown Team";
 
   const competition =
-    (pick(inner, "competitionName", "competition", "competition_name", "category") as string) ??
-    (pick(raw, "competitionName", "competition", "competition_name") as string) ??
+    (pick(inner, "competitionName", "competition", "competition_name") as string) ??
+    (pick(tx, "competitionName", "competition", "competition_name") as string) ??
     (pick(team, "competitionName", "competition", "competition_name") as string) ??
-    "";
+    (pick(comp, "name", "title") as string) ??
+    "-";
 
   const institution =
     (pick(inner, "institution", "institution_name") as string) ??
+    (pick(tx, "institution", "institution_name") as string) ??
     (pick(team, "institution", "institution_name") as string) ??
     undefined;
 
+  const paymentProofUrl = (
+    pick(inner, "paymentProofUrl", "payment_proof_url", "file_url", "proof_url", "proofUrl", "url") ?? 
+    pick(tx, "paymentProofUrl", "payment_proof_url", "file_url", "proof_url", "proofUrl", "url") ?? null
+  ) as string | null;
+
+  const proofSignedUrl = (
+    pick(inner, "proofSignedUrl", "proof_signed_url", "signedUrl", "signed_url") ?? 
+    pick(tx, "proofSignedUrl", "proof_signed_url", "signedUrl", "signed_url") ?? 
+    paymentProofUrl
+  ) as string | null;
+
+  const statusRaw = (
+    inner?.verificationStatus ?? inner?.verification_status ?? inner?.status ??
+    tx?.verificationStatus ?? tx?.verification_status ?? tx?.status ?? "Pending"
+  ) as string;
+
+  // Normalisasi status untuk huruf kapital yang konsisten
+  const verificationStatus = (
+    statusRaw.toLowerCase() === "verified" ? "Verified" :
+    statusRaw.toLowerCase() === "rejected" ? "Rejected" : "Pending"
+  ) as "Pending" | "Verified" | "Rejected";
+
   return {
-    id: (inner?.id ?? raw?.id ?? "") as string,
-    teamId: (inner?.teamId ?? inner?.team_id ?? raw?.teamId ?? (team as { id?: string })?.id ?? "") as string,
+    id: (inner?.id ?? tx?.id ?? "") as string,
+    teamId: (inner?.teamId ?? inner?.team_id ?? tx?.teamId ?? tx?.team_id ?? team?.id ?? "") as string,
     teamName,
     institution,
     competition,
-    amount: (inner?.amount ?? raw?.amount ?? "") as string,
-    paymentType: (inner?.paymentType ?? inner?.payment_type ?? raw?.paymentType ?? "") as string,
-    paymentProofUrl: (pick(inner, "paymentProofUrl", "payment_proof_url", "file_url", "proof_url", "proofUrl") ?? pick(raw, "paymentProofUrl", "payment_proof_url", "file_url") ?? null) as string | null,
-    proofSignedUrl: (pick(inner, "paymentProofUrl", "proofSignedUrl", "proof_signed_url", "signedUrl", "signed_url") ?? pick(raw, "paymentProofUrl", "proofSignedUrl")) as string | null | undefined,
-    verificationStatus: ((inner?.verificationStatus ?? inner?.verification_status ?? raw?.verificationStatus ?? "Pending") as string) as "Pending" | "Verified" | "Rejected",
-    rejectionNotes: (inner?.rejectionNotes ?? inner?.rejection_notes ?? raw?.rejectionNotes ?? null) as string | null,
-    createdAt: (inner?.createdAt ?? inner?.created_at ?? raw?.createdAt ?? "") as string,
+    amount: (inner?.amount ?? tx?.amount ?? "") as string,
+    paymentType: (inner?.paymentType ?? inner?.payment_type ?? tx?.paymentType ?? tx?.payment_type ?? "Bank Transfer") as string,
+    paymentProofUrl,
+    proofSignedUrl,
+    verificationStatus,
+    rejectionNotes: (inner?.rejectionNotes ?? inner?.rejection_notes ?? tx?.rejectionNotes ?? tx?.rejection_notes ?? null) as string | null,
+    createdAt: (inner?.createdAt ?? inner?.created_at ?? tx?.createdAt ?? tx?.created_at ?? "") as string,
   };
 }
 
@@ -85,25 +116,36 @@ export function useAdminTransactions() {
       } else {
         const raw = json?.data ?? json;
         let list: unknown[] = [];
+        
         if (Array.isArray(raw)) {
           list = raw;
         } else if (raw && typeof raw === "object") {
           const r = raw as Record<string, unknown>;
-          const arr =
-            r.transactions ??
-            r.pendingTransactions ??
-            r.items ??
-            r.payments ??
-            r.data;
-          if (Array.isArray(arr)) {
-            list = arr;
-          } else {
-            list = [raw];
+          
+          // 👇 LOGIKA BARU UNTUK MEMBACA FORMAT "byStatus" 👇
+          if (r.byStatus && typeof r.byStatus === "object") {
+            const byStatusObj = r.byStatus as Record<string, unknown>;
+            const pending = Array.isArray(byStatusObj.Pending) ? byStatusObj.Pending : [];
+            const verified = Array.isArray(byStatusObj.Verified) ? byStatusObj.Verified : [];
+            const rejected = Array.isArray(byStatusObj.Rejected) ? byStatusObj.Rejected : [];
+            
+            // Gabungkan semua array menjadi satu list
+            list = [...pending, ...verified, ...rejected];
+          } 
+          // 👇 FALLBACK JIKA FORMATNYA BERBEDA 👇
+          else {
+            const pending = r.pendingTransactions as unknown[] | undefined;
+            const verified = r.verifiedTransactions as unknown[] | undefined;
+            const rejected = r.rejectedTransactions as unknown[] | undefined;
+            
+            if (Array.isArray(pending) || Array.isArray(verified) || Array.isArray(rejected)) {
+              list = [...(pending ?? []), ...(verified ?? []), ...(rejected ?? [])];
+            } else {
+              const arr = r.transactions ?? r.items ?? r.payments ?? r.data;
+              // Cegah memasukkan seluruh object root ke list jika list beneran kosong
+              list = Array.isArray(arr) ? arr : [];
+            }
           }
-        } else {
-          const arr =
-            (json.transactions ?? json.pendingTransactions ?? json.items ?? json.payments ?? json.data ?? json) as unknown[];
-          list = Array.isArray(arr) ? arr : [];
         }
         if (list.length === 0 && json && typeof json === "object") {
           const j = json as Record<string, unknown>;
