@@ -105,8 +105,9 @@ export default function ParticipantHomePage() {
 
         <div className="flex flex-col gap-8">
           {/* Competition Info Card */}
-          <CardLarge className="min-h-0 h-[150px] flex flex-row items-center justify-between p-8 bg-[#0A2D6E]/80 backdrop-blur-sm border-[#F6911E]">
-            <div className="flex items-center gap-4">
+          <CardLarge className="min-h-0 h-auto sm:h-[150px] flex flex-col sm:flex-row items-center justify-between p-6 sm:p-8 gap-4 sm:gap-0 bg-[#0A2D6E]/80 backdrop-blur-sm border-[#F6911E]">
+            
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                <div className="h-16 w-16 shrink-0 flex items-center justify-center rounded overflow-hidden">
                   <img
                     src={selectedCompetition.imageUrl}
@@ -116,15 +117,17 @@ export default function ParticipantHomePage() {
                </div>
                <h2 className="text-l font-bold text-[#f1e1b4] tracking-wide">{selectedCompetition.title}</h2>
             </div>
+
             <Button
               variant="primary"
               size="lg"
-              className="flex gap-2"
+              className="flex gap-2 w-full sm:w-auto justify-center mt-2 sm:mt-0"
               onClick={() => window.open(getGuidebookUrl(myCompetitionId), "_blank")}
             >
               <Download className="h-5 w-5" />
               Download Guidebook
             </Button>
+            
           </CardLarge>
 
           {/* Competition Timeline Card — timeline lomba yang sedang didaftar */}
