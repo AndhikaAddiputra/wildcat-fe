@@ -47,26 +47,31 @@ function getTeamId(payload: MayarWebhookPayload): string | undefined {
 }
 
 export async function POST(request: Request) {
+  console.log("[api/mayar/webhook] POST — webhook received");
   try {
     const payload = (await request.json().catch(() => null)) as MayarWebhookPayload | null;
     if (!payload || typeof payload !== "object") {
+      console.log("[api/mayar/webhook] POST — 400 invalid body");
       return NextResponse.json({ error: "Invalid body" }, { status: 400 });
     }
 
     const event = getEventReceived(payload);
+    console.log("[api/mayar/webhook] POST — event", { event, dataKeys: payload.data ? Object.keys(payload.data) : [] });
     if (event !== PAYMENT_RECEIVED) {
+      console.log("[api/mayar/webhook] POST — event ignored (not payment.received)");
       return NextResponse.json({ received: true, message: "Event ignored" }, { status: 200 });
     }
 
     const data = payload.data;
     const success = data?.status === true || data?.status === "success";
     if (!success) {
+      console.log("[api/mayar/webhook] POST — status not success", { status: data?.status });
       return NextResponse.json({ received: true, message: "Status not success" }, { status: 200 });
     }
 
     const teamId = getTeamId(payload);
     if (!teamId) {
-      console.warn("[mayar/webhook] payment.received but no teamId in payload:", JSON.stringify(payload).slice(0, 500));
+      console.warn("[api/mayar/webhook] POST — no teamId in payload:", JSON.stringify(payload).slice(0, 500));
       return NextResponse.json({ received: true, message: "No teamId" }, { status: 200 });
     }
 
@@ -74,6 +79,7 @@ export async function POST(request: Request) {
     const confirmPath = process.env.MAYAR_WEBHOOK_CONFIRM_PATH ?? "/api/landing/payment/confirm";
     const url = `${base}${confirmPath.startsWith("/") ? "" : "/"}${confirmPath}`;
     const authHeader = process.env.MAYAR_WEBHOOK_BACKEND_AUTH_HEADER;
+    console.log("[api/mayar/webhook] POST — forwarding to backend", { url, teamId, transactionId: data.id ?? data.transactionId, amount: data.amount });
 
     const confirmRes = await fetch(url, {
       method: "POST",
@@ -90,16 +96,18 @@ export async function POST(request: Request) {
     });
 
     if (!confirmRes.ok) {
-      console.error("[mayar/webhook] backend confirm failed:", confirmRes.status, await confirmRes.text());
+      const errText = await confirmRes.text();
+      console.error("[api/mayar/webhook] POST — backend confirm failed:", confirmRes.status, errText);
       return NextResponse.json(
         { received: true, message: "Backend confirm failed" },
         { status: 200 }
       );
     }
 
+    console.log("[api/mayar/webhook] POST — success", { teamId, transactionId: data.id ?? data.transactionId });
     return NextResponse.json({ received: true, message: "OK" }, { status: 200 });
   } catch (e) {
-    console.error("[mayar/webhook] error:", e);
+    console.error("[api/mayar/webhook] POST — error:", e);
     return NextResponse.json({ error: "Webhook error" }, { status: 500 });
   }
 }

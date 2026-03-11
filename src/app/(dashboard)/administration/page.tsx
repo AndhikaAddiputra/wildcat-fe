@@ -14,7 +14,6 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { FileUploadZone } from "@/components/shared/FileUploadZone";
-import { useAuth } from "@/hooks/useAuth";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useUploadedDocuments } from "@/hooks/useUploadedDocuments";
@@ -22,7 +21,8 @@ import { useTransaction } from "@/hooks/useTransaction";
 import { uploadFiles, UploadResult } from "@/services/upload.service";
 import { submitPaymentProof } from "@/services/transaction.service";
 import { Spinner } from "@/components/ui";
-import { createPaymentLink } from "@/services/mayar/payment.service";
+import { requestPaymentToken } from "@/services/mayar/payment.service";
+import { useMayarPaymentStatus } from "@/hooks/useMayarPaymentStatus";
 import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 import { deriveTeamStatusFromVerification, TEAM_STATUS } from "@/lib/constants/team-status";
 import { cn } from "@/lib/utils";
@@ -105,10 +105,9 @@ function UploadStatusBadge({
 }
 
 export default function Home() {
-  const { user } = useAuth();
   const { data: dashboardData, loading: statusLoading } = useParticipantDashboard();
   const { data: teamProfile } = useTeamProfile();
-  const teamId = user?.teamId ?? teamProfile?.teamId;
+  const teamId = teamProfile?.teamId;
   const { save: saveDoc, clear: clearDoc, get: getDoc } = useUploadedDocuments(teamId);
   const [submitting, setSubmitting] = useState(false);
   // Per-file upload status: "idle" | "uploading" | "done" | "error"
@@ -127,6 +126,14 @@ export default function Home() {
   const [paymentSubmitError, setPaymentSubmitError] = useState<string>("");
 
   const { data: transaction, loading: transactionLoading, refetch: refetchTransaction } = useTransaction();
+  const { data: mayarStatus, loading: mayarStatusLoading, refetch: refetchMayarStatus, hasPayment: hasMayarPayment, paymentLink: mayarPaymentLink, isLinkValid: isMayarLinkValid, status: mayarStatusValue } = useMayarPaymentStatus();
+
+  const isMayarPayment = transaction?.paymentType?.toLowerCase().includes("mayar") ?? false;
+  const mayarPaymentCompleted = hasMayarPayment && ["settlement", "capture", "paid"].includes((mayarStatusValue ?? "").toLowerCase());
+  const effectiveVerificationStatus =
+    isMayarPayment && mayarPaymentCompleted
+      ? "Verified"
+      : transaction?.verificationStatus ?? "Pending";
 
   // Map documentType → fungsi clear File state (untuk reset setelah upload sukses)
   const fileClearMap: Record<string, () => void> = {
@@ -232,25 +239,17 @@ export default function Home() {
 
   const [payWithMayarLoading, setPayWithMayarLoading] = useState(false);
   const handlePayWithMayar = async () => {
-    if (!canUsePayment || !teamId) return;
-    const name = dashboardData?.leaderName ?? teamProfile?.leadName ?? "";
-    const email = user?.email ?? "";
-    if (!email) {
-      toast.error("Email not available. Please ensure you are logged in with a registered account.");
+    if (!canUsePayment) return;
+
+    if (hasMayarPayment && isMayarLinkValid && mayarPaymentLink) {
+      window.location.href = mayarPaymentLink;
       return;
     }
-    if (!name) {
-      toast.error("Leader name not found. Please complete team data first.");
-      return;
-    }
+
     setPayWithMayarLoading(true);
     try {
-      const { link } = await createPaymentLink({
-        teamId,
-        name,
-        email,
-        mobile: teamProfile?.phoneNumber ?? undefined,
-      });
+      const { link } = await requestPaymentToken();
+      await refetchMayarStatus();
       window.location.href = link;
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to create payment link. Please try again.");
@@ -434,14 +433,30 @@ export default function Home() {
                 <CardTitle className="w-full max-w-[95%] mx-auto my-4 sm:my-6 text-2xl sm:text-[32px] font-semibold !text-cream">
                   2. Payment Information
                 </CardTitle>
+                {hasMayarPayment && isMayarLinkValid && mayarStatus && mayarStatus.hasPayment && (
+                  <div className="w-full max-w-[95%] mx-auto mb-4 p-4 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-100">
+                    <p className="text-sm font-medium">
+                      You have a pending payment link.
+                      {mayarStatus.secondsRemaining != null && mayarStatus.secondsRemaining > 0 && (
+                        <span> Valid for {Math.ceil(mayarStatus.secondsRemaining / 60)} minutes.</span>
+                      )}
+                    </p>
+                  </div>
+                )}
                 <Button
                   variant="primary"
                   size="lg"
                   className="w-full max-w-[95%] mx-auto"
-                  disabled={!canUsePayment || payWithMayarLoading}
+                  disabled={!canUsePayment || payWithMayarLoading || mayarStatusLoading}
                   onClick={handlePayWithMayar}
                 >
-                  {payWithMayarLoading ? "Opening Mayar..." : "Pay Faster With Mayar.id"}
+                  {payWithMayarLoading ? (
+                    "Opening Mayar..."
+                  ) : hasMayarPayment && isMayarLinkValid ? (
+                    "Continue to Mayar Payment"
+                  ) : (
+                    "Pay Faster With Mayar.id"
+                  )}
                 </Button>
 
                 <span className="w-full max-w-[95%] my-6 sm:my-8 mx-auto text-center text-cream text-sm sm:text-base">
@@ -460,24 +475,26 @@ export default function Home() {
                   <div className="w-full max-w-[95%] min-h-[240px] mx-auto flex items-center justify-center rounded-[20px] bg-[#9aa0d6] text-navy">
                     <Spinner size="md" />
                   </div>
-                ) : transaction && (transaction.verificationStatus === "Pending" || transaction.verificationStatus === "Verified") ? (
+                ) : transaction && (effectiveVerificationStatus === "Pending" || effectiveVerificationStatus === "Verified") ? (
                   <div className="w-full max-w-[95%] mx-auto flex flex-col gap-3 rounded-[20px] border-4 border-blue-500 bg-[#9aa0d6] text-navy p-4">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <span className="font-semibold">Payment proof submitted</span>
+                      <span className="font-semibold">
+                        {isMayarPayment ? "Payment via Mayar.id" : "Payment proof submitted"}
+                      </span>
                       <span className={cn(
                         "inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
-                        transaction.verificationStatus === "Verified" && "text-green-700 bg-green-100",
-                        transaction.verificationStatus === "Pending" && "text-amber-700 bg-amber-100"
+                        effectiveVerificationStatus === "Verified" && "text-green-700 bg-green-100",
+                        effectiveVerificationStatus === "Pending" && "text-amber-700 bg-amber-100"
                       )}>
-                        {transaction.verificationStatus === "Verified" && <CheckCircle2 className="h-4 w-4" />}
-                        {transaction.verificationStatus === "Pending" && <Clock className="h-4 w-4" />}
-                        {transaction.verificationStatus}
+                        {effectiveVerificationStatus === "Verified" && <CheckCircle2 className="h-4 w-4" />}
+                        {effectiveVerificationStatus === "Pending" && <Clock className="h-4 w-4" />}
+                        {effectiveVerificationStatus}
                       </span>
                     </div>
                     {transaction.paymentType && (
                       <p className="text-sm text-navy/80">Method: {transaction.paymentType}</p>
                     )}
-                    {transaction.verificationStatus === "Verified" && (
+                    {effectiveVerificationStatus === "Verified" && (
                       <p className="text-sm text-green-700 font-medium">Your payment has been verified.</p>
                     )}
                     <PaymentProofPreviewButton />
