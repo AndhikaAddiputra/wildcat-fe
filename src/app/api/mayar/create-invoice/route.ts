@@ -5,6 +5,7 @@ const COMPETITION_FEE_AMOUNT = Number(process.env.COMPETITION_FEE_AMOUNT) || 150
 const DEFAULT_EXPIRY_HOURS = 24;
 
 export async function POST(request: Request) {
+  console.log("[api/mayar/create-invoice] POST — request received");
   try {
     const body = await request.json();
     const { teamId, name, email, mobile, redirectUrl: rawRedirect } = body as {
@@ -15,7 +16,15 @@ export async function POST(request: Request) {
       redirectUrl?: string;
     };
 
+    console.log("[api/mayar/create-invoice] POST — body", {
+      teamId: teamId ?? null,
+      hasName: !!name,
+      hasEmail: !!email,
+      hasMobile: !!mobile,
+    });
+
     if (!teamId || !name || !email) {
+      console.log("[api/mayar/create-invoice] POST — 400 missing required fields");
       return NextResponse.json(
         { error: "teamId, name, and email are required." },
         { status: 400 }
@@ -40,6 +49,7 @@ export async function POST(request: Request) {
 
     const expiredAt = new Date(Date.now() + DEFAULT_EXPIRY_HOURS * 60 * 60 * 1000).toISOString();
 
+    console.log("[api/mayar/create-invoice] POST — calling Mayar createInvoice", { redirectUrl: redirectUrl.slice(0, 50), amount: COMPETITION_FEE_AMOUNT });
     const data = await createInvoice({
       name: String(name).trim(),
       email: String(email).trim(),
@@ -57,6 +67,11 @@ export async function POST(request: Request) {
       extraData: { teamId: String(teamId) },
     });
 
+    console.log("[api/mayar/create-invoice] POST — success", {
+      hasLink: !!data?.link,
+      invoiceId: data?.id ?? null,
+      transactionId: data?.transactionId ?? null,
+    });
     return NextResponse.json({
       link: data.link,
       invoiceId: data.id,
@@ -65,6 +80,7 @@ export async function POST(request: Request) {
     });
   } catch (e) {
     const message = e instanceof Error ? e.message : "Failed to create invoice";
+    console.error("[api/mayar/create-invoice] POST — error:", message);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
