@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Poppins } from "next/font/google";
 import { Toaster } from "sonner";
+import { ContactFAB } from "@/components/shared/ContactFAB";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -38,6 +39,7 @@ export default function RootLayout({
         className={`${poppins.variable} ${poppins.className} ${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <ContactFAB />
         <Toaster richColors position="top-center" closeButton />
       </body>
     </html>

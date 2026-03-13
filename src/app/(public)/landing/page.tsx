@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
 import {
   Button,
@@ -30,6 +30,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { computeEventStatus, type EventStatus } from "@/lib/utils/event-status";
 
 const SECTION_IDS = ["#about", "#competitions", "#events", "#timeline"] as const;
 
@@ -79,27 +80,13 @@ function isTimelineDateReached(dateStr: string): boolean {
   return today.getTime() >= start.getTime();
 }
 
-/** Status event: available (hijau), not_started (kuning), ended (merah) */
-type EventStatus = "available" | "not_started" | "ended";
-
-/** Data event untuk card + modal variant event */
-const EVENTS = [
-  {
-    id: "wiact",
-    title: "WiACT (Community Service)",
-    description:
-      "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.",
-    status: "not_started" as EventStatus,
-    eventDate: "11 April 2026",
-    eventPlace: "TBA",
-    eventSpeaker: "Soon to be announced",
-  },
+/** Data event untuk card + modal variant event (WiAct dihapus) */
+const EVENTS_RAW = [
   {
     id: "wishare",
     title: "WISHARE (Charity Program)",
     description:
       "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.",
-    status: "not_started" as EventStatus,
     eventDate: "21 June 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
@@ -109,7 +96,6 @@ const EVENTS = [
     title: "Field Trip",
     description:
       "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.",
-    status: "not_started" as EventStatus,
     eventDate: "22 June 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
@@ -119,7 +105,6 @@ const EVENTS = [
     title: "Webinar",
     description:
       "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. It is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.",
-    status: "not_started" as EventStatus,
     eventDate: "14 March 2026",
     eventPlace: "Online via Zoom Meeting",
     eventSpeaker: "Soon to be announced",
@@ -129,7 +114,6 @@ const EVENTS = [
     title: "Grand Seminar",
     description:
       "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.",
-    status: "not_started" as EventStatus,
     eventDate: "21 June 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
@@ -137,6 +121,14 @@ const EVENTS = [
 ];
 
 export default function LandingPage() {
+  const EVENTS = useMemo(
+    () =>
+      EVENTS_RAW.map((ev) => ({
+        ...ev,
+        status: computeEventStatus(ev.id, ev.eventDate),
+      })),
+    []
+  );
   const [activeSection, setActiveSection] = useState("#about");
   const [contentRevealed, setContentRevealed] = useState(false);
   const [openCompetitionId, setOpenCompetitionId] = useState<string | null>(null);
@@ -458,6 +450,7 @@ export default function LandingPage() {
             eventDate={ev.eventDate}
             eventPlace={ev.eventPlace}
             eventSpeaker={ev.eventSpeaker}
+            eventStatus={ev.status}
           />
         );
       })()}

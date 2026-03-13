@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useState, type ReactNode } from "react";
 import { createPortal } from "react-dom";
+import Link from "next/link";
 import { X, Calendar, MapPin, User, ImageOff } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
@@ -30,6 +31,8 @@ export interface ModalProps {
   competitionImageUrl?: string;
   /** URL guidebook untuk tombol Download (variant="competition") */
   guidebookUrl?: string;
+  /** Status event untuk variant="event": available | not_started | ended. Register Now disabled jika bukan available. */
+  eventStatus?: "available" | "not_started" | "ended";
 }
 
 function Modal({ 
@@ -47,6 +50,7 @@ function Modal({
   timeline = [],
   competitionImageUrl,
   guidebookUrl,
+  eventStatus,
 }: ModalProps) {
   const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
@@ -199,12 +203,13 @@ function Modal({
                   </div>
                 </div >
                 <div className="flex flex-col gap-3 mt-8">
-                <Button
-                    variant="primary"
-                    onClick={() => window.open("https://r.aapgitb.com/FeedbackTesting", "_blank")}
-                  >
-                    Register Now
-                  </Button>
+                {eventStatus === "available" ? (
+                  <Link href="/register" className="block">
+                    <Button variant="primary" className="w-full">Register Now</Button>
+                  </Link>
+                ) : (
+                  <Button variant="primary" disabled className="w-full">Register Now</Button>
+                )}
                   </div>
               </div>
             </>
@@ -254,12 +259,9 @@ function Modal({
                       <Download className="h-4 w-4" />
                       Download Guidebook
                     </Button>
-                    <Button
-                      variant="primary"
-                      onClick={() => window.open("https://r.aapgitb.com/FeedbackTesting", "_blank")}
-                    >
-                      Register Now
-                    </Button>
+                    <Link href="/register" className="block">
+                      <Button variant="primary" className="w-full">Register Now</Button>
+                    </Link>
                   </div>
             </div>
           )}

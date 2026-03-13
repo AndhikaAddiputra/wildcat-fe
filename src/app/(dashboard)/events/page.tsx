@@ -10,9 +10,7 @@ import {
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { ExternalLink } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
-
-/** Status event: available (hijau), not_started (kuning), ended (merah) */
-type EventStatus = "available" | "not_started" | "ended";
+import { computeEventStatus, type EventStatus } from "@/lib/utils/event-status";
 
 interface EventDisplay {
   id: string;
@@ -24,22 +22,23 @@ interface EventDisplay {
   eventSpeaker: string;
 }
 
-const STATIC_EVENTS: EventDisplay[] = [
-  { id: "wiact", title: "WiACT (Community Service)", description: "This side event is a social engagement activity with children, conducted in collaboration with a non-profit organization. It is designed to foster empathy and a sense of responsibility among participants while creating a positive and enjoyable experience for the children.", status: "not_started", eventDate: "11 April 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
-  { id: "wishare", title: "WISHARE (Charity Program)", description: "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.", status: "not_started", eventDate: "21 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
-  { id: "field-trip", title: "Field Trip", description: "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.", status: "not_started", eventDate: "22 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
-  { id: "webinar", title: "Webinar", description: "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.", status: "not_started", eventDate: "14 March 2026", eventPlace: "Online via Zoom Meeting", eventSpeaker: "Soon to be announced" },
-  { id: "grand-seminar", title: "Grand Seminar", description: "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.", status: "not_started", eventDate: "21 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+/** Static events fallback (WiAct dihapus, status computed H-14 + webinar=ended) */
+const STATIC_EVENTS_RAW: Omit<EventDisplay, "status">[] = [
+  { id: "wishare", title: "WISHARE (Charity Program)", description: "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.", eventDate: "17 March 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+  { id: "field-trip", title: "Field Trip", description: "The Field Trip is a collective outdoor activity where participants, including finalists, visit various geological sites to observe features firsthand. Expert speakers facilitate the trip to provide a comprehensive understanding of geological processes and their real-world applications.", eventDate: "22 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
+  { id: "webinar", title: "Webinar", description: "The webinar session invites professional speakers from the field of petroleum geoscience to share insights and current industry developments. This is designed to broaden participants' perspectives and deepen their understanding of real-world challenges and opportunities.", eventDate: "14 March 2026", eventPlace: "Online via Zoom Meeting", eventSpeaker: "Soon to be announced" },
+  { id: "grand-seminar", title: "Grand Seminar", description: "Held during the final stage, the Grand Seminar features various academic and professional speakers in keynote talks and panel discussions. This session aims to enrich participants' knowledge, inspire critical thinking, and provide deeper insights related to petroleum geoscience.", eventDate: "21 June 2026", eventPlace: "TBA", eventSpeaker: "Soon to be announced" },
 ];
 
-function toEventDisplay(item: { id: string; name?: string; title?: string; description?: string; datetime?: string; location?: string; speaker?: string; status?: string }): EventDisplay {
-  const status = (item.status as EventStatus) ?? "not_started";
+function toEventDisplay(item: { id: string; name?: string; title?: string; description?: string; datetime?: string; location?: string; speaker?: string }): EventDisplay {
+  const eventDate = item.datetime ?? "TBA";
+  const status = computeEventStatus(item.id, eventDate);
   return {
     id: item.id,
     title: item.name ?? item.title ?? "Event",
     description: item.description ?? "",
     status,
-    eventDate: item.datetime ?? "TBA",
+    eventDate,
     eventPlace: item.location ?? "TBA",
     eventSpeaker: item.speaker ?? "Soon to be announced",
   };
@@ -58,10 +57,12 @@ export default function Event() {
         datetime: e.datetime,
         location: e.location ?? undefined,
         speaker: e.speaker ?? undefined,
-        status: e.status,
       }));
     }
-    return STATIC_EVENTS;
+    return STATIC_EVENTS_RAW.map((ev) => ({
+      ...ev,
+      status: computeEventStatus(ev.id, ev.eventDate),
+    }));
   }, [apiEvents]);
 
   return (
@@ -152,6 +153,7 @@ export default function Event() {
             eventDate={ev.eventDate}
             eventPlace={ev.eventPlace}
             eventSpeaker={ev.eventSpeaker}
+            eventStatus={ev.status}
           />
         );
       })()}

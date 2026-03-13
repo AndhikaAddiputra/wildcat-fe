@@ -68,6 +68,18 @@ export function getContactGroupForPath(pathname: string): ContactGroup | null {
   return null;
 }
 
+/** Semua grup kontak (IT, tiap kompetisi, event) untuk FAB di setiap halaman. */
+export function getAllContactGroups(): ContactGroup[] {
+  return [
+    CONTACT_GROUPS["admin-it"],
+    CONTACT_GROUPS["admin-papos"],
+    CONTACT_GROUPS["admin-gng"],
+    CONTACT_GROUPS["admin-bcc"],
+    CONTACT_GROUPS["admin-essay"],
+    CONTACT_GROUPS["admin-event"],
+  ];
+}
+
 export function buildLineUrl(lineId: string): string {
   if (!lineId || lineId === "tba") return "#";
   return `https://line.me/ti/p/~${lineId}`;
