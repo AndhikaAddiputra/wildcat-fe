@@ -6,7 +6,7 @@ export interface FooterProps {
 }
 
 const socialLinks = [
-  { icon: Linkedin, href: "https://www.linkedin.com/company/aapgitbsc/posts/?feedView=all", label: "LinkedIn" },
+  { icon: Linkedin, href: "https://www.linkedin.com/company/wildcat-aapg-itb/", label: "LinkedIn" },
   { icon: Mail, href: "#", label: "Email" },
   { icon: Instagram, href: "https://www.instagram.com/wildcataapgitb/", label: "Instagram" },
 ];

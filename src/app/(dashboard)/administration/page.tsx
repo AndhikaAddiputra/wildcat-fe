@@ -31,6 +31,13 @@ const PAYMENT_METHODS = [
   { value: "Bank Transfer", label: "Bank Transfer" },
 ] as const;
 
+/** URL template frame Twibbon untuk didownload */
+const TWIBBON_TEMPLATE_URL = "https://www.twibbonize.com/";
+/** URL Instagram Wildcat */
+const WILDCAT_INSTAGRAM_URL = "https://www.instagram.com/wildcataapgitb/";
+/** URL poster untuk posting di IG Story */
+const POSTER_DOWNLOAD_URL = "https://storage.wildcat2026.com/poster";
+
 function PaymentProofPreviewButton() {
   const [loading, setLoading] = useState(false);
 
@@ -375,9 +382,18 @@ export default function Home() {
                 </div>
                 <div className="w-full max-w-[95%] mx-auto flex flex-col md:flex-row md:justify-between gap-4 my-4 mb-2">
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <div className="ml-2 sm:ml-8 my-3 flex items-center gap-3">
-                      <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Twibbon*</span>
-                      <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_TWIBBON]} error={uploadErrors[DOCUMENT_TYPES.PROOF_TWIBBON]} />
+                    <div className="ml-2 sm:ml-8 my-3 flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Twibbon*</span>
+                        <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_TWIBBON]} error={uploadErrors[DOCUMENT_TYPES.PROOF_TWIBBON]} />
+                      </div>
+                      <p className="text-navy/80 text-sm">
+                        Twibbon frames can be downloaded {" "}
+                        <a href={TWIBBON_TEMPLATE_URL} target="_blank" rel="noopener noreferrer" className="text-[#0A2D6E] font-medium underline hover:text-[#F6911E]">
+                          here
+                        </a>
+                        .
+                      </p>
                     </div>
                     <FileUploadZone
                       value={twibbonProof} onChange={setTwibbonProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" disabled={submitting || isDocumentVerified}
@@ -388,9 +404,21 @@ export default function Home() {
                     />
                   </div>
                   <div className="w-full md:w-[48%] min-h-[320px] md:min-h-[425px] flex flex-col rounded-[20px] bg-[#9aa0d6] text-navy p-4">
-                    <div className="ml-2 sm:ml-8 my-3 flex items-center gap-3">
-                      <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Posting Poster on IG Status*</span>
-                      <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_POSTER_IG]} error={uploadErrors[DOCUMENT_TYPES.PROOF_POSTER_IG]} />
+                    <div className="ml-2 sm:ml-8 my-3 flex flex-col gap-1">
+                      <div className="flex items-center gap-3">
+                        <span className="text-navy text-lg sm:text-xl md:text-[24px] font-semibold">Proof of Following Wildcat IG Account and Posting Poster on IG Status*</span>
+                        <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_POSTER_IG]} error={uploadErrors[DOCUMENT_TYPES.PROOF_POSTER_IG]} />
+                      </div>
+                      <p className="text-navy/80 text-sm">
+                      Follow Wildcat on Instagram and post the poster on IG Story.{" "}
+                        <a href={WILDCAT_INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="text-[#0A2D6E] font-medium underline hover:text-[#F6911E]">
+                          Wildcat Instagram Account
+                        </a>
+                        {" · "}
+                        <a href={POSTER_DOWNLOAD_URL} target="_blank" rel="noopener noreferrer" className="text-[#0A2D6E] font-medium underline hover:text-[#F6911E]">
+                          Poster
+                        </a>
+                      </p>
                     </div>
                     <FileUploadZone
                       value={posterIgProof} onChange={setPosterIgProof} className="flex-1 min-h-0" zoneClassName="min-h-[240px] flex-1" disabled={submitting || isDocumentVerified}

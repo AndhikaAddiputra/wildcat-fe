@@ -1,20 +1,17 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { usePathname } from "next/navigation";
 import { MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  getContactGroupForPath,
+  getAllContactGroups,
   buildLineUrl,
   type ContactPerson,
 } from "@/lib/constants/contact";
 
 export function ContactFAB() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  const group = getContactGroupForPath(pathname ?? "");
+  const groups = getAllContactGroups();
 
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
@@ -33,8 +30,6 @@ export function ContactFAB() {
       document.body.style.overflow = "unset";
     };
   }, [open, handleEscape]);
-
-  if (!group) return null;
 
   return (
     <>
@@ -63,12 +58,12 @@ export function ContactFAB() {
           />
           <div
             className={cn(
-              "relative z-[61] w-full max-w-sm rounded-2xl border border-zinc-700 bg-[#0a2d6e] text-white shadow-2xl",
-              "overflow-hidden"
+              "relative z-[61] w-full max-w-sm max-h-[85vh] rounded-2xl border border-zinc-700 bg-[#0a2d6e] text-white shadow-2xl",
+              "overflow-hidden flex flex-col"
             )}
           >
-            <div className="flex items-center justify-between border-b border-zinc-600 px-4 py-3">
-              <h3 className="font-semibold text-[#f1e1b4]">{group.label}</h3>
+            <div className="flex items-center justify-between border-b border-zinc-600 px-4 py-3 shrink-0">
+              <h3 className="font-semibold text-[#f1e1b4]">Contact Person</h3>
               <button
                 onClick={() => setOpen(false)}
                 className="rounded p-1.5 text-[#f1e1b4] hover:bg-white/10 hover:text-white transition-colors"
@@ -77,12 +72,17 @@ export function ContactFAB() {
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <div className="max-h-[60vh] overflow-y-auto p-4">
-              <ul className="space-y-3">
-                {group.contacts.map((c) => (
-                  <ContactItem key={c.id} contact={c} onClose={() => setOpen(false)} />
-                ))}
-              </ul>
+            <div className="max-h-[70vh] overflow-y-auto p-4 space-y-6">
+              {groups.map((group) => (
+                <div key={group.label}>
+                  <h4 className="text-sm font-medium text-[#f6911e] mb-2">{group.label}</h4>
+                  <ul className="space-y-2">
+                    {group.contacts.map((c) => (
+                      <ContactItem key={`${group.label}-${c.id}`} contact={c} onClose={() => setOpen(false)} />
+                    ))}
+                  </ul>
+                </div>
+              ))}
             </div>
           </div>
         </div>
