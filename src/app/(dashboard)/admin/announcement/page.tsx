@@ -86,20 +86,16 @@ export default function AnnouncementPage() {
     setIsSubmitting(true);
 
     const isEditMode = !!formData.id;
-    const reqMethod = isEditMode ? "PUT" : "POST";
+    const announcementId = isEditMode ? formData.id : crypto.randomUUID();
 
     // 🌟 BERSIHKAN DATA (SANITIZATION) SEBELUM DIKIRIM
     const payload: any = {
+      id: announcementId,
       title: formData.title,
       content: formData.content,
       // Pastikan target audience yang terkirim selalu valid dari dropdown
       targetAudience: formData.targetAudience,
     };
-
-    // Tambahkan ID jika sedang mode edit
-    if (isEditMode) {
-      payload.id = formData.id;
-    }
 
     // 🌟 KUNCI FIX: Jika URL tidak kosong, baru masukkan ke payload
     // Jika kosong, abaikan saja agar Zod di backend tidak marah
@@ -109,7 +105,7 @@ export default function AnnouncementPage() {
 
     try {
       const res = await fetchWithAuth("/api/admin/announcements", {
-        method: reqMethod, 
+        method: "PUT", 
         body: JSON.stringify(payload),
       });
 
