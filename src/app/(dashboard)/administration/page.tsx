@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { AlertCircle, CheckCircle2, Clock, ExternalLink, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, Clock, CreditCard, ExternalLink, GraduationCap, Landmark, XCircle } from "lucide-react";
 import {
   Button,
   CardLarge,
@@ -132,6 +132,7 @@ export default function Home() {
   const [paymentMethod, setPaymentMethod] = useState<string>(PAYMENT_METHODS[0].value);
   const [paymentSubmitStatus, setPaymentSubmitStatus] = useState<"idle" | "requesting" | "uploading" | "submitting" | "done" | "error">("idle");
   const [paymentSubmitError, setPaymentSubmitError] = useState<string>("");
+  const [paymentTab, setPaymentTab] = useState<"indonesian" | "international">("indonesian");
 
   const { data: transaction, loading: transactionLoading, refetch: refetchTransaction } = useTransaction();
   const { data: mayarStatus, loading: mayarStatusLoading, refetch: refetchMayarStatus, hasPayment: hasMayarPayment, paymentLink: mayarPaymentLink, isLinkValid: isMayarLinkValid, status: mayarStatusValue } = useMayarPaymentStatus();
@@ -463,45 +464,101 @@ export default function Home() {
                 <CardTitle className="w-full max-w-[95%] mx-auto my-4 sm:my-6 text-2xl sm:text-[32px] font-semibold !text-cream">
                   2. Payment Information
                 </CardTitle>
-                {hasMayarPayment && isMayarLinkValid && mayarStatus && mayarStatus.hasPayment && (
-                  <div className="w-full max-w-[95%] mx-auto mb-4 p-4 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-100">
-                    <p className="text-sm font-medium">
-                      You have a pending payment link.
-                      {mayarStatus.secondsRemaining != null && mayarStatus.secondsRemaining > 0 && (
-                        <span> Valid for {Math.ceil(mayarStatus.secondsRemaining / 60)} minutes.</span>
-                      )}
-                    </p>
+
+                {/* Tab Toggle */}
+                <div className="w-full max-w-[95%] mx-auto mb-6 flex gap-1 p-1 rounded-xl bg-white/10 border border-white/20">
+                  <button
+                    type="button"
+                    onClick={() => setPaymentTab("indonesian")}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200",
+                      paymentTab === "indonesian"
+                        ? "bg-[#F6911E] text-[#0A2D6E] shadow-[0_0_12px_rgba(246,145,30,0.4)]"
+                        : "text-[#F1E1B4]/80 hover:text-[#F1E1B4] hover:bg-white/5"
+                    )}
+                  >
+                    <GraduationCap className="h-4 w-4" />
+                    Indonesian University
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentTab("international")}
+                    className={cn(
+                      "flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg text-sm font-medium transition-all duration-200",
+                      paymentTab === "international"
+                        ? "bg-[#F6911E] text-[#0A2D6E] shadow-[0_0_12px_rgba(246,145,30,0.4)]"
+                        : "text-[#F1E1B4]/80 hover:text-[#F1E1B4] hover:bg-white/5"
+                    )}
+                  >
+                    <GraduationCap className="h-4 w-4" />
+                    International University
+                  </button>
+                </div>
+
+                {/* Indonesian University Tab */}
+                {paymentTab === "indonesian" && (
+                  <div className="w-full max-w-[95%] mx-auto space-y-4 mb-6">
+                    {hasMayarPayment && isMayarLinkValid && mayarStatus && mayarStatus.hasPayment && (
+                      <div className="p-4 rounded-xl bg-amber-500/20 border border-amber-500/50 text-amber-100">
+                        <p className="text-sm font-medium">
+                          You have a pending payment link.
+                          {mayarStatus.secondsRemaining != null && mayarStatus.secondsRemaining > 0 && (
+                            <span> Valid for {Math.ceil(mayarStatus.secondsRemaining / 60)} minutes.</span>
+                          )}
+                        </p>
+                      </div>
+                    )}
+                    <div className="flex flex-col items-center gap-2">
+                      <Button
+                        variant="primary"
+                        size="lg"
+                        className="w-full"
+                        disabled={!canUsePayment || payWithMayarLoading || mayarStatusLoading}
+                        onClick={handlePayWithMayar}
+                      >
+                        <CreditCard className="h-5 w-5" />
+                        {payWithMayarLoading ? (
+                          "Opening Mayar..."
+                        ) : hasMayarPayment && isMayarLinkValid ? (
+                          "Continue to Mayar Payment"
+                        ) : (
+                          "Pay Faster With Mayar.id"
+                        )}
+                      </Button>
+                      <p className="text-[#F1E1B4]/80 text-xs">Available for IDR payments only</p>
+                      <p className="text-[#F1E1B4]/70 text-xs">Complete your payment within 10 minutes</p>
+                    </div>
+                    <div className="flex items-center gap-3 my-4">
+                      <div className="flex-1 h-px bg-[#F1E1B4]/30" />
+                      <span className="text-[#F1E1B4]/80 text-sm font-medium">OR</span>
+                      <div className="flex-1 h-px bg-[#F1E1B4]/30" />
+                    </div>
+                    <div className="rounded-xl border border-[#F1E1B4]/30 bg-white/5 p-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Landmark className="h-4 w-4 text-[#F6911E]" />
+                        <span className="text-sm font-semibold text-[#F1E1B4]">IDR Account</span>
+                      </div>
+                      <p className="text-cream font-semibold">0015 3032 3351 (BLU BCA DIGITAL - ALMA ZIKRA SYAFIA)</p>
+                    </div>
                   </div>
                 )}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  className="w-full max-w-[95%] mx-auto"
-                  disabled={!canUsePayment || payWithMayarLoading || mayarStatusLoading}
-                  onClick={handlePayWithMayar}
-                >
-                  {payWithMayarLoading ? (
-                    "Opening Mayar..."
-                  ) : hasMayarPayment && isMayarLinkValid ? (
-                    "Continue to Mayar Payment"
-                  ) : (
-                    "Pay Faster With Mayar.id"
-                  )}
-                </Button>
-                <p className="w-full max-w-[95%] mx-auto mt-2 text-center text-[#F1E1B4]/80 text-sm">
-                  Please complete your payment within 10 minutes.
-                </p>
 
-                <span className="w-full max-w-[95%] my-6 sm:my-8 mx-auto text-center text-cream text-sm sm:text-base">
-                    -------------------- OR -------------------
-                </span>
-
-                <span className="w-full max-w-[95%] mx-auto text-center text-cream text-sm sm:text-base">
-                    Manual payment with transfer through this bank account:
-                </span>
-                <span className="w-full max-w-[95%] mb-6 sm:mb-8 mx-auto text-center text-cream font-semibold text-sm sm:text-base">
-                   0015 3032 3351 (BLU BCA DIGITAL - ALMA ZIKRA SYAFIA)
-                </span>
+                {/* International University Tab */}
+                {paymentTab === "international" && (
+                  <div className="w-full max-w-[95%] mx-auto space-y-4 mb-6">
+                    <div className="rounded-xl border border-[#F1E1B4]/30 bg-white/5 p-4 space-y-4">
+                      <div className="flex items-center gap-2">
+                        <Landmark className="h-4 w-4 text-[#F6911E]" />
+                        <span className="text-sm font-semibold text-[#F1E1B4]">USD Rate / USD Account</span>
+                      </div>
+                      <p className="text-cream font-semibold">Please check on guideline or contact the committee for the rate details.</p>
+                      <div className="pt-2 border-t border-[#F1E1B4]/20 space-y-2">
+                        <p className="text-xs text-[#F1E1B4]/70 font-medium">Bank Address</p>
+                        <p className="text-sm text-[#F1E1B4]/80">0015 3032 3351 (BLU BCA DIGITAL - ALMA ZIKRA SYAFIA)</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {/* Manual payment: show transaction status or upload zone */}
                 {transactionLoading ? (
