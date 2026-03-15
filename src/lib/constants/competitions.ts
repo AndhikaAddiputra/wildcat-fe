@@ -70,7 +70,7 @@ export const COMPETITIONS: Competition[] = [
     description:
       "A high-level technical competition embodying the pillars of Science and Technology, testing participants' ability to integrate geological and geophysical data to comprehensively solve exploration or field development challenges.",
     timeline: [
-      { label: "Early Registration", date: "14 -21 March 2026" },
+      { label: "Early Registration", date: "14 - 21 March 2026" },
       { label: "Normal Registration", date: "22 March - 5 April 2026" },
       { label: "Prelimanary Case Release", date: "13 April 2026" },
       { label: "Prelimanary Case Submission", date: "29 April 2026" },
@@ -78,7 +78,7 @@ export const COMPETITIONS: Competition[] = [
       { label: "Final Case Release & Software Training", date: "18 May 2026" },
       { label: "Final Case Submission", date: "8 June 2026" },
       { label: "Final Technical Meeting", date: "14 June 2026" },
-      { label: "Final Pitching Day", date: "20 2026" },
+      { label: "Final Pitching Day", date: "20 June 2026" },
     ],
     imageUrl: "/GnG%20Case%20Study.png",
   },
