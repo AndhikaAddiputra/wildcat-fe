@@ -16,13 +16,19 @@ import {
 } from "@/components/ui";
 import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/navbar-config";
 import { useTeamProfile } from "@/hooks/useTeamProfile";
+import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import type { TeamProfileResponse } from "@/lib/api/types";
 
 export default function Teams() {
   const { data, loading, error, updateTeam } = useTeamProfile();
+  const { data: dashboardData } = useParticipantDashboard();
   const [form, setForm] = useState<Partial<TeamProfileResponse>>({});
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  const isDocumentVerified =
+    (dashboardData?.documentVerificationStatus?.toLowerCase() === "verified") ||
+    (data?.documentVerificationStatus?.toLowerCase() === "verified");
 
   useEffect(() => {
     if (data) {
@@ -128,6 +134,8 @@ export default function Teams() {
                     value={form.institution ?? ""}
                     onChange={(e) => update("institution", e.target.value)}
                     placeholder="Enter your university name here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -138,6 +146,8 @@ export default function Teams() {
                     value={form.phoneNumber ?? ""}
                     onChange={(e) => update("phoneNumber", e.target.value)}
                     placeholder="Enter your phone number here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -148,6 +158,8 @@ export default function Teams() {
                     value={form.lineId ?? ""}
                     onChange={(e) => update("lineId", e.target.value)}
                     placeholder="Enter your LINE ID here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -164,6 +176,8 @@ export default function Teams() {
                     value={form.leadName ?? ""}
                     onChange={(e) => update("leadName", e.target.value)}
                     placeholder="Enter leader's name here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -173,6 +187,8 @@ export default function Teams() {
                     value={form.leadMajor ?? ""}
                     onChange={(e) => update("leadMajor", e.target.value)}
                     placeholder="Enter leader's major here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -182,6 +198,8 @@ export default function Teams() {
                     value={form.m1Name ?? ""}
                     onChange={(e) => update("m1Name", e.target.value)}
                     placeholder="Enter member's name here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -191,6 +209,8 @@ export default function Teams() {
                     value={form.m1Major ?? ""}
                     onChange={(e) => update("m1Major", e.target.value)}
                     placeholder="Enter member's major here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -200,6 +220,8 @@ export default function Teams() {
                     value={form.m2Name ?? ""}
                     onChange={(e) => update("m2Name", e.target.value)}
                     placeholder="Enter member's name here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
@@ -209,19 +231,26 @@ export default function Teams() {
                     value={form.m2Major ?? ""}
                     onChange={(e) => update("m2Major", e.target.value)}
                     placeholder="Enter member's major here"
+                    readOnly={isDocumentVerified}
+                    disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
                 </div>
               </div>
             </CardHeader>
             <CardFooter className="flex flex-col justify-center px-10 pb-10 pt-4 gap-2">
+              {isDocumentVerified && (
+                <p className="text-amber-200 text-sm text-center">
+                  Once verified, data cannot be changed.
+                </p>
+              )}
               {saveError && <p className="text-red-300 text-sm">{saveError}</p>}
               <Button
                 variant="primary"
                 size="lg"
                 className="w-[100%]"
                 onClick={handleSave}
-                disabled={saving}
+                disabled={saving || isDocumentVerified}
               >
                 {saving ? <><Spinner size="xs" /> Saving...</> : "Save Changes"}
               </Button>

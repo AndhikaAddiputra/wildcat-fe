@@ -26,23 +26,23 @@ export const CONTACT_GROUPS: Record<string, ContactGroup> = {
   },
   "admin-papos": {
     label: "Admin Competition Paper & Poster",
-    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+    contacts: [{ id: "fikritb26", name: "Fikri", lineId: "fikritb26" }],
   },
   "admin-gng": {
     label: "Admin Competition GnG Case Study",
-    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+    contacts: [{ id: "davinayas", name: "Davin", lineId: "davinayas" }],
   },
   "admin-bcc": {
     label: "Admin Competition BCC",
-    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+    contacts: [{ id: "tiaraaacl", name: "Tiara", lineId: "tiaraaacl" }],
   },
   "admin-essay": {
     label: "Admin Competition Essay",
-    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+    contacts: [{ id: "syifaaaauliaaaa", name: "Syifa", lineId: "syifaaaauliaaaa" }],
   },
   "admin-event": {
     label: "Admin Event",
-    contacts: [{ id: "tba", name: "TBA", lineId: "" }],
+    contacts: [{ id: "aurel", name: "Aurel", lineId: "aurelrosari" }],
   },
 };
 

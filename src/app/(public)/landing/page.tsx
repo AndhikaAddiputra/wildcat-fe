@@ -31,6 +31,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { computeEventStatus, type EventStatus } from "@/lib/utils/event-status";
+import { getEventRegistrationLink } from "@/lib/constants/event-links";
 
 const SECTION_IDS = ["#about", "#competitions", "#events", "#timeline"] as const;
 
@@ -268,10 +269,9 @@ export default function LandingPage() {
               </div>
               <div>
                 <p className="mb-2 text-xs font-bold uppercase tracking-widest text-orange">Our Theme</p>
-                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">Fueling the Future</h3>
+                <h3 className="mb-3 text-xl font-bold text-[#f1e1b4]">Leading Petroleum Geoscience to Fuel the Future of Oil and Gas</h3>
                 <p className="text-sm leading-relaxed text-justify text-[#f1e1b4]/90">
-                  &ldquo;Leading Petroleum Geoscience to Fuel the Future of Oil
-                  and Gas&rdquo; — connecting scientific insight with
+                  Connecting scientific insight with
                   technological progress and industry responsibility.
                 </p>
               </div>
@@ -451,6 +451,7 @@ export default function LandingPage() {
             eventPlace={ev.eventPlace}
             eventSpeaker={ev.eventSpeaker}
             eventStatus={ev.status}
+            eventRegistrationUrl={getEventRegistrationLink(ev.id)}
           />
         );
       })()}
