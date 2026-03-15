@@ -88,7 +88,7 @@ const EVENTS_RAW = [
     title: "WISHARE (Charity Program)",
     description:
       "This charity program aims to support selected beneficiaries through fundraising and donation activities conducted throughout the event series. It reflects the event's commitment to social contribution by encouraging meaningful actions with a direct impact on the community.",
-    eventDate: "21 June 2026",
+    eventDate: "17 March 2026",
     eventPlace: "TBA",
     eventSpeaker: "Soon to be announced",
   },
