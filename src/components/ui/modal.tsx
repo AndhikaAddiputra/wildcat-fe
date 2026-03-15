@@ -33,6 +33,8 @@ export interface ModalProps {
   guidebookUrl?: string;
   /** Status event untuk variant="event": available | not_started | ended. Register Now disabled jika bukan available. */
   eventStatus?: "available" | "not_started" | "ended";
+  /** URL RSVP/registrasi event (jika ada, tombol Register Now buka link ini; jika tidak, ke /register) */
+  eventRegistrationUrl?: string;
 }
 
 function Modal({ 
@@ -51,6 +53,7 @@ function Modal({
   competitionImageUrl,
   guidebookUrl,
   eventStatus,
+  eventRegistrationUrl,
 }: ModalProps) {
   const [countdown, setCountdown] = useState<{ days: number; hours: number; minutes: number; seconds: number } | null>(null);
 
@@ -204,9 +207,15 @@ function Modal({
                 </div >
                 <div className="flex flex-col gap-3 mt-8">
                 {eventStatus === "available" ? (
-                  <Link href="/register" className="block">
-                    <Button variant="primary" className="w-full">Register Now</Button>
-                  </Link>
+                  eventRegistrationUrl ? (
+                    <a href={eventRegistrationUrl} target="_blank" rel="noopener noreferrer" className="block">
+                      <Button variant="primary" className="w-full">Register Now</Button>
+                    </a>
+                  ) : (
+                    <Link href="/register" className="block">
+                      <Button variant="primary" className="w-full">Register Now</Button>
+                    </Link>
+                  )
                 ) : (
                   <Button variant="primary" disabled className="w-full">Register Now</Button>
                 )}

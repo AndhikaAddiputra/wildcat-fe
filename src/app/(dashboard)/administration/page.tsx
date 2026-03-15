@@ -25,6 +25,7 @@ import { requestPaymentToken } from "@/services/mayar/payment.service";
 import { useMayarPaymentStatus } from "@/hooks/useMayarPaymentStatus";
 import { DOCUMENT_TYPES } from "@/lib/constants/document-types";
 import { deriveTeamStatusFromVerification, TEAM_STATUS } from "@/lib/constants/team-status";
+import { competitionUuidToId, COORDINATION_GROUP_LINKS } from "@/lib/constants/guidebooks";
 import { cn } from "@/lib/utils";
 
 const PAYMENT_METHODS = [
@@ -32,11 +33,11 @@ const PAYMENT_METHODS = [
 ] as const;
 
 /** URL template frame Twibbon untuk didownload */
-const TWIBBON_TEMPLATE_URL = "https://www.twibbonize.com/";
+const TWIBBON_TEMPLATE_URL = "https://docs.google.com/document/d/1WYHAVGWbasnfAYOZuJNzzXkpMacToWl-_sAi23btcPI/edit?usp=sharing";
 /** URL Instagram Wildcat */
 const WILDCAT_INSTAGRAM_URL = "https://www.instagram.com/wildcataapgitb/";
 /** URL poster untuk posting di IG Story */
-const POSTER_DOWNLOAD_URL = "https://storage.wildcat2026.com/poster";
+const POSTER_DOWNLOAD_URL = "https://drive.google.com/drive/folders/1d0EjzvSIIJYbnyzRu2us1vakmYIAP2j2?usp=sharing";
 
 function PaymentProofPreviewButton() {
   const [loading, setLoading] = useState(false);
@@ -328,9 +329,10 @@ export default function Home() {
                 {isDocumentVerified && (
                   <div className="flex items-center gap-3 rounded-xl border-2 border-green-400/80 bg-green-950/30 p-4 mb-4 text-green-100">
                     <CheckCircle2 className="h-6 w-6 shrink-0" />
-                    <p className="text-sm font-medium">
-                      Your administrative documents have been verified. You cannot upload or replace new files.
-                    </p>
+                    <div className="text-sm font-medium">
+                      <p>Your administrative documents have been verified. You cannot upload or replace new files.</p>
+                      <p className="mt-2">Once verified, you cannot add or remove members. Team data cannot be changed.</p>
+                    </div>
                   </div>
                 )}
                 <CardTitle className="w-full max-w-[95%] mx-auto my-6 sm:my-8 text-2xl sm:text-[32px] font-semibold !text-[#F1E1B4]">
@@ -388,11 +390,11 @@ export default function Home() {
                         <UploadStatusBadge status={uploadStatus[DOCUMENT_TYPES.PROOF_TWIBBON]} error={uploadErrors[DOCUMENT_TYPES.PROOF_TWIBBON]} />
                       </div>
                       <p className="text-navy/80 text-sm">
-                        Twibbon frames can be downloaded {" "}
+                        Twibbon frames can be downloaded{" "}
                         <a href={TWIBBON_TEMPLATE_URL} target="_blank" rel="noopener noreferrer" className="text-[#0A2D6E] font-medium underline hover:text-[#F6911E]">
                           here
                         </a>
-                        .
+                        . The proof must include all team members (leader and members).
                       </p>
                     </div>
                     <FileUploadZone
@@ -486,9 +488,12 @@ export default function Home() {
                     "Pay Faster With Mayar.id"
                   )}
                 </Button>
+                <p className="w-full max-w-[95%] mx-auto mt-2 text-center text-[#F1E1B4]/80 text-sm">
+                  Please complete your payment within 10 minutes.
+                </p>
 
                 <span className="w-full max-w-[95%] my-6 sm:my-8 mx-auto text-center text-cream text-sm sm:text-base">
-                    -------------------- OR --------------------
+                    -------------------- OR -------------------
                 </span>
 
                 <span className="w-full max-w-[95%] mx-auto text-center text-cream text-sm sm:text-base">
@@ -523,7 +528,27 @@ export default function Home() {
                       <p className="text-sm text-navy/80">Method: {transaction.paymentType}</p>
                     )}
                     {effectiveVerificationStatus === "Verified" && (
-                      <p className="text-sm text-green-700 font-medium">Your payment has been verified.</p>
+                      <>
+                        <p className="text-sm text-green-700 font-medium">Your payment has been verified.</p>
+                        {(() => {
+                          const compId = competitionUuidToId(teamProfile?.competitionId);
+                          const groupLink = compId ? COORDINATION_GROUP_LINKS[compId] : null;
+                          if (groupLink) {
+                            return (
+                              <a
+                                href={groupLink}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 mt-2 px-4 py-2 rounded-lg bg-[#00B900] text-white text-sm font-medium hover:bg-[#009900] transition-colors"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                                Join Coordination Group
+                              </a>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </>
                     )}
                     <PaymentProofPreviewButton />
                   </div>

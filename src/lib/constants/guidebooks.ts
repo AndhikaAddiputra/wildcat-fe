@@ -41,6 +41,14 @@ export function getGuidebookUrl(
   return url ?? GUIDEBOOK_URLS["paper-poster"];
 }
 
+/** Link grup koordinasi LINE per kompetisi (setelah payment berhasil) */
+export const COORDINATION_GROUP_LINKS: Record<GuidebookCompetitionId, string> = {
+  "gng-case": "https://line.me/R/ti/g/ZWeZVWYWVd",
+  "business-case": "https://line.me/R/ti/g/D4DYVdDZs7",
+  "high-school-essay": "https://line.me/R/ti/g/zjVqtt6bHH",
+  "paper-poster": "https://line.me/R/ti/g/2nRrZhKFhL",
+};
+
 export function getGuidebooksList(): {
   id: GuidebookCompetitionId;
   name: string;

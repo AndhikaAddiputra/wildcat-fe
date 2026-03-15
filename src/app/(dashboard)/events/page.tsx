@@ -11,6 +11,7 @@ import { LOGO, PARTICIPANT_NAV_LINKS, PARTICIPANT_NAV_ACTION } from "@/config/na
 import { ExternalLink } from "lucide-react";
 import { useEvents } from "@/hooks/useEvents";
 import { computeEventStatus, type EventStatus } from "@/lib/utils/event-status";
+import { getEventRegistrationLink } from "@/lib/constants/event-links";
 
 interface EventDisplay {
   id: string;
@@ -154,6 +155,7 @@ export default function Event() {
             eventPlace={ev.eventPlace}
             eventSpeaker={ev.eventSpeaker}
             eventStatus={ev.status}
+            eventRegistrationUrl={getEventRegistrationLink(ev.id)}
           />
         );
       })()}
