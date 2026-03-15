@@ -19,6 +19,14 @@ import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import type { TeamProfileResponse } from "@/lib/api/types";
 
+/** Max participants per team per competition */
+const MAX_PARTICIPANTS_LIST = [
+  { label: "Paper & Poster (PaPos)", max: 3 },
+  { label: "GnG Case Study", max: 3 },
+  { label: "BCC", max: 3 },
+  { label: "Essay", max: 1 },
+] as const;
+
 export default function Teams() {
   const { data, loading, error, updateTeam } = useTeamProfile();
   const { data: dashboardData } = useParticipantDashboard();
@@ -29,6 +37,7 @@ export default function Teams() {
   const isDocumentVerified =
     (dashboardData?.documentVerificationStatus?.toLowerCase() === "verified") ||
     (data?.documentVerificationStatus?.toLowerCase() === "verified");
+
 
   useEffect(() => {
     if (data) {
@@ -112,9 +121,19 @@ export default function Teams() {
           ) : (
           <CardLarge className="w-full max-w-full">
             <CardHeader>
-              <CardTitle className="text-[28px] font-bold leading-tight !text-[#F1E1B4] mb-6">
+              <CardTitle className="text-[28px] font-bold leading-tight !text-[#F1E1B4] mb-2">
                 Team Information
               </CardTitle>
+              <div className="mb-6 rounded-xl border border-[#F1E1B4]/30 bg-white/5 p-4">
+                <p className="text-[#F1E1B4] font-medium text-sm mb-2">Maximum participants per team:</p>
+                <ul className="text-[#F1E1B4]/90 text-sm space-y-1">
+                  {MAX_PARTICIPANTS_LIST.map((item) => (
+                    <li key={item.label}>
+                      {item.label}: {item.max} {item.max === 1 ? "person" : "people"}
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               <div className="grid gap-6 md:grid-cols-2">
                 <div className="space-y-2">
