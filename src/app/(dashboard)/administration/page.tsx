@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { AlertCircle, CheckCircle2, Clock, CreditCard, ExternalLink, GraduationCap, Landmark, XCircle } from "lucide-react";
 import {
@@ -334,6 +335,18 @@ export default function Home() {
                       <p>Your administrative documents have been verified. You cannot upload or replace new files.</p>
                       <p className="mt-2">Once verified, you cannot add or remove members. Team data cannot be changed.</p>
                     </div>
+                  </div>
+                )}
+                {!isDocumentVerified && (
+                  <div className="flex items-start gap-3 rounded-xl border-2 border-[#F6911E]/60 bg-[#F6911E]/10 p-4 mb-4 text-[#F1E1B4]">
+                    <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+                    <p className="text-sm font-medium">
+                      Please complete your team data first on the{" "}
+                      <Link href="/teams" className="font-semibold text-[#F6911E] underline underline-offset-2 hover:text-[#F6911E]/90">
+                        Team
+                      </Link>{" "}
+                      page (name, institution, phone number, LINE ID, and member details) before uploading administration documents.
+                    </p>
                   </div>
                 )}
                 <CardTitle className="w-full max-w-[95%] mx-auto my-6 sm:my-8 text-2xl sm:text-[32px] font-semibold !text-[#F1E1B4]">

@@ -19,6 +19,9 @@ import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import type { TeamProfileResponse } from "@/lib/api/types";
 
+/** Indonesian phone: +62/62/0 followed by 8, then 1-9, then 6-10 digits (10-12 digits total) */
+const PHONE_REGEX = /^(\+62|62|0)8[1-9][0-9]{6,10}$/;
+
 /** Max participants per team per competition */
 const MAX_PARTICIPANTS_LIST = [
   { label: "Paper & Poster (PaPos)", max: 3 },
@@ -58,6 +61,12 @@ export default function Teams() {
 
   const handleSave = async () => {
     setSaveError(null);
+    const phone = (form.phoneNumber ?? "").trim().replace(/\s/g, "");
+    if (phone && !PHONE_REGEX.test(phone)) {
+      setSaveError("Phone number must be 10-12 digits. Format: 08xxxxxxxxxx, 628xxxxxxxxxx, or +628xxxxxxxxxx");
+      toast.error("Invalid phone number format.");
+      return;
+    }
     setSaving(true);
     try {
       await updateTeam({
@@ -160,15 +169,16 @@ export default function Teams() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-[#F1E1B4]">Phone Number (WhatsApp Available)</label>
+                  <label className="text-sm font-medium text-[#F1E1B4]">Phone Number (WhatsApp Available)*</label>
                   <Input
                     value={form.phoneNumber ?? ""}
                     onChange={(e) => update("phoneNumber", e.target.value)}
-                    placeholder="Enter your phone number here"
+                    placeholder="08xxxxxxxxxx or 628xxxxxxxxxx (10-12 digits)"
                     readOnly={isDocumentVerified}
                     disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
+                  <p className="text-xs text-[#F1E1B4]/70">Format: 08xxxxxxxxxx, 628xxxxxxxxxx, or +628xxxxxxxxxx (10-12 digits)</p>
                 </div>
 
                 <div className="space-y-2">
