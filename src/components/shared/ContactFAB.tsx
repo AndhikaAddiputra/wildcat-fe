@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { MessageCircle, X } from "lucide-react";
+import { MessageCircle, X, FileQuestion } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   getAllContactGroups,
@@ -74,6 +74,19 @@ export function ContactFAB() {
               </button>
             </div>
             <div className="max-h-[70vh] overflow-y-auto p-4 space-y-6">
+              <a
+                href="https://docs.google.com/spreadsheets/d/1SbQnLS7Kq6XMXHwBBqLNfZSNGKznSLyKM8gQipPWac0/edit?usp=drive_link"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-3 rounded-xl border border-[#F6911E]/50 bg-[#F6911E]/10 px-4 py-3 text-[#F1E1B4] hover:bg-[#F6911E]/20 transition-colors"
+              >
+                <FileQuestion className="h-5 w-5 shrink-0 text-[#F6911E]" />
+                <div>
+                  <p className="font-semibold">FAQ Wildcat 2026</p>
+                  <p className="text-xs text-[#F1E1B4]/80">See frequently asked questions here</p>
+                </div>
+              </a>
               {groups.map((group) => (
                 <div key={group.label}>
                   <h4 className="text-sm font-medium text-[#f6911e] mb-1">{group.label}</h4>
