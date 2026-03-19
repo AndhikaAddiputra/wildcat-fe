@@ -64,7 +64,7 @@ export default function AdminStatisticsPage() {
       if (metricsRes.ok) {
         const metricsData = await metricsRes.json();
         if (metricsData.success) {
-          setCompetitionsData(metricsData.competitions || { competitions: [], grandTotal: 0 });
+          setCompetitionsData(metricsData.competitions ?? { competitions: [], grandTotals: { teamCount: 0, participantCount: 0 } });
           setEventsData(metricsData.events || { events: [], grandTotals: { registeredCount: 0, attendedCount: 0 } });
           const fetchedCurves = metricsData.curves?.registrationCurves || metricsData.curves || [];
           setCurvesData(Array.isArray(fetchedCurves) ? fetchedCurves : []);
@@ -81,10 +81,17 @@ export default function AdminStatisticsPage() {
     loadData();
   }, []);
 
-  const safeCompetitions = Array.isArray(competitionsData.competitions) ? competitionsData.competitions : [];
+  const safeCompetitions = Array.isArray(competitionsData.competitions)
+    ? competitionsData.competitions
+    : Array.isArray(competitionsData)
+      ? competitionsData
+      : [];
   const safeEvents = Array.isArray(eventsData.events) ? eventsData.events : [];
   
-  const totalCompParticipants = competitionsData.grandTotal || 0;
+  const totalCompParticipants =
+    competitionsData.grandTotals?.participantCount ??
+    (safeCompetitions.reduce((sum: number, c: { participantCount?: number }) => sum + (c.participantCount ?? 0), 0) || competitionsData.grandTotal) ??
+    0;
   const totalEventParticipants = eventsData.grandTotals?.registeredCount || 0;
 
   // 🌟 FUNGSI MEMBUKA MODAL
@@ -274,11 +281,13 @@ export default function AdminStatisticsPage() {
 
             {/* List Kompetisi */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {safeCompetitions.length > 0 ? safeCompetitions.map((comp: { competitionName?: string; teamCount?: number }, idx: number) => (
+              {safeCompetitions.length > 0 ? safeCompetitions.map((comp: { competitionName?: string; teamCount?: number; participantCount?: number }, idx: number) => (
                 <div key={idx} className="bg-[#3c3c9c] p-6 rounded-2xl border border-white/10 text-center">
                   <p className="text-[#F6911E] text-md font-bold mb-3 uppercase">{getShortCompetitionName(comp.competitionName ?? "")}</p>
-                  <p className="text-6xl font-black text-[#F6911E] mb-3">{comp.teamCount || 0}</p>
-                  <p className="text-[#F6911e] text-sm">Team Registered</p>
+                  <p className="text-6xl font-black text-[#F6911E] mb-1">{comp.participantCount ?? 0}</p>
+                  <p className="text-[#F6911e] text-sm mb-2">Participants</p>
+                  <p className="text-2xl font-bold text-[#F1E1B4]">{comp.teamCount ?? 0}</p>
+                  <p className="text-[#F1E1B4]/80 text-xs">Teams</p>
                 </div>
               )) : (
                 <p className="text-white col-span-4 text-center py-4">No competition data.</p>

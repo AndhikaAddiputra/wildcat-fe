@@ -15,7 +15,25 @@ export async function GET(request: Request) {
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3030";
 
   try {
-    // Panggil kedua endpoint backend Hono secara paralel agar lebih cepat
+    // Coba endpoint terpadu GET /api/admin/metrics dulu (jika backend mendukung)
+    const unifiedRes = await fetch(`${backendUrl}/api/admin/metrics`, {
+      headers: { Authorization: `Bearer ${session.access_token}` },
+    });
+
+    if (unifiedRes.ok) {
+      const data = await unifiedRes.json();
+      // Jika response punya competitions + grandTotals, gunakan endpoint terpadu
+      if (data?.competitions != null) {
+        return NextResponse.json({
+          success: true,
+          competitions: data,
+          events: data.events ?? { events: [], grandTotals: { registeredCount: 0, attendedCount: 0 } },
+          curves: data.curves ?? data.registrationCurves ?? [],
+        });
+      }
+    }
+
+    // Fallback: panggil endpoint terpisah
     const [compRes, eventRes, curvesRes] = await Promise.all([
       fetch(`${backendUrl}/api/admin/metrics/competitions`, {
         headers: { Authorization: `Bearer ${session.access_token}` },
@@ -30,13 +48,13 @@ export async function GET(request: Request) {
 
     const competitionsData = await compRes.json();
     const eventsData = await eventRes.json();
-    const curvesData = await curvesRes.json(); // Data baru
+    const curvesData = await curvesRes.json();
 
     return NextResponse.json({
       success: true,
       competitions: competitionsData,
       events: eventsData,
-      curves: curvesData // Kirim ke frontend
+      curves: curvesData,
     });
   } catch (error) {
     console.error("Error fetching metrics:", error);
