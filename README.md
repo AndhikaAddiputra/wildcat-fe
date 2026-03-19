@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Wildcat FE
 
-## Getting Started
+Frontend Next.js untuk **Wildcat 2026** — platform kompetisi petroleum geoscience (PaPos, BCC, GnG, Essay) dengan fitur registrasi, administrasi dokumen, pembayaran, dan submission.
 
-First, run the development server:
+## Dokumentasi Lengkap
+
+📖 **[DOCUMENTATION.md](./DOCUMENTATION.md)** — Dokumentasi lengkap aplikasi meliputi:
+
+- Ringkasan proyek & kompetisi
+- Tech stack & struktur proyek
+- Alur autentikasi & role-based access
+- Rute, API, dan fitur utama
+- Konstanta, environment variables, deployment
+
+## Quick Start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000). Pastikan backend berjalan di `NEXT_PUBLIC_BACKEND_URL` (default: `http://localhost:3030`).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 16** (App Router) + **React 19**
+- **Supabase Auth** (Google OAuth)
+- **Tailwind CSS 4**
+- **OpenNext + Cloudflare Workers** (deployment)
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Script | Deskripsi |
+|--------|-----------|
+| `npm run dev` | Development server |
+| `npm run build` | Build production |
+| `npm run cf-build` | Build untuk Cloudflare Workers |
+| `npm run start` | Start production server |
+| `npm run lint` | ESLint |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Buat file `.env.local` dengan variabel wajib:
 
-## Deploy on Vercel
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `NEXT_PUBLIC_BACKEND_URL` (atau `BACKEND_URL`)
+- `MAYAR_API_KEY` (untuk pembayaran online)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Lihat [DOCUMENTATION.md](./DOCUMENTATION.md#10-environment-variables) untuk daftar lengkap.

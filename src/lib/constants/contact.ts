@@ -13,12 +13,15 @@ export interface ContactPerson {
 
 export interface ContactGroup {
   label: string;
+  /** Optional description shown below the label */
+  description?: string;
   contacts: ContactPerson[];
 }
 
 export const CONTACT_GROUPS: Record<string, ContactGroup> = {
   "admin-it": {
     label: "Admin IT",
+    description: "If you have questions about website please chat us!",
     contacts: [
       { id: "kuewaffle", name: "Andhika", lineId: "kuewaffle" },
       { id: "atharizza535", name: "Atharizza", lineId: "atharizza535" },

@@ -44,11 +44,12 @@ export const PARTICIPANT_NAV_ACTION = (
   </Link>
 );
 
-/** 3. Navbar Committee: CommitteeHome, Verification, CommitteeSubmission (placeholder) + Logout */
+/** 3. Navbar Committee: CommitteeHome, Verification, CommitteeSubmission, Export Teams + Logout */
 export const COMMITTEE_NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/committee/home" },
   { label: "Verification", href: "/committee/verification" },
   { label: "Submission", href: "/committee/submission" },
+  { label: "Export Teams", href: "/committee/export/teams" },
 ];
 
 export const COMMITTEE_NAV_ACTION = (
@@ -60,11 +61,12 @@ export const COMMITTEE_NAV_ACTION = (
   </Link>
 );
 
-/** 4. Navbar Admin: AdminHome, AccessControl, Announcement (placeholder) + Logout */
+/** 4. Navbar Admin: AdminHome, AccessControl, Announcement, Export Teams + Logout */
 export const ADMIN_NAV_LINKS: NavLink[] = [
   { label: "Home", href: "/admin/home" },
   { label: "AccessControl", href: "/admin/access" },
   { label: "Announcement", href: "/admin/announcement" },
+  { label: "Export Teams", href: "/admin/export/teams" },
 ];
 
 export const ADMIN_NAV_ACTION = (

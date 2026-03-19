@@ -36,13 +36,14 @@ export function ContactFAB() {
       <button
         onClick={() => setOpen(true)}
         className={cn(
-          "fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full shadow-lg transition-all",
+          "fixed bottom-6 right-6 z-50 flex items-center gap-2 h-14 px-5 rounded-full shadow-lg transition-all",
           "bg-[#f6911e] text-[#0a2d6e] hover:bg-[#e08000] hover:scale-105",
           "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#f6911e] focus-visible:ring-offset-2"
         )}
-        aria-label="Contact person"
+        aria-label="Any Questions? Contact person"
       >
-        <MessageCircle className="h-6 w-6" />
+        <MessageCircle className="h-6 w-6 shrink-0" />
+        <span className="font-semibold text-sm whitespace-nowrap">Any Questions?</span>
       </button>
 
       {open && (
@@ -63,7 +64,7 @@ export function ContactFAB() {
             )}
           >
             <div className="flex items-center justify-between border-b border-zinc-600 px-4 py-3 shrink-0">
-              <h3 className="font-semibold text-[#f1e1b4]">Contact Person</h3>
+              <h3 className="font-semibold text-[#f1e1b4]">Any Questions?</h3>
               <button
                 onClick={() => setOpen(false)}
                 className="rounded p-1.5 text-[#f1e1b4] hover:bg-white/10 hover:text-white transition-colors"
@@ -75,7 +76,10 @@ export function ContactFAB() {
             <div className="max-h-[70vh] overflow-y-auto p-4 space-y-6">
               {groups.map((group) => (
                 <div key={group.label}>
-                  <h4 className="text-sm font-medium text-[#f6911e] mb-2">{group.label}</h4>
+                  <h4 className="text-sm font-medium text-[#f6911e] mb-1">{group.label}</h4>
+                  {group.description && (
+                    <p className="text-xs text-[#f1e1b4]/80 mb-2">{group.description}</p>
+                  )}
                   <ul className="space-y-2">
                     {group.contacts.map((c) => (
                       <ContactItem key={`${group.label}-${c.id}`} contact={c} onClose={() => setOpen(false)} />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Button,
   Navbar,
@@ -20,7 +20,35 @@ import {
 } from "lucide-react";
 import { useAdminTeams, AdminTeam, TeamDocument } from "@/hooks/useAdminTeams";
 import { useAdminTransactions, AdminTransaction } from "@/hooks/useAdminTransactions";
+import { TeamDetailModal, type TeamDetailData } from "@/components/committee/TeamDetailModal";
 import { toast } from "sonner";
+
+function pick(obj: Record<string, unknown> | null | undefined, ...keys: string[]): string | undefined {
+  if (!obj || typeof obj !== "object") return undefined;
+  for (const k of keys) {
+    const v = obj[k];
+    if (v != null && typeof v === "string") return v;
+  }
+  return undefined;
+}
+
+function normalizeTeamFromAdminList(raw: Record<string, unknown>): TeamDetailData {
+  const teamId = pick(raw, "teamId", "team_id", "id") ?? "";
+  return {
+    teamId,
+    teamName: pick(raw, "teamName", "team_name") ?? "-",
+    institution: pick(raw, "institution", "institution_name"),
+    competition: pick(raw, "competition", "competitionName", "competition_name"),
+    phoneNumber: pick(raw, "phoneNumber", "phone_number", "phone"),
+    lineId: pick(raw, "lineId", "line_id", "line"),
+    leadName: pick(raw, "leadName", "lead_name", "leaderName", "leader_name"),
+    leadMajor: pick(raw, "leadMajor", "lead_major", "leaderMajor", "leader_major"),
+    m1Name: pick(raw, "m1Name", "m1_name"),
+    m1Major: pick(raw, "m1Major", "m1_major"),
+    m2Name: pick(raw, "m2Name", "m2_name"),
+    m2Major: pick(raw, "m2Major", "m2_major"),
+  };
+}
 
 // ─── Konstanta Label ──────────────────────────────────────────────────────────
 
@@ -364,6 +392,43 @@ export default function VerificationPage() {
   const { teams, loading, error, refetch, verifyTeam } = useAdminTeams();
   const { transactions, loading: txLoading, error: txError, refetch: refetchTx, verifyTransaction } = useAdminTransactions();
 
+  const [teamDetailModal, setTeamDetailModal] = useState<TeamDetailData | null>(null);
+  const [adminTeamsMap, setAdminTeamsMap] = useState<Record<string, TeamDetailData>>({});
+
+  // Fetch /api/admin/teams (API yang sudah ada) untuk data lengkap tim
+  useEffect(() => {
+    fetch("/api/admin/teams", { credentials: "include" })
+      .then((res) => res.json().catch(() => ({})))
+      .then((json) => {
+        const list = json.data?.teams ?? json.teams ?? [];
+        const map: Record<string, TeamDetailData> = {};
+        for (const t of Array.isArray(list) ? list : []) {
+          const normalized = normalizeTeamFromAdminList(t as Record<string, unknown>);
+          if (normalized.teamId) map[normalized.teamId] = normalized;
+        }
+        setAdminTeamsMap(map);
+      })
+      .catch(() => {});
+  }, []);
+
+  function openTeamDetail(row: { teamId: string; teamName: string; institution?: string; competition?: string }) {
+    const fromMap = adminTeamsMap[row.teamId];
+    setTeamDetailModal({
+      teamId: row.teamId,
+      teamName: row.teamName,
+      institution: row.institution ?? fromMap?.institution,
+      competition: row.competition ?? fromMap?.competition,
+      phoneNumber: fromMap?.phoneNumber,
+      lineId: fromMap?.lineId,
+      leadName: fromMap?.leadName,
+      leadMajor: fromMap?.leadMajor,
+      m1Name: fromMap?.m1Name,
+      m1Major: fromMap?.m1Major,
+      m2Name: fromMap?.m2Name,
+      m2Major: fromMap?.m2Major,
+    });
+  }
+
   // Filter & pagination untuk Tabel Registration Documents
   const [docPage, setDocPage] = useState(1);
   const [docPageSize, setDocPageSize] = useState(10);
@@ -546,7 +611,15 @@ export default function VerificationPage() {
                     {!loading && docPagedTeams.map((team) => (
                       <tr key={team.teamId} className="border-t">
                         <td className="text-xs">{team.competition}</td>
-                        <td>{team.teamName}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => openTeamDetail(team)}
+                            className="text-left font-medium text-blue-300 hover:text-blue-100 hover:underline underline-offset-2 transition-colors"
+                          >
+                            {team.teamName}
+                          </button>
+                        </td>
                         <td className="action">
                           <KtmDropdown documents={team.documents} />
                         </td>
@@ -679,7 +752,15 @@ export default function VerificationPage() {
                     {!txLoading && paymentPagedTransactions.map((tx) => (
                       <tr key={tx.id} className="border-t">
                         <td className="text-xs">{tx.competition}</td>
-                        <td>{tx.teamName}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={() => openTeamDetail(tx)}
+                            className="text-left font-medium text-blue-300 hover:text-blue-100 hover:underline underline-offset-2 transition-colors"
+                          >
+                            {tx.teamName}
+                          </button>
+                        </td>
                         <td className="action">
                           <PaymentProofLink transaction={tx} />
                         </td>
@@ -735,6 +816,14 @@ export default function VerificationPage() {
       </div>
 
       <Footer />
+
+      {teamDetailModal && (
+        <TeamDetailModal
+          isOpen={!!teamDetailModal}
+          onClose={() => setTeamDetailModal(null)}
+          teamData={teamDetailModal}
+        />
+      )}
     </div>
   );
 }
