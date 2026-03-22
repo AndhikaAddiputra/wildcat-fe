@@ -141,7 +141,7 @@ export default function Home() {
   const isMayarPayment = transaction?.paymentType?.toLowerCase().includes("mayar") ?? false;
   const mayarPaymentCompleted = hasMayarPayment && ["settlement", "capture", "paid"].includes((mayarStatusValue ?? "").toLowerCase());
   const effectiveVerificationStatus =
-    isMayarPayment && mayarPaymentCompleted
+    (isMayarPayment || hasMayarPayment) && mayarPaymentCompleted
       ? "Verified"
       : transaction?.verificationStatus ?? "Pending";
 
@@ -573,16 +573,16 @@ export default function Home() {
                   </div>
                 )}
 
-                {/* Manual payment: show transaction status or upload zone */}
+                {/* Manual payment: show transaction status or upload zone. Hide manual upload when user has Mayar payment. */}
                 {transactionLoading ? (
                   <div className="w-full max-w-[95%] min-h-[240px] mx-auto flex items-center justify-center rounded-[20px] bg-[#9aa0d6] text-navy">
                     <Spinner size="md" />
                   </div>
-                ) : transaction && (effectiveVerificationStatus === "Pending" || effectiveVerificationStatus === "Verified") ? (
+                ) : (hasMayarPayment || (transaction && (effectiveVerificationStatus === "Pending" || effectiveVerificationStatus === "Verified"))) ? (
                   <div className="w-full max-w-[95%] mx-auto flex flex-col gap-3 rounded-[20px] border-4 border-blue-500 bg-[#9aa0d6] text-navy p-4">
                     <div className="flex items-center justify-between gap-2 flex-wrap">
                       <span className="font-semibold">
-                        {isMayarPayment ? "Payment via Mayar.id" : "Payment proof submitted"}
+                        {(isMayarPayment || hasMayarPayment) ? "Payment via Mayar.id" : "Payment proof submitted"}
                       </span>
                       <span className={cn(
                         "inline-flex items-center gap-1 text-sm font-medium px-2 py-1 rounded-lg",
@@ -594,7 +594,7 @@ export default function Home() {
                         {effectiveVerificationStatus}
                       </span>
                     </div>
-                    {transaction.paymentType && (
+                    {transaction?.paymentType && (
                       <p className="text-sm text-navy/80">Method: {transaction.paymentType}</p>
                     )}
                     {effectiveVerificationStatus === "Verified" && (
@@ -620,7 +620,7 @@ export default function Home() {
                         })()}
                       </>
                     )}
-                    <PaymentProofPreviewButton />
+                    {!(isMayarPayment || hasMayarPayment) && <PaymentProofPreviewButton />}
                   </div>
                 ) : (
                   <>
@@ -672,7 +672,7 @@ export default function Home() {
                   </>
                 )}
               </CardHeader>
-              {(!transaction || transaction.verificationStatus === "Rejected") && (
+              {!hasMayarPayment && (!transaction || transaction.verificationStatus === "Rejected") && (
                 <CardFooter className="w-full max-w-[95%] mx-auto my-auto p-4 sm:p-6">
                   <Button
                     variant="outline"

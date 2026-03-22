@@ -19,8 +19,8 @@ import { useTeamProfile } from "@/hooks/useTeamProfile";
 import { useParticipantDashboard } from "@/hooks/useParticipantDashboard";
 import type { TeamProfileResponse } from "@/lib/api/types";
 
-/** Indonesian phone: +62/62/0 followed by 8, then 1-9, then 6-10 digits (10-12 digits total) */
-const PHONE_REGEX = /^(\+62|62|0)8[1-9][0-9]{6,10}$/;
+/** International phone (E.164-like): optional +, 8-15 digits total */
+const PHONE_REGEX = /^\+?[1-9][0-9]{7,14}$/;
 
 /** Max participants per team per competition */
 const MAX_PARTICIPANTS_LIST = [
@@ -63,7 +63,7 @@ export default function Teams() {
     setSaveError(null);
     const phone = (form.phoneNumber ?? "").trim().replace(/\s/g, "");
     if (phone && !PHONE_REGEX.test(phone)) {
-      setSaveError("Phone number must be 10-12 digits. Format: 08xxxxxxxxxx, 628xxxxxxxxxx, or +628xxxxxxxxxx");
+      setSaveError("Invalid phone number format. Use 8-15 digits, for example +628123456789 or +14155552671.");
       toast.error("Invalid phone number format.");
       return;
     }
@@ -173,12 +173,12 @@ export default function Teams() {
                   <Input
                     value={form.phoneNumber ?? ""}
                     onChange={(e) => update("phoneNumber", e.target.value)}
-                    placeholder="08xxxxxxxxxx or 628xxxxxxxxxx (10-12 digits)"
+                    placeholder="+628123456789 or +14155552671"
                     readOnly={isDocumentVerified}
                     disabled={isDocumentVerified}
                     className="!h-11 !rounded-xl !border !border-[#f1e1b4] !bg-white/10 !text-[#f1e1b4] placeholder:!text-[#f1e1b4]/60 !focus:ring-[#F6911E] !focus:ring-offset-0"
                   />
-                  <p className="text-xs text-[#F1E1B4]/70">Format: 08xxxxxxxxxx, 628xxxxxxxxxx, or +628xxxxxxxxxx (10-12 digits)</p>
+                  <p className="text-xs text-[#F1E1B4]/70">Format: 8-15 digits (recommended: include country code, e.g. +62, +1, +44)</p>
                 </div>
 
                 <div className="space-y-2">
