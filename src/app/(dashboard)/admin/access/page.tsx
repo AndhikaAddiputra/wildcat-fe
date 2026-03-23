@@ -5,6 +5,7 @@ import { Button, Badge, Navbar, Footer } from "@/components/ui";
 import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
 import { Plus, RotateCw, Funnel, Pencil, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
+import { TeamDetailModal, type TeamDetailData } from "@/components/committee/TeamDetailModal";
 
 export default function AccessControlPage() {
   const [teams, setTeams] = useState<any[]>([]);
@@ -22,6 +23,17 @@ export default function AccessControlPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string>("All");
   const [isParticipantFilterOpen, setIsParticipantFilterOpen] = useState(false);
+
+  // Modal detail team untuk participant
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [teamModalData, setTeamModalData] = useState<TeamDetailData | null>(null);
+
+  type ReminderState = {
+    state: "idle" | "sending" | "sent" | "failed";
+    message?: string;
+    sentAt?: string;
+  };
+  const [reminderByTeamId, setReminderByTeamId] = useState<Record<string, ReminderState>>({});
 
   // 🌟 STATE UNTUK PAGINATION (PEMBATAS HALAMAN)
   const [committeePage, setCommitteePage] = useState(1);
@@ -74,6 +86,71 @@ export default function AccessControlPage() {
       setFormData({ id: "", name: "", email: "", role: "Committee", division: "", isActive: true });
     }
     setIsModalOpen(true);
+  };
+
+  const handleOpenTeamModal = (team?: any) => {
+    const teamData: TeamDetailData | null = team
+      ? {
+          teamId: String(team.teamId ?? team.team_id ?? team.id ?? ""),
+          teamName: String(team.teamName ?? team.team_name ?? team.name ?? "-"),
+          institution: team.institution ?? team.institution_name ?? undefined,
+          competition: team.competition ?? team.competitionName ?? team.competition_name ?? undefined,
+          phoneNumber: team.phoneNumber ?? team.phone_number ?? team.phone ?? undefined,
+          lineId: team.lineId ?? team.line_id ?? team.line ?? undefined,
+          leadName: team.leadName ?? team.lead_name ?? team.leaderName ?? team.leader_name ?? undefined,
+          leadMajor: team.leadMajor ?? team.lead_major ?? team.leaderMajor ?? team.leader_major ?? undefined,
+          m1Name: team.m1Name ?? team.m1_name ?? team.member1Name ?? team.member1_name ?? undefined,
+          m1Major: team.m1Major ?? team.m1_major ?? team.member1Major ?? team.member1_major ?? undefined,
+          m2Name: team.m2Name ?? team.m2_name ?? team.member2Name ?? team.member2_name ?? undefined,
+          m2Major: team.m2Major ?? team.m2_major ?? team.member2Major ?? team.member2_major ?? undefined,
+        }
+      : null;
+
+    setTeamModalData(teamData);
+    setIsTeamModalOpen(true);
+  };
+
+  const handleSendReminder = async (team: any) => {
+    const teamId = String(team?.teamId ?? team?.team_id ?? team?.id ?? "");
+    if (!teamId) return;
+
+    const paymentStatus = String(team?.status?.paymentStatus ?? "");
+    if (paymentStatus.toLowerCase() === "verified") return;
+
+    setReminderByTeamId((prev) => ({
+      ...prev,
+      [teamId]: { state: "sending" },
+    }));
+
+    try {
+      const teamName = String(team?.teamName ?? team?.team_name ?? team?.name ?? "");
+      const email =
+        team?.email ?? team?.leadEmail ?? team?.lead_email ?? team?.leaderEmail ?? team?.leader_email;
+      const res = await fetchWithAuth("/api/admin/reminders/send", {
+        method: "POST",
+        body: JSON.stringify({ teamId, teamName, email: email || undefined, paymentStatus }),
+      });
+
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) {
+        throw new Error((data?.error as string) || `Failed (${res.status})`);
+      }
+
+      const sentAt = new Date().toLocaleString("id-ID", {
+        day: "2-digit", month: "2-digit", year: "numeric",
+        hour: "2-digit", minute: "2-digit", second: "2-digit",
+      });
+      setReminderByTeamId((prev) => ({
+        ...prev,
+        [teamId]: { state: "sent", message: (data?.message as string) ?? "Sent", sentAt },
+      }));
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : "Failed to send reminder";
+      setReminderByTeamId((prev) => ({
+        ...prev,
+        [teamId]: { state: "failed", message: msg },
+      }));
+    }
   };
 
   const handleSubmitCommittee = async (e: React.FormEvent) => {
@@ -274,11 +351,11 @@ export default function AccessControlPage() {
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
-                    <col style={{ width: "20%" }} /><col style={{ width: "28%" }} /><col style={{ width: "18%" }} /><col style={{ width: "17%" }} /><col style={{ width: "17%" }} />
+                    <col style={{ width: "28%" }} /><col style={{ width: "18%" }} /><col style={{ width: "18%" }} /><col style={{ width: "18%" }} /><col style={{ width: "18%" }} />
                   </colgroup>
                   <thead>
                     <tr className="text-white">
-                      <th>Account Created</th><th>Team Name</th><th>Payment Status</th><th>Phone Number</th><th>Line ID</th>
+                      <th>Team Name</th><th>Payment Status</th><th>Reminder</th><th>Phone Number</th><th>Line ID</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -289,12 +366,55 @@ export default function AccessControlPage() {
                     ) : (
                       paginatedTeams.map((team) => (
                         <tr key={team.id} className="border-t">
-                          <td>{formatDate(team.createdAt)}</td>
-                          <td className="font-semibold">{team.teamName}</td>
+                          <td className="font-medium">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenTeamModal(team)}
+                              className="text-[#97B5ED] hover:underline cursor-pointer"
+                            >
+                              {team.teamName ?? "-"}
+                            </button>
+                          </td>
                           <td className="action">
                             {team.status?.paymentStatus === 'Verified' ? <Badge variant="complete">Verified</Badge> 
                              : team.status?.paymentStatus === 'Rejected' ? <Badge variant="end" className="bg-red-500">Rejected</Badge> 
                              : <Badge variant="pending" className="text-yellow-400 border-yellow-400">Pending</Badge>}
+                          </td>
+                          <td className="action">
+                            {(() => {
+                              const teamId = String(team?.teamId ?? team?.team_id ?? team?.id ?? "");
+                              const paymentStatus = String(team?.status?.paymentStatus ?? "");
+                              const disabled = paymentStatus.toLowerCase() === "verified";
+                              const reminder = reminderByTeamId[teamId];
+                              const state = reminder?.state ?? "idle";
+
+                              const buttonLabel =
+                                state === "sending" ? "Sending..." : state === "sent" ? "Sent" : "Send Reminder";
+
+                              return (
+                                <div className="flex flex-col gap-2">
+                                  <Button
+                                    variant="primary"
+                                    size="sm"
+                                    className="w-full"
+                                    disabled={disabled || state === "sending"}
+                                    onClick={() => handleSendReminder(team)}
+                                  >
+                                    {state === "sending" ? (
+                                      <RotateCw size={14} className="animate-spin" />
+                                    ) : null}
+                                    {buttonLabel}
+                                  </Button>
+                                  {state === "failed" ? (
+                                    <p className="text-red-400 text-xs leading-tight">{reminder?.message ?? "Failed"}</p>
+                                  ) : state === "sent" ? (
+                                    <p className="text-green-400 text-xs leading-tight">
+                                      ✓ Sent {reminder?.sentAt ?? ""}
+                                    </p>
+                                  ) : null}
+                                </div>
+                              );
+                            })()}
                           </td>
                           <td className="action">{team.phoneNumber || "-"}</td>
                           <td className="action">{team.lineId || "-"}</td>
@@ -373,6 +493,13 @@ export default function AccessControlPage() {
           </div>
         </div>
       )}
+
+      {/* 🌟 MODAL TEAM DETAIL */}
+      <TeamDetailModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
+        teamData={teamModalData}
+      />
     </div>
   );
 }
