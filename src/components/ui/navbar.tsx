@@ -104,7 +104,8 @@ function Navbar({
           mobileOpen ? "opacity-100" : "pointer-events-none opacity-0"
         )}
       >
-        <div className="flex h-full flex-col pt-24 pb-8">
+        {/* Add extra bottom padding so login/action area isn't covered by ContactFAB */}
+        <div className="flex h-full flex-col pt-24 pb-24">
           {/* Close button */}
           <button
             type="button"

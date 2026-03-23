@@ -184,7 +184,7 @@ const checklistItems = [
             <div className=" bg-[#96a0d2]/95 rounded-2xl p-6 space-y-4">
               <h3 className="text-md font-bold text-[#0A2D6E] mb-4">Registration Checklist</h3>
               {checklistItems.map((item, index) => (
-                <div key={index} className="flex items-start gap-3">
+                <div key={index} className="flex items-start gap-3 !font-medium">
                   {/* Circle/Check Icon */}
                   <div className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
