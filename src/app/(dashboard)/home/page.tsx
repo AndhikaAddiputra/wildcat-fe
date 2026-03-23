@@ -49,28 +49,61 @@ export default function ParticipantHomePage() {
   }));
 
   // Konfigurasi konten Progress Bar berdasarkan mode
-  const regConfig = {
-    "Registered": {
-      width: "5%",
-      dotClass: "left-[5%]",
-      message: "Immediately complete your documents on Administration page.",
-      badge: "pending" as const,
-    },
-    "Document Verified": {
-      width: "52%",
-      dotClass: "left-[52%]",
-      message: "Pay competition fee for complete your registration process.",
-      badge: "verified" as const,
-    },
-    "Paid": {
-      width: "100%",
-      dotClass: "right-0",
-      message: "Congratulations! Your account is ready to compete",
-      badge: "complete" as const,
-    },
-  };
+  // Di dalam src/app/(dashboard)/home/page.tsx
+
+const regConfig = {
+  "Registered": {
+    label: "Enrolled", // Label UI yang ditampilkan
+    width: "5%",
+    dotClass: "left-[5%]",
+    message: "Please complete your registration process immediately by following the checklist below..",
+    badge: "pending" as const,
+  },
+  "Document Verified": {
+    label: "Document Verified",
+    width: "52%",
+    dotClass: "left-[52%]",
+    message: "Please complete your registration process immediately by following the checklist below..",
+    badge: "verified" as const,
+  },
+  "Paid": {
+    label: "Paid",
+    width: "100%",
+    dotClass: "right-0",
+    message: (
+      <>
+        Congratulations! Your account is ready to compete. Please submit your work in {" "} 
+        <a href="/submission" className="underline font-bold text-[#F6911E] hover:text-[#F6911E]">
+          Submission
+        </a>.
+      </>
+    ),
+    badge: "complete" as const,
+  },
+};
 
   const currentReg = regConfig[regStatus] ?? regConfig["Registered"];
+
+const checklistItems = [
+  {
+    label: "Complete your team details information on the ",
+    linkText: "Team",
+    linkHref: "/teams", 
+    isDone: !!teamName, 
+  },
+  {
+    label: "Verify your administrative documents on the ",
+    linkText: "Administration",
+    linkHref: "/administration",
+    isDone: dashboardData?.documentVerificationStatus?.toLowerCase() === "verified",
+  },
+  {
+    label: "Once verified, complete the registration process by paying the registration fee on the ",
+    linkText: "Administration",
+    linkHref: "/administration",
+    isDone: regStatus === "Paid",
+  },
+];
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden">
@@ -104,6 +137,90 @@ export default function ParticipantHomePage() {
         </section>
 
         <div className="flex flex-col gap-8">
+
+          {/* Team Status Card */}
+          <CardLarge className="p-10 bg-[#0A2D6E]/95 border-none shadow-[0_0_15px_rgba(246,145,30,0.3)]">
+            <div className="flex items-center justify-between mb-8">
+              <h2 className="text-xl font-bold text-[#f1e1b4] tracking-wider">
+                {namesLoading && !teamName ? "..." : (teamName || "Team")}
+              </h2>
+              <Badge variant={currentReg.badge}>
+                {currentReg.label}
+              </Badge>
+            </div>
+            
+            {/* Progress Bar Area */}
+            <div className="relative mt-12 mb-8">
+              <div className="flex justify-between mb-4 text-xs font-bold uppercase tracking-widest">
+                <span className={regStatus === "Registered" ? "text-orange-400" : "text-zinc-500"}>Enrolled</span>
+                <span className={regStatus === "Document Verified" ? "text-orange-400" : "text-zinc-500"}>Document Verified</span>
+                <span className={regStatus === "Paid" ? "text-green-400" : "text-zinc-500"}>Paid</span>
+              </div>
+              
+              <div className="relative h-[8px] w-full bg-zinc-800 rounded-full">
+                {/* Progress Fill */}
+                <div 
+                  className={cn(
+                    "h-full rounded-full transition-all duration-1000 bg-gradient-to-r",
+                    regStatus === "Paid" ? "from-zinc-500 to-green-500" : "from-zinc-500 to-orange-400"
+                  )}
+                  style={{ width: currentReg.width }}
+                />
+                {/* Progress Dot Handle */}
+                <div 
+                  className={cn(
+                    "absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full border-[3px] border-[#0A2D6E] bg-white transition-all duration-1000 z-20",
+                    regStatus === "Paid" ? "right-0" : currentReg.dotClass + " -translate-x-1/2",
+                    regStatus === "Paid" ? "bg-green-400" : "bg-orange-400"
+                  )}
+                />
+              </div>
+            </div>
+
+            <p className="text-center mb-10 text-sm font-medium text-[#F1E1B4] tracking-wide">
+              {currentReg.message}
+            </p>
+          {/* Checklist Section */}
+            <div className=" bg-[#96a0d2]/95 rounded-2xl p-6 space-y-4">
+              <h3 className="text-sm font-bold text-[#0A2D6E] mb-4">Registration Checklist</h3>
+              {checklistItems.map((item, index) => (
+                <div key={index} className="flex items-start gap-3">
+                  {/* Circle/Check Icon */}
+                  <div className={cn(
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                    item.isDone ? "bg-[#1E2E6E] border-[#1E2E6E]" : "border-white bg-transparent"
+                  )}>
+                    {item.isDone ? (
+                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : null}
+                  </div>
+
+                  {/* Text with Link */}
+                  <p className={cn(
+                    "text-[13px] font-bold leading-tight",
+                    item.isDone ? "text-[#0A2D6E]" : "text-[#0A2D6E]/80"
+                  )}>
+                    {index + 1}. {item.label}
+                    <a 
+                      href={item.linkHref} 
+                      className="text-orange-400 font-bold cursor-pointer hover:underline transition-colors"
+                    >
+                      {item.linkText}
+                    </a> page.
+                  </p>
+                </div>
+              ))}
+            </div>
+
+             {dashboardError && (
+
+              <p className="text-center text-sm text-red-300 mt-4">{dashboardError}</p>
+
+            )}
+          </CardLarge>
+
           {/* Competition Info Card */}
           <CardLarge className="min-h-0 h-auto sm:h-[150px] flex flex-col sm:flex-row items-center justify-between p-6 sm:p-8 gap-4 sm:gap-0 bg-[#0A2D6E]/80 backdrop-blur-sm border-[#F6911E]">
             
@@ -182,53 +299,7 @@ export default function ParticipantHomePage() {
             </div>
           </CardLarge>
 
-          {/* Team Status Card */}
-          <CardLarge className="p-10 bg-[#0A2D6E]/95 border-none shadow-[0_0_15px_rgba(246,145,30,0.3)]">
-            <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-bold text-[#f1e1b4] tracking-wider">
-                {namesLoading && !teamName ? "..." : (teamName || "Team")}
-              </h2>
-              <Badge variant={currentReg.badge}>
-                {regStatus === "Document Verified" ? "Verified" : regStatus}
-              </Badge>
-            </div>
-            
-            {/* Progress Bar Area */}
-            <div className="relative mt-12 mb-12">
-              <div className="flex justify-between mb-4 text-xs font-bold uppercase tracking-widest">
-                <span className={regStatus === "Registered" ? "text-orange-400" : "text-zinc-500"}>Registered</span>
-                <span className={regStatus === "Document Verified" ? "text-orange-400" : "text-zinc-500"}>Document Verified</span>
-                <span className={regStatus === "Paid" ? "text-green-400" : "text-zinc-500"}>Paid</span>
-              </div>
-              
-              <div className="relative h-[8px] w-full bg-zinc-800 rounded-full">
-                {/* Progress Fill */}
-                <div 
-                  className={cn(
-                    "h-full rounded-full transition-all duration-1000 bg-gradient-to-r",
-                    regStatus === "Paid" ? "from-zinc-500 to-green-500" : "from-zinc-500 to-orange-400"
-                  )}
-                  style={{ width: currentReg.width }}
-                />
-                {/* Progress Dot Handle */}
-                <div 
-                  className={cn(
-                    "absolute top-1/2 -translate-y-1/2 h-5 w-5 rounded-full border-[3px] border-[#0A2D6E] bg-white transition-all duration-1000 z-20",
-                    regStatus === "Paid" ? "right-0" : currentReg.dotClass + " -translate-x-1/2",
-                    regStatus === "Paid" ? "bg-green-400" : "bg-orange-400"
-                  )}
-                />
-              </div>
-            </div>
-
-            <p className="text-center text-sm font-medium text-[#F1E1B4] tracking-wide">
-              {currentReg.message}
-            </p>
-
-            {dashboardError && (
-              <p className="text-center text-sm text-red-300 mt-2">{dashboardError}</p>
-            )}
-          </CardLarge>
+          
 
           {/* Announcement Card */}
           <CardLarge className="min-h-[150px] overflow-hidden border-2 border-[#F6911E]/40 bg-[#96a0d2]/95 shadow-lg">
