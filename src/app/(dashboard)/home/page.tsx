@@ -89,7 +89,7 @@ const checklistItems = [
     label: "Complete your team details information on the ",
     linkText: "Team",
     linkHref: "/teams", 
-    isDone: !!teamName, 
+    isDone: !!teamProfile?.phoneNumber?.trim(), 
   },
   {
     label: "Verify your administrative documents on the ",
@@ -182,16 +182,16 @@ const checklistItems = [
             </p>
           {/* Checklist Section */}
             <div className=" bg-[#96a0d2]/95 rounded-2xl p-6 space-y-4">
-              <h3 className="text-sm font-bold text-[#0A2D6E] mb-4">Registration Checklist</h3>
+              <h3 className="text-md font-bold text-[#0A2D6E] mb-4">Registration Checklist</h3>
               {checklistItems.map((item, index) => (
                 <div key={index} className="flex items-start gap-3">
                   {/* Circle/Check Icon */}
                   <div className={cn(
                     "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                    item.isDone ? "bg-[#1E2E6E] border-[#1E2E6E]" : "border-white bg-transparent"
+                    item.isDone ? "bg-[#1E2E6E] border-[#1E2E6E]" : "border-[#1E2E6E] bg-transparent"
                   )}>
                     {item.isDone ? (
-                      <svg className="h-3 w-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
+                      <svg className="h-3 w-3 text-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={4}>
                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                       </svg>
                     ) : null}
