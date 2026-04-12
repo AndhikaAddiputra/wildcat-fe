@@ -29,3 +29,51 @@ export function isInFinalStage(currentStageId: string | null | undefined, finalS
   if (!currentStageId) return false;
   return currentStageId.trim().toLowerCase() === finalStageId.trim().toLowerCase();
 }
+
+/** Filter tahap di halaman committee submission */
+export type CommitteeStageFilter = "all" | "preliminary" | "final";
+
+export function getStagePairForSlug(slug: string | null): {
+  preliminary: string | null;
+  final: string | null;
+} {
+  switch (slug) {
+    case "business-case":
+      return { preliminary: COMPETITION_STAGE_IDS.BCC_PRELIMINARY, final: COMPETITION_STAGE_IDS.BCC_FINAL };
+    case "paper-poster":
+      return { preliminary: COMPETITION_STAGE_IDS.PAPOS_PRELIMINARY, final: COMPETITION_STAGE_IDS.PAPOS_FINAL };
+    case "gng-case":
+      return { preliminary: COMPETITION_STAGE_IDS.GNG_PRELIMINARY, final: COMPETITION_STAGE_IDS.GNG_FINAL };
+    case "high-school-essay":
+      return { preliminary: COMPETITION_STAGE_IDS.ESSAY_PRELIMINARY, final: null };
+    default:
+      return { preliminary: null, final: null };
+  }
+}
+
+/** Label singkat untuk UI */
+export function labelStageForTeam(
+  currentStageId: string | null | undefined,
+  slug: string | null
+): "Preliminary" | "Final" | "—" {
+  const { preliminary, final: fin } = getStagePairForSlug(slug);
+  const id = (currentStageId ?? "").trim().toLowerCase();
+  if (!id) return "—";
+  if (preliminary && id === preliminary.toLowerCase()) return "Preliminary";
+  if (fin && id === fin.toLowerCase()) return "Final";
+  return "—";
+}
+
+export function teamMatchesCommitteeStageFilter(
+  currentStageId: string | null | undefined,
+  filter: CommitteeStageFilter,
+  slug: string | null
+): boolean {
+  if (filter === "all") return true;
+  const { preliminary, final: fin } = getStagePairForSlug(slug);
+  const id = (currentStageId ?? "").trim().toLowerCase();
+  if (!id) return false;
+  if (filter === "preliminary") return !!(preliminary && id === preliminary.toLowerCase());
+  if (filter === "final") return !!(fin && id === fin.toLowerCase());
+  return true;
+}

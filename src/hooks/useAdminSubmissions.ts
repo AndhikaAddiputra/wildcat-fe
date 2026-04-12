@@ -21,6 +21,7 @@ function normalizeTeam(raw: Record<string, unknown>): AdminSubmissionTeam {
     teamId: (raw.teamId ?? raw.team_id ?? "") as string,
     teamName: (raw.teamName ?? raw.team_name ?? "") as string,
     institution: (raw.institution ?? "") as string,
+    currentStageId: (raw.currentStageId ?? raw.current_stage_id ?? null) as string | null,
     submissions,
     totalRequirements: (raw.totalRequirements ?? raw.total_requirements ?? submissions.length) as number,
     submittedCount: (raw.submittedCount ?? raw.submitted_count ?? 0) as number,
@@ -58,6 +59,8 @@ export interface AdminSubmissionTeam {
   teamId: string;
   teamName: string;
   institution: string;
+  /** UUID tahap saat ini (jika backend mengirim) */
+  currentStageId: string | null;
   submissions: AdminSubmissionItem[];
   totalRequirements: number;
   submittedCount: number;

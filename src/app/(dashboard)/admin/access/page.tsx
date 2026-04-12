@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button, Badge, Navbar, Footer } from "@/components/ui";
 import { LOGO, ADMIN_NAV_LINKS, ADMIN_NAV_ACTION } from "@/config/navbar-config";
-import { Plus, RotateCw, Funnel, Pencil, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Plus, RotateCw, Funnel, Pencil, ChevronLeft, ChevronRight, X, Search } from "lucide-react";
 import { fetchWithAuth } from "@/lib/api/fetchWithAuth";
 import { TeamDetailModal, type TeamDetailData } from "@/components/committee/TeamDetailModal";
 
@@ -23,6 +23,8 @@ export default function AccessControlPage() {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedPaymentStatus, setSelectedPaymentStatus] = useState<string>("All");
   const [isParticipantFilterOpen, setIsParticipantFilterOpen] = useState(false);
+  const [committeeSearch, setCommitteeSearch] = useState("");
+  const [participantSearch, setParticipantSearch] = useState("");
 
   // Modal detail team untuk participant
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
@@ -42,9 +44,9 @@ export default function AccessControlPage() {
   const [teamsPage, setTeamsPage] = useState(1);
   const [teamsPerPage, setTeamsPerPage] = useState(10);
 
-  // Reset ke halaman 1 jika filter diganti
-  useEffect(() => { setCommitteePage(1); }, [selectedDivision]);
-  useEffect(() => { setTeamsPage(1); }, [selectedPaymentStatus]);
+  // Reset ke halaman 1 jika filter / pencarian diganti
+  useEffect(() => { setCommitteePage(1); }, [selectedDivision, committeeSearch]);
+  useEffect(() => { setTeamsPage(1); }, [selectedPaymentStatus, participantSearch]);
 
   const loadData = async () => {
     setIsLoading(true);
@@ -197,16 +199,63 @@ export default function AccessControlPage() {
     }
   };
 
-  // 🌟 LOGIKA FILTER & PAGINATION: COMMITTEE
+  const searchNorm = (s: string) => s.trim().toLowerCase();
+
+  const committeeMatchesSearch = (m: Record<string, unknown>) => {
+    const q = searchNorm(committeeSearch);
+    if (!q) return true;
+    const parts = [
+      m.name,
+      m.email,
+      m.division,
+      m.role,
+      m.id,
+    ]
+      .map((v) => (v != null ? String(v) : ""))
+      .join(" ");
+    return parts.toLowerCase().includes(q);
+  };
+
+  const participantMatchesSearch = (t: Record<string, unknown>) => {
+    const q = searchNorm(participantSearch);
+    if (!q) return true;
+    const status = t.status as { paymentStatus?: string } | undefined;
+    const parts = [
+      t.teamName,
+      t.team_name,
+      t.name,
+      t.phoneNumber,
+      t.phone_number,
+      t.lineId,
+      t.line_id,
+      t.institution,
+      t.competition,
+      t.competitionName,
+      t.competition_name,
+      t.teamId,
+      t.team_id,
+      t.id,
+      status?.paymentStatus,
+    ]
+      .map((v) => (v != null ? String(v) : ""))
+      .join(" ");
+    return parts.toLowerCase().includes(q);
+  };
+
+  // 🌟 LOGIKA FILTER, SEARCH & PAGINATION: COMMITTEE
   const uniqueDivisions = Array.from(new Set(committee.map((m) => m.division).filter((d) => d && d.trim() !== ""))).sort();
-  const filteredCommittee = selectedDivision === "All" ? committee : committee.filter((m) => m.division === selectedDivision);
-  
+  const filteredCommittee = (selectedDivision === "All" ? committee : committee.filter((m) => m.division === selectedDivision)).filter(
+    (m) => committeeMatchesSearch(m as Record<string, unknown>)
+  );
+
   const totalCommitteePages = Math.max(1, Math.ceil(filteredCommittee.length / committeePerPage));
   const paginatedCommittee = filteredCommittee.slice((committeePage - 1) * committeePerPage, committeePage * committeePerPage);
 
-  // 🌟 LOGIKA FILTER & PAGINATION: PARTICIPANT
-  const filteredTeams = selectedPaymentStatus === "All" ? teams : teams.filter((t) => (t.status?.paymentStatus || "Pending") === selectedPaymentStatus);
-  
+  // 🌟 LOGIKA FILTER, SEARCH & PAGINATION: PARTICIPANT
+  const filteredTeams = (selectedPaymentStatus === "All" ? teams : teams.filter((t) => (t.status?.paymentStatus || "Pending") === selectedPaymentStatus)).filter(
+    (t) => participantMatchesSearch(t as Record<string, unknown>)
+  );
+
   const totalTeamsPages = Math.max(1, Math.ceil(filteredTeams.length / teamsPerPage));
   const paginatedTeams = filteredTeams.slice((teamsPage - 1) * teamsPerPage, teamsPage * teamsPerPage);
 
@@ -264,6 +313,28 @@ export default function AccessControlPage() {
                 </div>
               </div>
 
+              <div className="relative w-full mt-6 flex items-center gap-2">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#F6911E]/80 pointer-events-none" aria-hidden />
+                <input
+                  type="search"
+                  value={committeeSearch}
+                  onChange={(e) => setCommitteeSearch(e.target.value)}
+                  placeholder="Cari nama, email, divisi, role..."
+                  className="w-full h-[51px] pl-12 pr-12 bg-[#1E3A8A] border border-[#F6911E]/40 rounded-[20px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#F6911E]"
+                  aria-label="Cari akun panitia"
+                />
+                {committeeSearch ? (
+                  <button
+                    type="button"
+                    onClick={() => setCommitteeSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-[#F1E1B4]/70 hover:text-white hover:bg-white/10"
+                    aria-label="Hapus pencarian"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                ) : null}
+              </div>
+
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
@@ -278,7 +349,11 @@ export default function AccessControlPage() {
                     {isLoading ? (
                       <tr><td colSpan={5} className="text-center py-10 text-orange-400 animate-pulse font-bold">Loading Data...</td></tr>
                     ) : paginatedCommittee.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Tidak ada data panitia yang cocok dengan filter.</td></tr>
+                      <tr><td colSpan={5} className="text-center py-10 text-white/50">
+                        {committeeSearch.trim()
+                          ? "Tidak ada data panitia yang cocok dengan pencarian atau filter."
+                          : "Tidak ada data panitia yang cocok dengan filter."}
+                      </td></tr>
                     ) : (
                       paginatedCommittee.map((member) => (
                         <tr key={member.id} className="border-t">
@@ -348,6 +423,28 @@ export default function AccessControlPage() {
                 </div>
               </div>
 
+              <div className="relative w-full mt-6 flex items-center gap-2">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-[#F6911E]/80 pointer-events-none" aria-hidden />
+                <input
+                  type="search"
+                  value={participantSearch}
+                  onChange={(e) => setParticipantSearch(e.target.value)}
+                  placeholder="Cari nama tim, telepon, LINE, status pembayaran..."
+                  className="w-full h-[51px] pl-12 pr-12 bg-[#1E3A8A] border border-[#F6911E]/40 rounded-[20px] text-white placeholder:text-white/40 focus:outline-none focus:border-[#F6911E]"
+                  aria-label="Cari akun peserta"
+                />
+                {participantSearch ? (
+                  <button
+                    type="button"
+                    onClick={() => setParticipantSearch("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-lg text-[#F1E1B4]/70 hover:text-white hover:bg-white/10"
+                    aria-label="Hapus pencarian"
+                  >
+                    <X className="h-5 w-5" />
+                  </button>
+                ) : null}
+              </div>
+
               <div className="w-full pt-8 app-table-wrapper">
                 <table className="app-table">
                   <colgroup>
@@ -362,7 +459,11 @@ export default function AccessControlPage() {
                     {isLoading ? (
                       <tr><td colSpan={5} className="text-center py-10 text-orange-400 animate-pulse font-bold">Loading Data...</td></tr>
                     ) : paginatedTeams.length === 0 ? (
-                      <tr><td colSpan={5} className="text-center py-10 text-white/50">Tidak ada data peserta yang cocok dengan filter.</td></tr>
+                      <tr><td colSpan={5} className="text-center py-10 text-white/50">
+                        {participantSearch.trim()
+                          ? "Tidak ada data peserta yang cocok dengan pencarian atau filter."
+                          : "Tidak ada data peserta yang cocok dengan filter."}
+                      </td></tr>
                     ) : (
                       paginatedTeams.map((team) => (
                         <tr key={team.id} className="border-t">
