@@ -538,6 +538,31 @@ export default function Home() {
                           "Pay Faster With Mayar.id"
                         )}
                       </Button>
+                      <div className="w-full mt-3 rounded-xl border border-[#F6911E]/35 bg-[#0A2D6E]/50 p-4 text-left">
+                        <p className="text-[#F6911E] text-xs font-bold uppercase tracking-wide mb-2">
+                          Why use Mayar.id?
+                        </p>
+                        <p className="text-[#F1E1B4]/90 text-sm leading-relaxed mb-3">
+                          On the Mayar payment page you can choose from many Indonesian payment methods—so you can use what you already have:
+                        </p>
+                        <ul className="text-[#F1E1B4]/85 text-xs space-y-1.5 list-disc list-inside leading-relaxed">
+                          <li>
+                            <span className="font-semibold text-[#F6911E]">QRIS</span> — scan and pay with your banking or e-wallet app
+                          </li>
+                          <li>
+                            <span className="font-semibold text-[#F6911E]">Virtual Account</span> — transfer from BCA, Mandiri, BNI, BRI, Permata, and other participating banks
+                          </li>
+                          <li>
+                            <span className="font-semibold text-[#F6911E]">E-wallets &amp; others</span> — e.g. GoPay, OVO, ShopeePay, Dana (availability follows Mayar at checkout)
+                          </li>
+                          <li>
+                            <span className="font-semibold text-[#F6911E]">Debit / credit card</span> — when supported on the Mayar checkout
+                          </li>
+                        </ul>
+                        <p className="text-[#F1E1B4]/70 text-[11px] mt-3 leading-snug border-t border-[#F1E1B4]/15 pt-3">
+                          Exact options may vary on the Mayar screen. Prefer this route if you want an online flow with multiple methods in one place.
+                        </p>
+                      </div>
                       <p className="text-[#F1E1B4]/80 text-xs">Available for IDR payments only</p>
                       <p className="text-[#F1E1B4]/70 text-xs">Complete your payment within 10 minutes</p>
                     </div>
